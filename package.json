@@ -1,0 +1,25 @@
+{
+  "name": "genvey-gamified-surveys",
+  "version": "1.0.0",
+  "description": "GENVEY: AI-Powered Gamified Surveys & Stealth Consumer Intelligence built on AMD Instinct (Token Factory / ROCm) & Google Gemma 4",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "amd-hackathon",
+    "amd-token-factory",
+    "rocm",
+    "gemma-4",
+    "gamified-surveys",
+    "stealth-assessment",
+    "commerce-analytics",
+    "generative-games"
+  ],
+  "license": "Apache-2.0",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
