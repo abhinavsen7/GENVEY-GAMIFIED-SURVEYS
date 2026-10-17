@@ -9,6 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Three.js 3D Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Three.js GLTF Loader for 3D Animations -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <!-- Confetti Celebration -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.4/dist/confetti.browser.min.js"></script>
   <style>
@@ -315,6 +317,21 @@
       box-shadow: 0 0 26px rgba(16, 185, 129, 0.6);
     }
 
+    .hud-btn.theme-switcher {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.22));
+      border: 1px solid rgba(245, 158, 11, 0.55);
+      color: #fbbf24;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.25);
+    }
+    .hud-btn.theme-switcher:hover {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.38), rgba(217, 119, 6, 0.38));
+      border-color: #fcd34d;
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+    }
+
     .hud-btn.sound {
       background: rgba(15, 23, 42, 0.85);
       border: 1px solid var(--panel-border);
@@ -488,6 +505,35 @@
     }
     #btn-dodge-hud span:first-child { font-size: 20px; }
 
+    /* Jump Trigger Button */
+    #btn-jump-hud {
+      margin-left: 6px;
+      padding: 0 16px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      border: 2px solid #6ee7b7;
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.55);
+      transition: all 0.15s;
+    }
+    #btn-jump-hud:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 0 28px rgba(110, 231, 183, 0.85);
+    }
+    #btn-jump-hud:active {
+      transform: translateY(1px) scale(0.96);
+    }
+    #btn-jump-hud span:first-child { font-size: 20px; }
+
     /* Controls helper */
     #controls-hint {
       position: absolute;
@@ -590,6 +636,113 @@
       pointer-events: none;
       z-index: 40;
       transition: opacity 0.1s ease;
+    }
+
+    /* Death & Emergency Revival Overlay */
+    #death-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(20, 8, 16, 0.88) 0%, rgba(5, 2, 7, 0.96) 100%);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.25s ease;
+      pointer-events: auto;
+    }
+    #death-overlay.hidden {
+      display: none !important;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .death-panel {
+      background: rgba(18, 14, 28, 0.95);
+      border: 2px solid rgba(244, 63, 94, 0.65);
+      box-shadow: 0 0 50px rgba(244, 63, 94, 0.35), inset 0 0 30px rgba(244, 63, 94, 0.15);
+      border-radius: 24px;
+      padding: 34px 40px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      pointer-events: auto;
+      animation: deathPulse 2s infinite ease-in-out;
+    }
+    @keyframes deathPulse {
+      0%, 100% { border-color: rgba(244, 63, 94, 0.65); box-shadow: 0 0 40px rgba(244, 63, 94, 0.3); }
+      50% { border-color: rgba(244, 63, 94, 0.95); box-shadow: 0 0 65px rgba(244, 63, 94, 0.55); }
+    }
+    .death-glitch-icon {
+      font-size: 52px;
+      margin-bottom: 10px;
+      animation: glitchIcon 0.8s infinite alternate;
+    }
+    @keyframes glitchIcon {
+      0% { transform: scale(1) rotate(0deg); }
+      100% { transform: scale(1.12) rotate(-3deg); }
+    }
+    .death-title {
+      font-family: var(--font-ui);
+      font-size: 20px;
+      font-weight: 900;
+      color: #fda4af;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .death-subtitle {
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      color: #94a3b8;
+      margin-bottom: 22px;
+    }
+    .death-meter-box {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .death-meter-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #f43f5e, #fbbf24, #10b981);
+      border-radius: 999px;
+      transition: width 0.05s linear;
+    }
+    .death-timer-text {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 22px;
+    }
+    .btn-reboot {
+      background: linear-gradient(135deg, #059669, #10b981);
+      border: none;
+      color: #ffffff;
+      font-family: var(--font-ui);
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      padding: 13px 26px;
+      border-radius: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 0 24px rgba(16, 185, 129, 0.45);
+      transition: all 0.2s;
+    }
+    .btn-reboot:hover {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      transform: translateY(-2px);
+      box-shadow: 0 0 32px rgba(16, 185, 129, 0.7);
     }
 
     /* Screen Shake Container */
@@ -1005,6 +1158,27 @@
       <div class="combo-rank-badge" id="combo-rank">CYCLONE FINISHER</div>
     </div>
 
+    <!-- DEATH & EMERGENCY REVIVAL OVERLAY -->
+    <div id="death-overlay" class="hidden">
+      <div class="death-panel">
+        <div class="death-glitch-icon">⚠️</div>
+        <h2 class="death-title">CRITICAL FAILURE • NEURAL LINK SEVERED</h2>
+        <p class="death-subtitle">Emergency Nanites Activated • Restoring Bio-Signatures</p>
+        
+        <div class="death-meter-box">
+          <div class="death-meter-fill" id="death-meter-fill"></div>
+        </div>
+        <div class="death-timer-text" id="death-timer-text">Revival in 2.4s...</div>
+        
+        <div class="death-actions">
+          <button id="btn-instant-reboot" class="btn-reboot" onclick="respawnPlayer()">
+            <span>⚡</span>
+            <span>INSTANT REBOOT (Space / Enter)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div id="damage-flash"></div>
 
     <div id="interaction-prompt">[E] Talk</div>
@@ -1018,12 +1192,12 @@
     <header id="hud-top">
       <div class="hud-left">
         <div class="hud-brand-pill">
-          <span class="brand-icon">🏢</span>
+          <span class="brand-icon">🏰</span>
           <div class="brand-title">
             <h1>SURVEYTOPIA 3D</h1>
             <div class="location-badge">
               <span class="pulse-dot"></span>
-              <span id="hud-location">Street Level • Corporate Plaza</span>
+              <span id="hud-location">Citadel Square • Grand Medieval Plaza</span>
             </div>
           </div>
         </div>
@@ -1061,9 +1235,13 @@
       </div>
 
       <div class="hud-right">
+        <button id="btn-theme-toggle" class="hud-btn theme-switcher" title="Switch between 3D Retro World and Medieval Citadel" onclick="toggleWorldTheme()">
+          <span id="theme-btn-icon">📻</span>
+          <span id="theme-btn-label">3D Retro World</span>
+        </button>
         <button id="btn-cashout-open" class="hud-btn cashout">
-          <span>🏦</span>
-          <span>Cash Out</span>
+          <span id="cashout-btn-icon">💰</span>
+          <span id="cashout-btn-label">Cashout Depot</span>
         </button>
         <button id="btn-audio-toggle" class="hud-btn sound" title="Toggle Sound">
           <span id="sound-icon">🔊</span>
@@ -1073,9 +1251,9 @@
 
     <!-- Badges Bar -->
     <div id="badges-bar">
-      <div class="brand-badge" id="badge-tech">⚡ Apex CyberTech</div>
-      <div class="brand-badge" id="badge-fashion">👗 Vogue Luxe</div>
-      <div class="brand-badge" id="badge-auto">🏎️ Titan Motors</div>
+      <div class="brand-badge" id="badge-tech">⚡ Apex Citadel</div>
+      <div class="brand-badge" id="badge-fashion">👗 Vogue Royale</div>
+      <div class="brand-badge" id="badge-auto">🏎️ Titan Ironworks</div>
     </div>
 
     <!-- WEAPON DOCK (BOTTOM CENTER) -->
@@ -1100,11 +1278,15 @@
         <span class="slot-icon">🌌</span>
         <span class="slot-name">Vortex</span>
       </div>
-      <button id="btn-attack-hud" title="Left-Click / F / Space to Attack">
+      <button id="btn-attack-hud" title="Left-Click / F to Attack">
         <span>⚔️</span>
         <span>ATTACK</span>
       </button>
-      <button id="btn-dodge-hud" title="Shift / Q to Cyber Dash">
+      <button id="btn-jump-hud" title="Space to Jump / Jet Double Jump">
+        <span>🚀</span>
+        <span>JUMP</span>
+      </button>
+      <button id="btn-dodge-hud" title="Shift / Q to Cyber Dash (Invulnerable)">
         <span>💨</span>
         <span>DODGE</span>
       </button>
@@ -1112,10 +1294,10 @@
 
     <!-- Controls helper -->
     <div id="controls-hint">
-      <span>🖱️ <strong>Left Click</strong>: Weapon Attack / Combo | <strong>Right Drag</strong>: Orbit Camera</span>
-      <span>⌨️ <strong>WASD</strong>: Move (Wall-Sliding Collision) | <strong>Shift / Q</strong>: Cyber Dash (Invulnerable)</span>
-      <span>⚔️ <strong>F / Space</strong>: Combo Strike | <strong>E</strong>: Talk to Bouncers / Receptionists</span>
-      <span>🎯 <strong>Reticle Target</strong>: Smart Lock & Aim | <strong>1 - 4</strong>: Switch Weapon Arsenal</span>
+      <span>🚀 <strong>Space</strong>: Jump / Jet Double Jump | 💨 <strong>Shift / Q</strong>: Cyber Dodge (Invulnerable)</span>
+      <span>⚔️ <strong>Left Click / F</strong>: Weapon Attack Combo | 🏃 <strong>WASD / Arrows</strong>: Move</span>
+      <span>🚪 <strong>E</strong>: Interact / Enter Building | 🖱️ <strong>Right Drag</strong>: Orbit Camera</span>
+      <span>🎯 <strong>Reticle</strong>: Smart Target Lock | 🔢 <strong>1 - 4</strong>: Switch Weapons</span>
     </div>
 
     <div id="scene-transition"></div>
@@ -1318,6 +1500,147 @@
       return new THREE.CanvasTexture(c);
     }
 
+    function createExecutiveFloorTexture(themeHex) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+
+      // Polished dark obsidian / titanium tiles
+      ctx.fillStyle = '#060a14';
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Tile grid lines
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 2;
+      for (let i = 0; i <= 512; i += 64) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0); ctx.lineTo(i, 512);
+        ctx.moveTo(0, i); ctx.lineTo(512, i);
+        ctx.stroke();
+      }
+
+      // Glowing circuit traces in tile grout
+      ctx.strokeStyle = themeHex;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = themeHex;
+      ctx.shadowBlur = 8;
+      for (let i = 0; i <= 512; i += 128) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0); ctx.lineTo(i, 512);
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+
+      // Central corporate inlay medallion
+      const cx = 256, cy = 256;
+      ctx.strokeStyle = themeHex;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 180, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 140, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = themeHex;
+      ctx.shadowColor = themeHex;
+      ctx.shadowBlur = 10;
+      for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+        const bx = cx + Math.cos(a) * 160;
+        const by = cy + Math.sin(a) * 160;
+        ctx.fillRect(bx - 5, by - 5, 10, 10);
+      }
+      ctx.shadowBlur = 0;
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(2, 2);
+      return tex;
+    }
+
+    function createLabFloorTexture(themeHex) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 512;
+      const ctx = c.getContext('2d');
+
+      // Heavy industrial dark cleanroom composite
+      ctx.fillStyle = '#05070d';
+      ctx.fillRect(0, 0, 512, 512);
+
+      // Technical grid
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1.5;
+      for (let y = 0; y < 512; y += 32) {
+        for (let x = 0; x < 512; x += 32) {
+          ctx.strokeRect(x, y, 32, 32);
+        }
+      }
+
+      // Neon energy data conduit buses
+      ctx.strokeStyle = themeHex;
+      ctx.lineWidth = 3;
+      ctx.shadowColor = themeHex;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(128, 0); ctx.lineTo(128, 512);
+      ctx.moveTo(384, 0); ctx.lineTo(384, 512);
+      ctx.moveTo(0, 256); ctx.lineTo(512, 256);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Hazard caution perimeter border
+      ctx.fillStyle = '#fbbf24';
+      for (let i = 0; i < 512; i += 24) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0); ctx.lineTo(i + 12, 0); ctx.lineTo(i, 16); ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(i, 512); ctx.lineTo(i + 12, 512); ctx.lineTo(i + 24, 496); ctx.lineTo(i + 12, 496); ctx.closePath();
+        ctx.fill();
+      }
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.wrapS = THREE.RepeatWrapping;
+      tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(3, 3);
+      return tex;
+    }
+
+    function createHoloPortalSignTexture(title, subtitle, colorHex) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 140;
+      const ctx = c.getContext('2d');
+
+      ctx.fillStyle = 'rgba(10, 15, 29, 0.94)';
+      ctx.fillRect(0, 0, 512, 140);
+
+      ctx.strokeStyle = colorHex;
+      ctx.lineWidth = 5;
+      ctx.strokeRect(4, 4, 504, 132);
+
+      ctx.fillStyle = colorHex;
+      ctx.fillRect(6, 6, 500, 6);
+      ctx.fillRect(6, 128, 500, 6);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 28px Outfit, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(title, 256, 58);
+
+      ctx.fillStyle = colorHex;
+      ctx.font = 'bold 20px Outfit, sans-serif';
+      ctx.fillText(subtitle, 256, 104);
+
+      return new THREE.CanvasTexture(c);
+    }
+
     // ================= 2. PUNCHY AUDIO SYNTHESIZER =================
     class SoundEngine {
       constructor() {
@@ -1473,64 +1796,138 @@
           });
         } catch(e){}
       }
+      playJump(pitch = 1.0) {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(140 * pitch, now);
+          osc.frequency.exponentialRampToValueAtTime(560 * pitch, now + 0.18);
+          gain.gain.setValueAtTime(0.24, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } catch(e){}
+      }
+      playLand() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(120, now);
+          osc.frequency.exponentialRampToValueAtTime(30, now + 0.14);
+          gain.gain.setValueAtTime(0.26, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.14);
+        } catch(e){}
+      }
     }
     const sound = new SoundEngine();
 
     // ================= 3. SOLID COLLIDERS SYSTEM (NO WALKING INTO BUILDINGS) =================
+    let currentWorldTheme = localStorage.getItem('surveytopia_world_theme') || 'retro';
+
+    const RETRO_COLLIDERS = [
+      // 1. Apex CyberTech Comms Bunker & 40m Tower (West: x: -56 to -21.5, z: -16 to 16)
+      { type: 'box', minX: -56, maxX: -21.5, minZ: -16, maxZ: 16, name: 'Apex CyberTech Relay Station' },
+
+      // 2. Vogue Luxe Retro Mart (East: building from x: 26.8 to 52, z: -14 to 14)
+      { type: 'box', minX: 26.8, maxX: 52, minZ: -14, maxZ: 14, name: 'Vogue Luxe Retro Mart' },
+
+      // 3. Titan Motors Speedway Gas Station (South: canopy pillars, pumps, and garage building)
+      { type: 'box', minX: -10.5, maxX: -7.5, minZ: 25.5, maxZ: 28.5, name: 'Gas Station Pillar NW' },
+      { type: 'box', minX: 7.5, maxX: 10.5, minZ: 25.5, maxZ: 28.5, name: 'Gas Station Pillar NE' },
+      { type: 'box', minX: -10.5, maxX: -7.5, minZ: 37.5, maxZ: 40.5, name: 'Gas Station Pillar SW' },
+      { type: 'box', minX: 7.5, maxX: 10.5, minZ: 37.5, maxZ: 40.5, name: 'Gas Station Pillar SE' },
+      { type: 'box', minX: -6.0, maxX: -3.0, minZ: 31.5, maxZ: 34.5, name: 'Pump Island West' },
+      { type: 'box', minX: 3.0, maxX: 6.0, minZ: 31.5, maxZ: 34.5, name: 'Pump Island East' },
+      { type: 'box', minX: -16, maxX: 16, minZ: 42, maxZ: 60, name: 'Gas Station Garage' },
+
+      // 4. Federal Highway Cashout Depot & Campsite (North: building from x: -14 to 14, z: -46 to -23.2)
+      { type: 'box', minX: -14, maxX: 14, minZ: -46, maxZ: -23.2, name: 'Federal Cashout Depot' },
+      { type: 'circle', x: 6, z: -18, radius: 1.4 },
+      { type: 'box', minX: 8.5, maxX: 12.5, minZ: -22.5, maxZ: -18.5, name: 'Campsite Tent' },
+
+      // 5. Highway Guardrails (North-South shoulders)
+      { type: 'box', minX: -8.0, maxX: -7.0, minZ: -40, maxZ: -10, name: 'Guardrail NW' },
+      { type: 'box', minX: -8.0, maxX: -7.0, minZ: 10, maxZ: 40, name: 'Guardrail SW' },
+      { type: 'box', minX: 7.0, maxX: 8.0, minZ: -40, maxZ: -10, name: 'Guardrail NE' },
+      { type: 'box', minX: 7.0, maxX: 8.0, minZ: 10, maxZ: 40, name: 'Guardrail SE' },
+
+      // 6. Streetlamps
+      { type: 'circle', x: -12, z: -12, radius: 0.7 },
+      { type: 'circle', x: 12, z: -12, radius: 0.7 },
+      { type: 'circle', x: -12, z: 12, radius: 0.7 },
+      { type: 'circle', x: 12, z: 12, radius: 0.7 },
+
+      // 7. Boulders
+      { type: 'circle', x: -18, z: 16, radius: 2.2 },
+      { type: 'circle', x: 18, z: 16, radius: 2.2 },
+      { type: 'circle', x: -18, z: -14, radius: 2.2 },
+      { type: 'circle', x: 18, z: -14, radius: 2.2 }
+    ];
+
     const STREET_COLLIDERS = [
-      // 1. Apex CyberTech Tower (pos: -36, -32, podium size: 32x28 -> x: [-52, -20], z: [-46, -18])
-      // 100% Solid Podium Facade: Canopy is overhead at height 8, player steps on door pad at z: -16.5, but cannot penetrate past z: -17.5!
-      { type: 'box', minX: -53, maxX: -19, minZ: -48, maxZ: -17.5, name: 'Apex CyberTech Tower' },
+      // 1. Apex Arcane Citadel (West: building from x: -65 to -27.5, z: -24 to 24)
+      { type: 'box', minX: -65, maxX: -27.5, minZ: -24, maxZ: 24, name: 'Apex Arcane Citadel' },
 
-      // 2. Vogue Luxe Flagship (pos: 36, -32, podium size: 32x28 -> x: [20, 52], z: [-46, -18])
-      // 100% Solid Podium Facade: Door pad at z: -16.5, facade solid wall at z: -17.5!
-      { type: 'box', minX: 19, maxX: 53, minZ: -48, maxZ: -17.5, name: 'Vogue Luxe Tower' },
+      // 2. Vogue Royale Palace (East: building from x: 27.5 to 65, z: -24 to 24)
+      { type: 'box', minX: 27.5, maxX: 65, minZ: -24, maxZ: 24, name: 'Vogue Royale Palace' },
 
-      // 3. Titan Motors Megaplex (pos: 0, 36, podium size: 32x28 -> x: [-16, 16], z: [22, 50])
-      // 100% Solid Podium Facade: Door pad at z: 18.5, facade solid wall at z: 21.5!
-      { type: 'box', minX: -17, maxX: 17, minZ: 21.5, maxZ: 52, name: 'Titan Motors Megaplex' },
+      // 3. Titan Ironworks Fortress (South: building from x: -24 to 24, z: 24.5 to 65)
+      { type: 'box', minX: -24, maxX: 24, minZ: 24.5, maxZ: 65, name: 'Titan Ironworks Fortress' },
 
-      // 4. Distant City Skyline Towers (Impenetrable background skyscrapers)
-      { type: 'box', minX: -110, maxX: -80, minZ: -100, maxZ: -70, name: 'Skyline Tower 1' },
-      { type: 'box', minX: -78, maxX: -52, minZ: -118, maxZ: -92, name: 'Skyline Tower 2' },
-      { type: 'box', minX: -38, maxX: -2, minZ: -133, maxZ: -97, name: 'Skyline Tower 3' },
-      { type: 'box', minX: 16, maxX: 44, minZ: -119, maxZ: -91, name: 'Skyline Tower 4' },
-      { type: 'box', minX: 69, maxX: 101, minZ: -106, maxZ: -74, name: 'Skyline Tower 5' },
-      { type: 'box', minX: 92, maxX: 118, minZ: -63, maxZ: -37, name: 'Skyline Tower 6' },
-      { type: 'box', minX: -121, maxX: -89, minZ: 49, maxZ: 81, name: 'Skyline Tower 7' },
-      { type: 'box', minX: 83, maxX: 117, minZ: 53, maxZ: 87, name: 'Skyline Tower 8' },
+      // 4. Royal Treasury & Cashout Vault (North: building from x: -16 to 16, z: -50 to -22.5)
+      { type: 'box', minX: -16, maxX: 16, minZ: -50, maxZ: -22.5, name: 'Royal Treasury Vault' },
 
-      // 5. Central Federal Reserve ATM Kiosk
-      { type: 'box', minX: -3.2, maxX: 3.2, minZ: -11.0, maxZ: -5.0, name: 'ATM Kiosk' },
+      // 5. Merchant Wagons & Cargo Crate Encampments
+      { type: 'box', minX: -14.5, maxX: -7.5, minZ: 6.5, maxZ: 14.5, name: 'West Merchant Wagon & Crates' },
+      { type: 'box', minX: 11.5, maxX: 18.5, minZ: -11.5, maxZ: -4.5, name: 'East Merchant Wagon & Crates' },
 
-      // 6. Parked Cyber-Cars
-      { type: 'box', minX: -23.5, maxX: -16.5, minZ: -18.5, maxZ: -9.5, name: 'Car 1' },
-      { type: 'box', minX: 16.5, maxX: 23.5, minZ: -18.5, maxZ: -9.5, name: 'Car 2' },
-      { type: 'box', minX: -23.5, maxX: -16.5, minZ: 9.5, maxZ: 18.5, name: 'Car 3' },
-      { type: 'box', minX: 16.5, maxX: 23.5, minZ: 9.5, maxZ: 18.5, name: 'Car 4' },
+      // 6. Medieval Perimeter Post Fences
+      { type: 'box', minX: -23.0, maxX: -21.0, minZ: -18, maxZ: -4, name: 'West Fence North' },
+      { type: 'box', minX: -23.0, maxX: -21.0, minZ: 4, maxZ: 18, name: 'West Fence South' },
+      { type: 'box', minX: 21.0, maxX: 23.0, minZ: -18, maxZ: -4, name: 'East Fence North' },
+      { type: 'box', minX: 21.0, maxX: 23.0, minZ: 4, maxZ: 18, name: 'East Fence South' },
 
-      // 7. Planters with Trees (Solid circular pillars)
-      { type: 'circle', x: -26, z: 8, radius: 2.8 },
-      { type: 'circle', x: 26, z: 8, radius: 2.8 },
-      { type: 'circle', x: -26, z: -8, radius: 2.8 },
-      { type: 'circle', x: 26, z: -8, radius: 2.8 }
+      // 7. Wrought-Iron Street Lantern Posts
+      { type: 'circle', x: -14, z: -14, radius: 0.7 },
+      { type: 'circle', x: 14, z: -14, radius: 0.7 },
+      { type: 'circle', x: -14, z: 14, radius: 0.7 },
+      { type: 'circle', x: 14, z: 14, radius: 0.7 },
+      { type: 'circle', x: -26, z: 0, radius: 0.7 },
+      { type: 'circle', x: 26, z: 0, radius: 0.7 }
     ];
 
     const INTERIOR_COLLIDERS = [
-      // Outer Room Perimeter Walls (64x64 room -> x: [-32, 32], z: [-32, 32])
-      { type: 'box', minX: -33, maxX: 33, minZ: -33, maxZ: -30.5, name: 'Back Wall' },
-      { type: 'box', minX: -33, maxX: -30.5, minZ: -33, maxZ: 33, name: 'Left Wall' },
-      { type: 'box', minX: 30.5, maxX: 33, minZ: -33, maxZ: 33, name: 'Right Wall' },
-      // Front Wall with Doorway at center x: [-5, 5]
-      { type: 'box', minX: -33, maxX: -4.5, minZ: 28.5, maxZ: 33, name: 'Front Left Wall' },
-      { type: 'box', minX: 4.5, maxX: 33, minZ: 28.5, maxZ: 33, name: 'Front Right Wall' },
+      // Outer Room Perimeter Walls (84x84 room -> x: [-42, 42], z: [-42, 42])
+      { type: 'box', minX: -44, maxX: 44, minZ: -44, maxZ: -41.2, name: 'Back Wall' },
+      { type: 'box', minX: -44, maxX: -41.2, minZ: -44, maxZ: 44, name: 'Left Wall' },
+      { type: 'box', minX: 41.2, maxX: 44, minZ: -44, maxZ: 44, name: 'Right Wall' },
+      // Front Wall with Doorway at center x: [-5.8, 5.8]
+      { type: 'box', minX: -44, maxX: -5.8, minZ: 40.5, maxZ: 44, name: 'Front Left Wall' },
+      { type: 'box', minX: 5.8, maxX: 44, minZ: 40.5, maxZ: 44, name: 'Front Right Wall' },
 
-      // Reception Desk (Lobby Only)
-      { type: 'box', minX: -10, maxX: 10, minZ: -13.0, maxZ: -7.0, isLobbyOnly: true },
+      // Reception Desk (Lobby Only, centered around z = -2)
+      { type: 'box', minX: -12, maxX: 12, minZ: -5.0, maxZ: 0.5, isLobbyOnly: true },
 
-      // Server Racks (Research Floor Only)
-      { type: 'box', minX: -17, maxX: -11, minZ: -28.5, maxZ: -23.5, isResearchOnly: true },
-      { type: 'box', minX: 11, maxX: 17, minZ: -28.5, maxZ: -23.5, isResearchOnly: true }
+      // Lounge Sofas (Lobby Only)
+      { type: 'box', minX: -27, maxX: -17, minZ: 10, maxZ: 20, isLobbyOnly: true },
+      { type: 'box', minX: 17, maxX: 27, minZ: 10, maxZ: 20, isLobbyOnly: true },
+
+      // Research Command Console & Side Server Banks (Research Floor Only)
+      { type: 'box', minX: -16, maxX: 16, minZ: -32, maxZ: -26, isResearchOnly: true },
+      { type: 'box', minX: -24, maxX: -16, minZ: -16, maxZ: -4, isResearchOnly: true },
+      { type: 'box', minX: 16, maxX: 24, minZ: -16, maxZ: -4, isResearchOnly: true }
     ];
 
     function checkCollision(px, pz, radius = 0.85) {
@@ -1538,8 +1935,9 @@
         // Outer boundaries of the city plaza
         if (px < -96 || px > 96 || pz < -96 || pz > 96) return true;
 
-        for (let i = 0; i < STREET_COLLIDERS.length; i++) {
-          const col = STREET_COLLIDERS[i];
+        const colliders = (currentWorldTheme === 'retro') ? RETRO_COLLIDERS : STREET_COLLIDERS;
+        for (let i = 0; i < colliders.length; i++) {
+          const col = colliders[i];
           if (col.type === 'box') {
             const closestX = Math.max(col.minX, Math.min(px, col.maxX));
             const closestZ = Math.max(col.minZ, Math.min(pz, col.maxZ));
@@ -1558,8 +1956,8 @@
           }
         }
       } else {
-        // Interior scenes
-        if (px < -30.5 || px > 30.5 || pz < -30.5 || pz > 29.5) return true;
+        // Interior scenes (84x84 spacious room)
+        if (px < -41.2 || px > 41.2 || pz < -41.2 || pz > 41.0) return true;
 
         for (let i = 0; i < INTERIOR_COLLIDERS.length; i++) {
           const col = INTERIOR_COLLIDERS[i];
@@ -1639,18 +2037,20 @@
     const TOWERS = {
       'tech': {
         id: 'tech',
-        name: 'Apex CyberTech Tower',
-        theme: 'Enterprise AI & Cloud Infrastructure',
-        payoutBillboard: '⚡ APEX CYBERTECH: UP TO $3.80',
+        name: 'Apex Arcane Citadel',
+        retroName: 'Apex CyberTech Relay',
+        theme: 'Enterprise AI & Arcane Cloud Infrastructure',
+        payoutBillboard: '⚡ APEX ARCANE CITADEL: UP TO $3.80',
+        retroPayoutBillboard: '⚡ APEX CYBERTECH: UP TO $3.80',
         color: 0x06b6d4,
         accent: '#22d3ee',
-        pos: { x: -36, z: -32 },
-        doorPos: { x: -36, z: -14 },
+        pos: { x: -44, z: 0 },
+        doorPos: { x: -28, z: 0 },
         bouncer: {
           name: 'Officer Marcus',
-          role: 'Gate Security & Screener',
+          role: 'Citadel Gatekeeper & Screener',
           avatar: '👮‍♂️',
-          pos: { x: -36, z: -9 },
+          pos: { x: -24, z: 4 },
           question: "SECURITY CHECKPOINT: Are you 21+ and a primary household tech decision maker?",
           options: [
             { text: "Yes, I make and approve tech buying decisions (21+)", qualifies: true },
@@ -1665,7 +2065,7 @@
           name: 'Kora (Chief Concierge)',
           role: 'VIP Screening Receptionist',
           avatar: '👩‍💼',
-          pos: { x: 0, z: -12 },
+          pos: { x: 0, z: -4.5 },
           question: "Welcome to Apex Tower Lobby! How frequently do you or your team use Generative AI tools (ChatGPT, Copilot, Midjourney)?",
           options: [
             { text: "Daily — It is a fundamental part of our daily workflow", passes: true },
@@ -1679,7 +2079,7 @@
           name: 'Dr. Catherine (Head of R&D)',
           role: 'Apex Lead AI Architect',
           avatar: '👩‍🔬',
-          pos: { x: 0, z: -12 },
+          pos: { x: 0, z: -31 },
           payout: 3.80,
           badge: '⚡ Apex CyberTech',
           questions: [
@@ -1718,18 +2118,20 @@
 
       'fashion': {
         id: 'fashion',
-        name: 'Vogue Luxe Flagship',
-        theme: 'Haute Couture, Sustainable Apparel & Beauty',
-        payoutBillboard: '👗 VOGUE LUXE: UP TO $3.20',
+        name: 'Vogue Royale Palace',
+        retroName: 'Vogue Luxe Retro Mart',
+        theme: 'Haute Couture, Silk Craft & Royal Design',
+        payoutBillboard: '👗 VOGUE ROYALE: UP TO $3.20',
+        retroPayoutBillboard: '👗 VOGUE LUXE MART: UP TO $3.20',
         color: 0xf43f5e,
         accent: '#fb7185',
-        pos: { x: 36, z: -32 },
-        doorPos: { x: 36, z: -14 },
+        pos: { x: 44, z: 0 },
+        doorPos: { x: 28, z: 0 },
         bouncer: {
           name: 'Bouncer Jax',
-          role: 'Velvet Rope Doorman',
+          role: 'Palace Gatekeeper & Screener',
           avatar: '🕶️',
-          pos: { x: 36, z: -9 },
+          pos: { x: 24, z: 4 },
           question: "VELVET ROPE SCREENER: Have you purchased premium apparel or footwear online in the past 60 days?",
           options: [
             { text: "Yes, I regularly purchase luxury or designer apparel", qualifies: true },
@@ -1744,7 +2146,7 @@
           name: 'Antoine (Maison Concierge)',
           role: 'Luxe Guest Relations',
           avatar: '✨',
-          pos: { x: 0, z: -12 },
+          pos: { x: 0, z: -4.5 },
           question: "Welcome to the Vogue Luxe Atrium! What factor carries the highest weight when selecting designer outerwear?",
           options: [
             { text: "Certified eco-friendly fabrics & carbon-neutral supply chain", passes: true },
@@ -1758,7 +2160,7 @@
           name: 'Madame Vivienne',
           role: 'Directrice de Recherche',
           avatar: '👒',
-          pos: { x: 0, z: -12 },
+          pos: { x: 0, z: -31 },
           payout: 3.20,
           badge: '👗 Vogue Luxe',
           questions: [
@@ -1788,18 +2190,20 @@
 
       'auto': {
         id: 'auto',
-        name: 'Titan Motors Megaplex',
-        theme: 'EVs, Smart Mobility & Autonomous Tech',
-        payoutBillboard: '🏎️ TITAN MOTORS: UP TO $4.10',
+        name: 'Titan Ironworks Fortress',
+        retroName: 'Titan Motors Speedway',
+        theme: 'Heavy Mobility, EV Engineering & Autonomous Tech',
+        payoutBillboard: '🏎️ TITAN IRONWORKS: UP TO $4.10',
+        retroPayoutBillboard: '🏎️ TITAN MOTORS SPEEDWAY: UP TO $4.10',
         color: 0xf59e0b,
         accent: '#fbbf24',
-        pos: { x: 0, z: 36 },
-        doorPos: { x: 0, z: 18 },
+        pos: { x: 0, z: 42 },
+        doorPos: { x: 0, z: 25 },
         bouncer: {
           name: 'Guard Vance',
-          role: 'Paddock Security',
+          role: 'Ironworks Gatekeeper & Screener',
           avatar: '👮',
-          pos: { x: 0, z: 12 },
+          pos: { x: 5, z: 21 },
           question: "HALT! Titan Motors screener: Do you have a valid driver's license and commute at least 40 miles (65 km) per week?",
           options: [
             { text: "Yes, I am a daily highway commuter (> 50 miles/week)", qualifies: true },
@@ -1814,7 +2218,7 @@
           name: 'Elena (Mobility Host)',
           role: 'Showroom Concierge',
           avatar: '🏎️',
-          pos: { x: 0, z: -12 },
+          pos: { x: 0, z: -4.5 },
           question: "Welcome to Titan Motors Atrium! Are you considering an EV or Hybrid vehicle for your next transportation purchase within 24 months?",
           options: [
             { text: "Yes, actively comparing Battery Electric Vehicles (BEVs)", passes: true },
@@ -1828,7 +2232,7 @@
           name: 'Nikola (Autonomous Systems PM)',
           role: 'Titan Lead Engineer',
           avatar: '👨‍🔧',
-          pos: { x: 0, z: -12 },
+          pos: { x: 0, z: -31 },
           payout: 4.10,
           badge: '🏎️ Titan Motors',
           questions: [
@@ -1947,18 +2351,19 @@
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
+    const clock = new THREE.Clock();
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x050814);
-    scene.fog = new THREE.FogExp2(0x050814, 0.010);
+    scene.background = new THREE.Color(0x181424);
+    scene.fog = new THREE.FogExp2(0x181424, 0.0075);
 
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    // Dynamic Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+    // Warm Golden Twilight Lighting
+    const ambientLight = new THREE.AmbientLight(0xb8c8e8, 0.65);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xb4c6ff, 1.1);
-    sunLight.position.set(50, 90, 60);
+    const sunLight = new THREE.DirectionalLight(0xffe8cc, 1.35);
+    sunLight.position.set(50, 75, 40);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 2048;
     sunLight.shadow.mapSize.height = 2048;
@@ -1976,414 +2381,1096 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
 
-    // ================= 7. REALISTIC 3D WORLD BUILDER =================
+    // ================= 7. 3D WORLD BUILDERS (RETRO WORLD & MEDIEVAL CITADEL) =================
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);
 
-    const skyCars = [];
+    const medievalModelPromises = {};
+    const retroModelPromises = {};
+    const gltfLoader = new THREE.GLTFLoader();
+    const textureLoader = new THREE.TextureLoader();
 
+    async function loadMedievalGLTF(name) {
+      if (!medievalModelPromises[name]) {
+        medievalModelPromises[name] = new Promise(resolve => {
+          gltfLoader.load('/medieval/' + name, gltf => {
+            resolve(gltf.scene);
+          }, undefined, err => {
+            console.warn('Failed to load medieval model:', name, err);
+            resolve(null);
+          });
+        });
+      }
+      const original = await medievalModelPromises[name];
+      return original ? original.clone(true) : null;
+    }
+
+    async function loadRetroGLTF(name) {
+      if (!retroModelPromises[name]) {
+        retroModelPromises[name] = new Promise(resolve => {
+          gltfLoader.load('/retro/' + name, gltf => {
+            resolve(gltf.scene);
+          }, undefined, err => {
+            console.warn('Failed to load retro model:', name, err);
+            resolve(null);
+          });
+        });
+      }
+      const original = await retroModelPromises[name];
+      return original ? original.clone(true) : null;
+    }
+
+    async function addRetroProp(name, x, y, z, sx = 1, sy = 1, sz = 1, rotY = 0) {
+      const m = await loadRetroGLTF(name);
+      if (m) {
+        m.position.set(x, y, z);
+        m.scale.set(sx, sy, sz);
+        m.rotation.y = rotY;
+        m.traverse(c => {
+          if (c.isMesh) {
+            c.castShadow = true;
+            c.receiveShadow = true;
+          }
+        });
+        worldGroup.add(m);
+        return m;
+      }
+      return null;
+    }
+
+    const medievalTextureCache = {};
+    function getMedievalTexture(name, repeatX = 1, repeatY = 1) {
+      const key = `${name}_${repeatX}_${repeatY}`;
+      if (medievalTextureCache[key]) return medievalTextureCache[key];
+      const tex = textureLoader.load('/medieval/' + name);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(repeatX, repeatY);
+      medievalTextureCache[key] = tex;
+      return tex;
+    }
+
+    function makeMedievalBannerTexture(title, payout, colorHex) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 160;
+      const ctx = c.getContext('2d');
+
+      const isRetro = currentWorldTheme === 'retro';
+      const grad = ctx.createLinearGradient(0, 0, 512, 160);
+      if (isRetro) {
+        grad.addColorStop(0, '#0a0e1c');
+        grad.addColorStop(0.5, '#151c33');
+        grad.addColorStop(1, '#0a0e1c');
+      } else {
+        grad.addColorStop(0, '#100d18');
+        grad.addColorStop(0.5, '#1e162a');
+        grad.addColorStop(1, '#100d18');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 160);
+
+      ctx.strokeStyle = isRetro ? colorHex : '#d4af37';
+      ctx.lineWidth = 5;
+      ctx.strokeRect(6, 6, 500, 148);
+
+      ctx.strokeStyle = isRetro ? '#38bdf8' : colorHex;
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(12, 12, 488, 136);
+
+      ctx.fillStyle = '#fbbf24';
+      [[20, 20], [492, 20], [20, 140], [492, 140]].forEach(([cx, cy]) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px Outfit, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(title, 256, 62);
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 30px Outfit, sans-serif';
+      ctx.fillText(payout, 256, 118);
+
+      return new THREE.CanvasTexture(c);
+    }
+
+    const skyCars = [];
     function initSkyTraffic() {
       skyCars.length = 0;
       for (let i = 0; i < 14; i++) {
-        const carG = new THREE.Group();
-        const body = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.8, 5.5), new THREE.MeshBasicMaterial({ color: 0x1e293b }));
-        carG.add(body);
-
-        const hl = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.2, 0.2), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
-        hl.position.set(0, 0, 2.7);
-        carG.add(hl);
-
-        const tl = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.2, 0.2), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
-        tl.position.set(0, 0, -2.7);
-        carG.add(tl);
-
+        const vehicleG = new THREE.Group();
         const isXAxis = i % 2 === 0;
-        const altitude = 42 + (i % 4) * 8;
-        const speed = (0.28 + Math.random() * 0.2) * (Math.random() > 0.5 ? 1 : -1);
+        const altitude = 32 + (i % 4) * 7;
+        const speed = (0.07 + Math.random() * 0.07) * (Math.random() > 0.5 ? 1 : -1);
 
-        carG.position.set(
-          isXAxis ? (Math.random() - 0.5) * 200 : (i * 18 - 120),
+        if (currentWorldTheme === 'retro') {
+          // Sleek Retro Cyber Cruiser
+          const bodyColor = i % 3 === 0 ? 0x06b6d4 : (i % 3 === 1 ? 0xf43f5e : 0xf59e0b);
+          const carBody = new THREE.Mesh(
+            new THREE.BoxGeometry(isXAxis ? 4.5 : 2.0, 0.8, isXAxis ? 2.0 : 4.5),
+            new THREE.MeshStandardMaterial({ color: bodyColor, metalness: 0.8, roughness: 0.2 })
+          );
+          vehicleG.add(carBody);
+
+          const thruster = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.35, 0.35, 0.2, 8),
+            new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+          );
+          thruster.rotation.x = Math.PI / 2;
+          thruster.position.set(isXAxis ? (speed > 0 ? -2.2 : 2.2) : 0, 0, !isXAxis ? (speed > 0 ? -2.2 : 2.2) : 0);
+          vehicleG.add(thruster);
+        } else {
+          // Medieval Floating Lantern
+          const lanternBody = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.7, 0.5, 1.4, 8),
+            new THREE.MeshBasicMaterial({ color: 0xffb74d })
+          );
+          vehicleG.add(lanternBody);
+
+          const glow = new THREE.Mesh(
+            new THREE.SphereGeometry(1.2, 8, 8),
+            new THREE.MeshBasicMaterial({ color: 0xffaa22, transparent: true, opacity: 0.35 })
+          );
+          vehicleG.add(glow);
+        }
+
+        vehicleG.position.set(
+          isXAxis ? (Math.random() - 0.5) * 160 : (i * 22 - 120),
           altitude,
-          !isXAxis ? (Math.random() - 0.5) * 200 : (i * 18 - 120)
+          !isXAxis ? (Math.random() - 0.5) * 160 : (i * 22 - 120)
         );
-        if (isXAxis) carG.rotation.y = speed > 0 ? Math.PI / 2 : -Math.PI / 2;
-        else carG.rotation.y = speed > 0 ? 0 : Math.PI;
 
-        worldGroup.add(carG);
-        skyCars.push({ mesh: carG, speed, isXAxis });
+        worldGroup.add(vehicleG);
+        skyCars.push({ mesh: vehicleG, speed, isXAxis });
       }
     }
 
-    function createCyberCar(x, z, angle, colorHex) {
-      const carGroup = new THREE.Group();
-      carGroup.position.set(x, 0, z);
-      carGroup.rotation.y = angle;
+    // ================= 7A. 3D RETRO WORLD SCENE BUILDER =================
+    async function buildRetroWorldScene() {
+      // Atmospheric Cyber-Retro Twilight
+      sunLight.color.setHex(0xffc896);
+      sunLight.intensity = 1.35;
+      ambientLight.color.setHex(0x9098c0);
+      ambientLight.intensity = 0.65;
+      scene.background = new THREE.Color(0x151224);
+      scene.fog = new THREE.FogExp2(0x151224, 0.007);
 
-      const bodyMat = new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.9, roughness: 0.2 });
-      const chassis = new THREE.Mesh(new THREE.BoxGeometry(3.6, 1.2, 7.4), bodyMat);
-      chassis.position.y = 0.9;
-      chassis.castShadow = true;
-      carGroup.add(chassis);
-
-      const glassMat = new THREE.MeshStandardMaterial({ color: 0x06b6d4, roughness: 0.1, metalness: 0.95 });
-      const cabin = new THREE.Mesh(new THREE.BoxGeometry(3.0, 1.1, 4.0), glassMat);
-      cabin.position.set(0, 1.8, -0.4);
-      carGroup.add(cabin);
-
-      const hlMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-      const hl1 = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.3, 0.2), hlMat);
-      hl1.position.set(-1.1, 0.85, 3.75);
-      const hl2 = hl1.clone();
-      hl2.position.x = 1.1;
-      carGroup.add(hl1);
-      carGroup.add(hl2);
-
-      const tlMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
-      const tl = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.25, 0.2), tlMat);
-      tl.position.set(0, 0.95, -3.75);
-      carGroup.add(tl);
-
-      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
-      const wheelPos = [
-        { x: -1.8, z: 2.2 }, { x: 1.8, z: 2.2 },
-        { x: -1.8, z: -2.2 }, { x: 1.8, z: -2.2 }
-      ];
-      wheelPos.forEach(wp => {
-        const w = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.7, 0.6, 16), wheelMat);
-        w.rotation.z = Math.PI / 2;
-        w.position.set(wp.x, 0.7, wp.z);
-        carGroup.add(w);
-      });
-
-      worldGroup.add(carGroup);
-    }
-
-    function buildStreetScene() {
-      while(worldGroup.children.length > 0) {
-        worldGroup.remove(worldGroup.children[0]);
-      }
-
-      // Asphalt Ground
-      const roadTex = createRoadTexture();
-      const ground = new THREE.Mesh(new THREE.PlaneGeometry(280, 280), new THREE.MeshStandardMaterial({
-        color: 0x090e1a,
-        roughness: 0.85,
-        map: roadTex
-      }));
+      // 1. Terrain Ground (260x260)
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(260, 260),
+        new THREE.MeshStandardMaterial({ color: 0x141820, roughness: 0.9 })
+      );
       ground.rotation.x = -Math.PI / 2;
       ground.receiveShadow = true;
       worldGroup.add(ground);
 
-      // Sidewalks
-      const swTex = createSidewalkTexture();
-      const sidewalkMat = new THREE.MeshStandardMaterial({
-        color: 0x334155,
-        roughness: 0.6,
-        map: swTex
-      });
+      // 2. Highway System
+      // Main Highway (North - South)
+      for (let rz = -80; rz <= 80; rz += 10) {
+        await addRetroProp('Roads/Road_01.glb', 0, 0.05, rz, 1.25, 1.0, 1.0);
+      }
+      // Cross Highway (East - West)
+      for (let rx = -80; rx <= 80; rx += 10) {
+        if (Math.abs(rx) > 6) {
+          await addRetroProp('Roads/Road_01.glb', rx, 0.05, 0, 1.25, 1.0, 1.0, Math.PI / 2);
+        }
+      }
 
-      const centralPlaza = new THREE.Mesh(new THREE.BoxGeometry(64, 0.45, 64), sidewalkMat);
-      centralPlaza.position.set(0, 0.22, 0);
-      centralPlaza.receiveShadow = true;
-      worldGroup.add(centralPlaza);
+      // Highway Guardrails along North-South shoulders
+      for (let gz = -40; gz <= 40; gz += 4) {
+        if (Math.abs(gz) > 10) {
+          await addRetroProp('Roads/Guardrail.glb', -7.5, 0.1, gz, 1.0, 1.0, 1.0, Math.PI / 2);
+          await addRetroProp('Roads/Guardrail.glb', 7.5, 0.1, gz, 1.0, 1.0, 1.0, -Math.PI / 2);
+        }
+      }
 
-      const swN = new THREE.Mesh(new THREE.BoxGeometry(180, 0.45, 36), sidewalkMat);
-      swN.position.set(0, 0.22, -60);
-      swN.receiveShadow = true;
-      worldGroup.add(swN);
+      // 3. TITAN MOTORS SPEEDWAY GAS STATION (South: x = 0, z = 24 to 45)
+      for (let px = -14; px <= 14; px += 7) {
+        for (let pz = 24; pz <= 44; pz += 6.5) {
+          await addRetroProp('Props/Gas_Station/Pavement_0.glb', px, 0.1, pz, 1.7, 1.0, 1.6);
+        }
+      }
 
-      const swS = new THREE.Mesh(new THREE.BoxGeometry(180, 0.45, 36), sidewalkMat);
-      swS.position.set(0, 0.22, 60);
-      swS.receiveShadow = true;
-      worldGroup.add(swS);
+      // Canopy Pillars & Roof
+      await addRetroProp('Props/Gas_Station/Gas_Pilar.glb', -9, 0, 27, 1.3, 1.1, 1.3);
+      await addRetroProp('Props/Gas_Station/Gas_Pilar.glb', 9, 0, 27, 1.3, 1.1, 1.3);
+      await addRetroProp('Props/Gas_Station/Gas_Pilar.glb', -9, 0, 39, 1.3, 1.1, 1.3);
+      await addRetroProp('Props/Gas_Station/Gas_Pilar.glb', 9, 0, 39, 1.3, 1.1, 1.3);
 
-      // Distant City Skyline Towers
-      const distantTex = createSkyscraperTexture('#090e1a', '#38bdf8', '#a78bfa');
-      const skylinePositions = [
-        { x: -95, z: -85, w: 28, h: 95 }, { x: -65, z: -105, w: 24, h: 75 },
-        { x: -20, z: -115, w: 34, h: 125 }, { x: 30, z: -105, w: 26, h: 90 },
-        { x: 85, z: -90, w: 30, h: 105 }, { x: 105, z: -50, w: 24, h: 80 },
-        { x: -105, z: 65, w: 30, h: 100 }, { x: 100, z: 70, w: 32, h: 95 }
+      for (let rx = -11; rx <= 11; rx += 2) {
+        for (let rz = 25; rz <= 41; rz += 2) {
+          await addRetroProp('Props/Gas_Station/GasRoof_0.glb', rx, 6.6, rz, 1.0, 1.0, 1.0);
+        }
+      }
+
+      // Dual Pump Islands
+      await addRetroProp('Props/Gas_Station/Gas_Pump_Base.glb', -4.5, 0.15, 33, 1.3, 1.1, 1.3);
+      await addRetroProp('Props/Gas_Station/Gas_Pump.glb', -4.5, 0.35, 33, 1.15, 1.15, 1.15);
+      await addRetroProp('Props/Gas_Station/Gas_Pump_Base.glb', 4.5, 0.15, 33, 1.3, 1.1, 1.3);
+      await addRetroProp('Props/Gas_Station/Gas_Pump.glb', 4.5, 0.35, 33, 1.15, 1.15, 1.15);
+
+      // Station Props & Signs
+      await addRetroProp('Props/Gas_Station/Light_Sign.glb', 0, 7.5, 24.6, 1.8, 1.8, 1.8);
+      await addRetroProp('Props/Gas_Station/Number_Sign.glb', 13, 0, 22, 1.5, 1.5, 1.5, -Math.PI / 4);
+      await addRetroProp('Props/Gas_Station/Trash_Can.glb', -11, 0.1, 25, 1.2, 1.2, 1.2);
+      await addRetroProp('Props/Gas_Station/FireExtinguisher.glb', -8.5, 1.0, 27.5, 1.3, 1.3, 1.3);
+
+      // Back Service Garage
+      const garage = new THREE.Mesh(new THREE.BoxGeometry(26, 6.0, 14), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 }));
+      garage.position.set(0, 3.0, 48);
+      garage.castShadow = true;
+      garage.receiveShadow = true;
+      worldGroup.add(garage);
+
+      const pumpLight = new THREE.PointLight(0xf59e0b, 3.0, 30);
+      pumpLight.position.set(0, 6.0, 33);
+      worldGroup.add(pumpLight);
+
+      // 4. VOGUE LUXE RETRO MART (East: x = 28 to 48, z = 0)
+      const martBase = new THREE.Mesh(new THREE.BoxGeometry(22, 0.4, 20), new THREE.MeshStandardMaterial({ color: 0x222630 }));
+      martBase.position.set(38, 0.2, 0);
+      worldGroup.add(martBase);
+
+      await addRetroProp('Props/Gas_Store/Wall_4x3_A.glb', 27, 0.4, -6.5, 1.1, 1.3, 1.1, -Math.PI / 2);
+      await addRetroProp('Props/Gas_Store/Window_4x3_A.glb', 27, 0.4, -2.2, 1.1, 1.3, 1.1, -Math.PI / 2);
+      await addRetroProp('Props/Gas_Store/Door_A.glb', 27, 0.4, 1.8, 1.3, 1.3, 1.3, -Math.PI / 2);
+      await addRetroProp('Props/Gas_Store/Window_4x3_A.glb', 27, 0.4, 5.8, 1.1, 1.3, 1.1, -Math.PI / 2);
+      await addRetroProp('Props/Gas_Store/Wall_4x3_A.glb', 27, 0.4, 10.0, 1.1, 1.3, 1.1, -Math.PI / 2);
+
+      const martBody = new THREE.Mesh(new THREE.BoxGeometry(18, 4.4, 18), new THREE.MeshStandardMaterial({ color: 0x2d3748, roughness: 0.6 }));
+      martBody.position.set(38, 2.6, 0);
+      martBody.castShadow = true;
+      martBody.receiveShadow = true;
+      worldGroup.add(martBody);
+
+      const martTrim = new THREE.Mesh(new THREE.BoxGeometry(18.6, 0.6, 18.6), new THREE.MeshStandardMaterial({ color: 0xf43f5e }));
+      martTrim.position.set(38, 5.0, 0);
+      worldGroup.add(martTrim);
+
+      const martNeon = new THREE.PointLight(0xf43f5e, 3.2, 25);
+      martNeon.position.set(26.5, 3.8, 0);
+      worldGroup.add(martNeon);
+
+      // 5. APEX CYBERTECH TRANSMISSION RELAY (West: x = -28 to -52, z = 0)
+      await addRetroProp('Roads/Tower_01.glb', -44, 0, 0, 1.0, 1.0, 1.0, Math.PI / 2);
+
+      const apexBunker = new THREE.Mesh(new THREE.BoxGeometry(13, 3.8, 13), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 }));
+      apexBunker.position.set(-28, 1.9, 0);
+      apexBunker.castShadow = true;
+      apexBunker.receiveShadow = true;
+      worldGroup.add(apexBunker);
+
+      await addRetroProp('Props/Gas_Store/Door_A.glb', -21.4, 0, 0, 1.3, 1.3, 1.3, Math.PI / 2);
+
+      const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.2), new THREE.MeshBasicMaterial({ color: 0x06b6d4 }));
+      beacon.position.set(-44, 40, 0);
+      worldGroup.add(beacon);
+
+      const apexLight = new THREE.PointLight(0x06b6d4, 3.2, 35);
+      apexLight.position.set(-26, 4.5, 0);
+      worldGroup.add(apexLight);
+
+      // 6. FEDERAL CASHOUT DEPOT & CAMPSITE (North: x = 0, z = -22 to -36)
+      const depot = new THREE.Mesh(new THREE.BoxGeometry(15, 4.2, 11), new THREE.MeshStandardMaterial({ color: 0x1f2937, roughness: 0.7 }));
+      depot.position.set(0, 2.1, -29);
+      depot.castShadow = true;
+      depot.receiveShadow = true;
+      worldGroup.add(depot);
+
+      await addRetroProp('Props/Gas_Store/Door_A.glb', 0, 0, -23.4, 1.3, 1.3, 1.3);
+      await addRetroProp('Props/Camp/Bonfire.glb', 6, 0.1, -18, 2.0, 2.0, 2.0);
+      await addRetroProp('Props/Camp/Tent.glb', 10.5, 0.1, -20.5, 1.5, 1.5, 1.5, -Math.PI / 4);
+
+      const campfire = new THREE.PointLight(0xff6600, 3.0, 22);
+      campfire.position.set(6, 1.5, -18);
+      worldGroup.add(campfire);
+
+      const cashoutCoin = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.2, 1.2, 0.25, 16),
+        new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.9, roughness: 0.2 })
+      );
+      cashoutCoin.rotation.x = Math.PI / 2;
+      cashoutCoin.position.set(0, 5.5, -22);
+      worldGroup.add(cashoutCoin);
+      const coinLight = new THREE.PointLight(0xfbbf24, 2.5, 18);
+      coinLight.position.set(0, 5.5, -21.5);
+      worldGroup.add(coinLight);
+
+      // 7. ROADSIDE PINE FOREST & BOULDERS
+      const treeUrls = [
+        'Vegetation/Trees/Douglas Fir/Douglas_Fir_A.glb',
+        'Vegetation/Trees/Picea Abies/Picea_Abies_A.glb',
+        'Vegetation/Trees/Scoth Pine/Scoth_Pine_A.glb'
       ];
-      skylinePositions.forEach(sp => {
-        const b = new THREE.Mesh(new THREE.BoxGeometry(sp.w, sp.h, sp.w), new THREE.MeshStandardMaterial({
-          color: 0x090e1a,
-          map: distantTex,
-          roughness: 0.5
-        }));
-        b.position.set(sp.x, sp.h / 2, sp.z);
-        worldGroup.add(b);
+      const treeCoords = [
+        { x: -20, z: -28, u: 0, s: 0.45 },
+        { x: -36, z: -24, u: 1, s: 0.55 },
+        { x: 22, z: -28, u: 0, s: 0.45 },
+        { x: 38, z: -24, u: 2, s: 0.55 },
+        { x: -28, z: 26, u: 1, s: 0.5 },
+        { x: -40, z: 32, u: 0, s: 0.6 },
+        { x: 30, z: 26, u: 2, s: 0.5 },
+        { x: 42, z: 32, u: 0, s: 0.6 }
+      ];
+      for (const tc of treeCoords) {
+        await addRetroProp(treeUrls[tc.u], tc.x, 0, tc.z, tc.s, tc.s, tc.s);
+      }
 
-        const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.0), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
-        beacon.position.set(sp.x, sp.h + 1.0, sp.z);
-        worldGroup.add(beacon);
-      });
+      const rockCoords = [
+        { x: -18, z: 16 }, { x: 18, z: 16 },
+        { x: -18, z: -14 }, { x: 18, z: -14 }
+      ];
+      for (const rc of rockCoords) {
+        await addRetroProp('Rocks/Rock_01.glb', rc.x, 0, rc.z, 1.1, 1.1, 1.1);
+      }
 
-      // Branded Corporate Skyscrapers
+      // Highway Streetlamps
+      const lampCoords = [
+        { x: -12, z: -12 }, { x: 12, z: -12 },
+        { x: -12, z: 12 }, { x: 12, z: 12 }
+      ];
+      for (const lc of lampCoords) {
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 9), new THREE.MeshStandardMaterial({ color: 0x374151 }));
+        pole.position.set(lc.x, 4.5, lc.z);
+        worldGroup.add(pole);
+
+        await addRetroProp('Props/Gas_Station/Lamp_01.glb', lc.x, 9.0, lc.z, 2.0, 2.0, 2.0);
+
+        const lLight = new THREE.PointLight(0xffba55, 2.0, 22);
+        lLight.position.set(lc.x, 8.8, lc.z);
+        worldGroup.add(lLight);
+      }
+
+      // 8. FLAT PORTAL RUNES, NEON BILLBOARD BANNERS & CORPORATE BOUNCER NPCS
       for (const tid in TOWERS) {
         const t = TOWERS[tid];
-        const towerGroup = new THREE.Group();
-        towerGroup.position.set(t.pos.x, 0, t.pos.z);
-        if (tid === 'auto') {
-          towerGroup.rotation.y = Math.PI; // Rotate Titan Motors to face North towards plaza & bouncer
-        }
-
-        const facadeTex = createSkyscraperTexture('#0f172a', '#' + t.color.toString(16).padStart(6, '0'), '#f8fafc');
-
-        // Podium Base
-        const podium = new THREE.Mesh(new THREE.BoxGeometry(32, 14, 28), new THREE.MeshStandardMaterial({
-          color: 0x0f172a,
-          map: facadeTex,
-          roughness: 0.35,
-          metalness: 0.8
-        }));
-        podium.position.y = 7;
-        podium.castShadow = true;
-        towerGroup.add(podium);
-
-        // Main Tower Shaft
-        const mainH = 50;
-        const mainShaft = new THREE.Mesh(new THREE.BoxGeometry(26, mainH, 22), new THREE.MeshStandardMaterial({
-          color: 0x0f172a,
-          map: facadeTex,
-          roughness: 0.3,
-          metalness: 0.85
-        }));
-        mainShaft.position.y = 14 + mainH / 2;
-        mainShaft.castShadow = true;
-        towerGroup.add(mainShaft);
-
-        // Crown
-        const crown = new THREE.Mesh(new THREE.BoxGeometry(18, 12, 16), new THREE.MeshStandardMaterial({
-          color: 0x0f172a,
-          map: facadeTex,
-          roughness: 0.25
-        }));
-        crown.position.y = 14 + mainH + 6;
-        towerGroup.add(crown);
-
-        const trimMat = new THREE.MeshBasicMaterial({ color: t.color });
-        const roofTrim = new THREE.Mesh(new THREE.BoxGeometry(18.6, 1.2, 16.6), trimMat);
-        roofTrim.position.y = 14 + mainH + 12;
-        towerGroup.add(roofTrim);
-
-        const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.6, 16), trimMat);
-        spire.position.y = 14 + mainH + 20;
-        towerGroup.add(spire);
-
-        const spireBeacon = new THREE.Mesh(new THREE.SphereGeometry(0.8), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
-        spireBeacon.position.y = 14 + mainH + 28;
-        towerGroup.add(spireBeacon);
-
-        // Billboard
-        const bbTex = makeBillboardTexture(t.name, t.payoutBillboard, '#' + t.color.toString(16).padStart(6, '0'));
-        const bbMesh = new THREE.Mesh(new THREE.PlaneGeometry(22, 6.0), new THREE.MeshBasicMaterial({ map: bbTex }));
-        bbMesh.position.set(0, 19, 14.2);
-        towerGroup.add(bbMesh);
-
-        // Entrance Canopy & LED Pillars
-        const canopy = new THREE.Mesh(new THREE.BoxGeometry(12, 1.0, 7), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
-        canopy.position.set(0, 8.0, 14.5);
-        towerGroup.add(canopy);
-
-        const pillarL = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 8.0), trimMat);
-        pillarL.position.set(-5.5, 4.0, 16.8);
-        const pillarR = pillarL.clone();
-        pillarR.position.x = 5.5;
-        towerGroup.add(pillarL);
-        towerGroup.add(pillarR);
-
-        // Door Pad
         const isPassed = state.passedScreeners.includes(tid);
-        const pad = new THREE.Mesh(new THREE.PlaneGeometry(9, 6), new THREE.MeshBasicMaterial({
-          color: isPassed ? 0x10b981 : 0xf59e0b,
+
+        // Entrance Portal Rune Pad
+        const padMat = new THREE.MeshBasicMaterial({
+          color: isPassed ? 0x10b981 : t.color,
           transparent: true,
-          opacity: 0.75
-        }));
+          opacity: 0.8
+        });
+        const padW = (tid === 'auto') ? 6.5 : 4.0;
+        const padH = (tid === 'auto') ? 4.0 : 6.5;
+        const pad = new THREE.Mesh(new THREE.PlaneGeometry(padW, padH), padMat);
         pad.rotation.x = -Math.PI / 2;
-        pad.position.set(0, 0.12, 15.5);
-        towerGroup.add(pad);
+        pad.position.set(t.doorPos.x, 0.16, t.doorPos.z);
+        worldGroup.add(pad);
 
-        // Entrance Portal Beam
-        const beamMat = new THREE.MeshBasicMaterial({ color: t.color, transparent: true, opacity: 0.35 });
-        const beam = new THREE.Mesh(new THREE.CylinderGeometry(4.0, 4.0, 7.5, 16, 1, true), beamMat);
-        beam.position.set(0, 3.8, 15.5);
-        towerGroup.add(beam);
+        // Energy Portal Access Beacon
+        const beamMat = new THREE.MeshBasicMaterial({ color: t.color, transparent: true, opacity: 0.22 });
+        const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 6.0, 16, 1, true), beamMat);
+        beam.position.set(t.doorPos.x, 3.0, t.doorPos.z);
+        worldGroup.add(beam);
 
-        worldGroup.add(towerGroup);
+        // Neon Billboard Banner
+        const hubTitle = t.retroName || t.name;
+        const hubPayout = t.retroPayoutBillboard || t.payoutBillboard;
+        const bbTex = makeMedievalBannerTexture(hubTitle, hubPayout, '#' + t.color.toString(16).padStart(6, '0'));
+        const bbMesh = new THREE.Mesh(new THREE.PlaneGeometry(11, 3.4), new THREE.MeshBasicMaterial({ map: bbTex, transparent: true, side: THREE.DoubleSide }));
+        if (tid === 'tech') {
+          bbMesh.rotation.y = Math.PI / 2;
+          bbMesh.position.set(-27.6, 6.5, 0);
+        } else if (tid === 'fashion') {
+          bbMesh.rotation.y = -Math.PI / 2;
+          bbMesh.position.set(26.6, 6.5, 0);
+        } else if (tid === 'auto') {
+          bbMesh.rotation.y = Math.PI;
+          bbMesh.position.set(0, 8.8, 24.6);
+        }
+        worldGroup.add(bbMesh);
+
+        // Guard NPC
         create3DNPC(t.bouncer.pos.x, t.bouncer.pos.z, t.color, t.bouncer.avatar, t.bouncer.name);
       }
 
-      // Central Federal Reserve ATM Kiosk
-      const atmGroup = new THREE.Group();
-      atmGroup.position.set(0, 0, -8);
+      initSkyTraffic();
+    }
 
-      const atmPillar = new THREE.Mesh(new THREE.BoxGeometry(4.0, 5.5, 4.0), new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9 }));
-      atmPillar.position.y = 2.75;
-      atmPillar.castShadow = true;
-      atmGroup.add(atmPillar);
+    // ================= 7B. MEDIEVAL CITADEL 3D WORLD SCENE BUILDER =================
+    async function buildMedievalWorldScene() {
+      // Atmospheric Citadel Twilight
+      sunLight.color.setHex(0xffe8cc);
+      sunLight.intensity = 1.35;
+      ambientLight.color.setHex(0xb8c8e8);
+      ambientLight.intensity = 0.65;
+      scene.background = new THREE.Color(0x181424);
+      scene.fog = new THREE.FogExp2(0x181424, 0.0075);
 
-      const atmTrim = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.4, 4.2), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
-      atmTrim.position.y = 5.5;
-      atmGroup.add(atmTrim);
+      // 1. Cobblestone Plaza Ground (240x240)
+      const cobbleTex = getMedievalTexture('T_UnevenBrick_BaseColor.png', 24, 24);
+      const cobbleNormal = getMedievalTexture('T_UnevenBrick_Normal.png', 24, 24);
+      const groundMat = new THREE.MeshStandardMaterial({
+        map: cobbleTex,
+        normalMap: cobbleNormal,
+        roughness: 0.8,
+        metalness: 0.12
+      });
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(240, 240), groundMat);
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      worldGroup.add(ground);
 
-      const atmScreen = new THREE.Mesh(new THREE.PlaneGeometry(3.0, 2.2), new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.85 }));
-      atmScreen.position.set(0, 3.2, 2.05);
-      atmGroup.add(atmScreen);
+      // Facade materials
+      const stoneMat = new THREE.MeshStandardMaterial({
+        map: getMedievalTexture('T_Brick_BaseColor.png', 4, 4),
+        roughness: 0.72
+      });
+      const plasterMat = new THREE.MeshStandardMaterial({
+        map: getMedievalTexture('T_Plaster_BaseColor.png', 3, 3),
+        roughness: 0.86
+      });
 
-      const holoDollar = new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 8), new THREE.MeshBasicMaterial({ color: 0xfbbf24, wireframe: true }));
-      holoDollar.position.y = 7.0;
-      atmGroup.add(holoDollar);
+      // Helpers
+      async function addProp(name, x, y, z, sx = 1, sy = 1, sz = 1, rotY = 0) {
+        const m = await loadMedievalGLTF(name);
+        if (m) {
+          m.position.set(x, y, z);
+          m.scale.set(sx, sy, sz);
+          m.rotation.y = rotY;
+          m.traverse(c => {
+            if (c.isMesh) {
+              c.castShadow = true;
+              c.receiveShadow = true;
+            }
+          });
+          worldGroup.add(m);
+          return m;
+        }
+        return null;
+      }
 
-      worldGroup.add(atmGroup);
+      function createBuildingFacade(x, z, rotY, baseW, baseD, baseH, upperH, sMat, tMat) {
+        const bGroup = new THREE.Group();
+        bGroup.position.set(x, 0, z);
+        bGroup.rotation.y = rotY;
 
-      // Parked Cyber Cars
-      createCyberCar(-20, -14, Math.PI / 2, 0xef4444);
-      createCyberCar(20, -14, -Math.PI / 2, 0x3b82f6);
-      createCyberCar(-20, 14, Math.PI / 2, 0xf59e0b);
-      createCyberCar(20, 14, -Math.PI / 2, 0x10b981);
+        const base = new THREE.Mesh(new THREE.BoxGeometry(baseW, baseH, baseD), sMat);
+        base.position.y = baseH / 2;
+        base.castShadow = true;
+        base.receiveShadow = true;
+        bGroup.add(base);
 
-      // Street Lamps
-      const lampPositions = [
-        { x: -16, z: -16 }, { x: 16, z: -16 },
-        { x: -16, z: 16 }, { x: 16, z: 16 },
-        { x: -48, z: -16 }, { x: 48, z: -16 }
+        const upper = new THREE.Mesh(new THREE.BoxGeometry(baseW + 0.8, upperH, baseD + 0.8), tMat);
+        upper.position.y = baseH + upperH / 2;
+        upper.castShadow = true;
+        upper.receiveShadow = true;
+        bGroup.add(upper);
+
+        worldGroup.add(bGroup);
+        return bGroup;
+      }
+
+      // ================= A. APEX ARCANE CITADEL (West: x = -44, z = 0) =================
+      createBuildingFacade(-44, 0, Math.PI / 2, 22, 28, 8, 8, stoneMat, plasterMat);
+      addProp('Roof_RoundTiles_8x8.gltf', -44, 16, 0, 3.2, 2.2, 3.0, Math.PI / 2);
+      createBuildingFacade(-40, -14, 0, 7, 7, 14, 4, stoneMat, plasterMat);
+      createBuildingFacade(-40, 14, 0, 7, 7, 14, 4, stoneMat, plasterMat);
+      addProp('Roof_Tower_RoundTiles.gltf', -40, 18, -14, 1.8, 1.8, 1.8);
+      addProp('Roof_Tower_RoundTiles.gltf', -40, 18, 14, 1.8, 1.8, 1.8);
+      addProp('Stairs_Exterior_Straight.gltf', -28, 0, 0, 3.0, 1.8, 3.0, -Math.PI / 2);
+      addProp('Wall_Arch.gltf', -32, 2.2, 0, 2.6, 2.6, 2.6, Math.PI / 2);
+      addProp('Door_2_Round.gltf', -32.2, 2.2, 0, 2.4, 2.4, 2.4, Math.PI / 2);
+      addProp('Prop_Vine1.gltf', -31.8, 2.5, 3.2, 2.2, 2.2, 2.2, Math.PI / 2);
+      addProp('Prop_Vine5.gltf', -31.8, 2.5, -3.2, 2.2, 2.2, 2.2, Math.PI / 2);
+      addProp('Wall_UnevenBrick_Window_Wide_Round.gltf', -32.5, 8, -4, 2.0, 2.0, 2.0, Math.PI / 2);
+      addProp('Wall_UnevenBrick_Window_Wide_Round.gltf', -32.5, 8, 4, 2.0, 2.0, 2.0, Math.PI / 2);
+
+      const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(1.6, 0), new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true }));
+      crystal.position.set(-44, 26, 0);
+      worldGroup.add(crystal);
+      const cLight = new THREE.PointLight(0x06b6d4, 3.0, 35);
+      cLight.position.set(-44, 26, 0);
+      worldGroup.add(cLight);
+
+      // ================= B. VOGUE ROYALE PALACE (East: x = 44, z = 0) =================
+      createBuildingFacade(44, 0, -Math.PI / 2, 22, 28, 8, 9, stoneMat, plasterMat);
+      addProp('Roof_RoundTiles_8x8.gltf', 44, 17, 0, 3.2, 2.4, 3.0, -Math.PI / 2);
+      addProp('Roof_Dormer_RoundTile.gltf', 36, 19, -6, 2.0, 2.0, 2.0, Math.PI / 2);
+      addProp('Roof_Dormer_RoundTile.gltf', 36, 19, 6, 2.0, 2.0, 2.0, Math.PI / 2);
+      addProp('Balcony_Cross_Straight.gltf', 32, 8, -4, 2.6, 2.2, 2.2, -Math.PI / 2);
+      addProp('Balcony_Cross_Straight.gltf', 32, 8, 4, 2.6, 2.2, 2.2, -Math.PI / 2);
+      addProp('Prop_Chimney.gltf', 46, 21, 8, 2.4, 2.4, 2.4);
+      addProp('Stairs_Exterior_Straight.gltf', 28, 0, 0, 3.0, 1.8, 3.0, Math.PI / 2);
+      addProp('Wall_Arch.gltf', 32, 2.2, 0, 2.6, 2.6, 2.6, -Math.PI / 2);
+      addProp('Door_2_Round.gltf', 32.2, 2.2, 0, 2.4, 2.4, 2.4, -Math.PI / 2);
+      addProp('Wall_Plaster_WoodGrid.gltf', 32.5, 8, -7, 2.0, 2.0, 2.0, -Math.PI / 2);
+      addProp('Wall_Plaster_Window_Wide_Round.gltf', 32.5, 8, 7, 2.0, 2.0, 2.0, -Math.PI / 2);
+
+      // ================= C. TITAN IRONWORKS FORTRESS (South: x = 0, z = 42) =================
+      createBuildingFacade(0, 42, 0, 32, 24, 10, 8, stoneMat, stoneMat);
+      addProp('Roof_RoundTiles_8x8.gltf', 0, 18, 42, 3.6, 2.4, 2.8);
+      addProp('Roof_Tower_RoundTiles.gltf', -15, 18, 35, 2.0, 2.0, 2.0);
+      addProp('Roof_Tower_RoundTiles.gltf', 15, 18, 35, 2.0, 2.0, 2.0);
+      addProp('Prop_Chimney.gltf', -8, 18, 32, 2.6, 2.6, 2.6);
+      addProp('Prop_Chimney.gltf', 8, 18, 32, 2.6, 2.6, 2.6);
+      addProp('Wall_Arch.gltf', 0, 0, 25, 3.2, 3.2, 3.2);
+      addProp('Door_2_Round.gltf', 0, 0, 25.3, 3.0, 3.0, 3.0);
+      addProp('Prop_MetalFence_Ornament.gltf', -8, 0, 25, 2.2, 2.2, 2.2);
+      addProp('Prop_MetalFence_Ornament.gltf', 8, 0, 25, 2.2, 2.2, 2.2);
+      addProp('Wall_UnevenBrick_Window_Wide_Round.gltf', -6, 10, 29.8, 2.0, 2.0, 2.0);
+      addProp('Wall_UnevenBrick_Window_Wide_Round.gltf', 6, 10, 29.8, 2.0, 2.0, 2.0);
+
+      const forgeLight = new THREE.PointLight(0xf59e0b, 3.0, 25);
+      forgeLight.position.set(0, 4, 26);
+      worldGroup.add(forgeLight);
+
+      // ================= D. ROYAL TREASURY CASHOUT VAULT (North: x = 0, z = -26) =================
+      createBuildingFacade(0, -32, Math.PI, 14, 14, 6, 5, stoneMat, plasterMat);
+      addProp('Roof_RoundTiles_6x6.gltf', 0, 11, -32, 2.0, 1.8, 2.0, Math.PI);
+      addProp('Prop_Chimney.gltf', 4.5, 12, -30, 2.0, 2.0, 2.0);
+      addProp('Stairs_Exterior_Straight.gltf', 0, 0, -22, 2.4, 1.4, 2.4);
+      addProp('Wall_Arch.gltf', 0, 1.4, -24.8, 2.4, 2.4, 2.4);
+      addProp('Door_2_Round.gltf', 0, 1.4, -25.0, 2.2, 2.2, 2.2);
+      addProp('Prop_Crate.gltf', 3.2, 1.4, -23.5, 1.4, 1.4, 1.4);
+      addProp('Prop_Crate.gltf', -3.2, 0, -21.5, 1.5, 1.5, 1.5);
+
+      const coin = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 0.25, 16), new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.9, roughness: 0.2 }));
+      coin.rotation.x = Math.PI / 2;
+      coin.position.set(0, 7.5, -24);
+      worldGroup.add(coin);
+      const coinLight = new THREE.PointLight(0xfbbf24, 2.5, 18);
+      coinLight.position.set(0, 7.5, -23);
+      worldGroup.add(coinLight);
+
+      // ================= E. PERIMETER CITADEL TOWN CORNERS & DEFENSE BASTIONS =================
+      createBuildingFacade(-56, -46, Math.PI / 4, 18, 14, 7, 6, stoneMat, plasterMat);
+      addProp('Roof_RoundTiles_6x6.gltf', -56, 13, -46, 2.2, 1.8, 2.0, Math.PI / 4);
+      addProp('Prop_Chimney.gltf', -53, 14, -43, 2.0, 2.0, 2.0);
+
+      createBuildingFacade(56, -46, -Math.PI / 4, 18, 14, 7, 6, stoneMat, plasterMat);
+      addProp('Roof_RoundTiles_6x6.gltf', 56, 13, -46, 2.2, 1.8, 2.0, -Math.PI / 4);
+      addProp('Prop_Chimney.gltf', 53, 14, -43, 2.0, 2.0, 2.0);
+
+      createBuildingFacade(-56, 46, -Math.PI / 4, 18, 14, 8, 6, stoneMat, stoneMat);
+      addProp('Roof_RoundTiles_6x6.gltf', -56, 14, 46, 2.2, 1.8, 2.0, -Math.PI / 4);
+
+      createBuildingFacade(56, 46, Math.PI / 4, 18, 14, 8, 6, stoneMat, stoneMat);
+      addProp('Roof_RoundTiles_6x6.gltf', 56, 14, 46, 2.2, 1.8, 2.0, Math.PI / 4);
+
+      // ================= F. VILLAGE SQUARE PROPS (Wagons, Crates, Fences, Lanterns) =================
+      addProp('Prop_Wagon.gltf', -12, 0, 10, 1.8, 1.8, 1.8, Math.PI / 5);
+      addProp('Prop_Crate.gltf', -10, 0, 12, 1.6, 1.6, 1.6);
+      addProp('Prop_Crate.gltf', -10, 1.7, 12, 1.4, 1.4, 1.4, Math.PI / 3);
+      addProp('Prop_Crate.gltf', -12, 0, 13.5, 1.4, 1.4, 1.4);
+
+      addProp('Prop_Wagon.gltf', 14, 0, -8, 1.8, 1.8, 1.8, -Math.PI / 3);
+      addProp('Prop_Crate.gltf', 16, 0, -9.5, 1.6, 1.6, 1.6);
+      addProp('Prop_Crate.gltf', 16, 1.7, -9.5, 1.4, 1.4, 1.4, Math.PI / 6);
+
+      for (let fz = -16; fz <= 16; fz += 3.4) {
+        if (Math.abs(fz) > 4) {
+          addProp('Prop_WoodenFence_Single.gltf', -22, 0, fz, 1.8, 1.8, 1.8, Math.PI / 2);
+          addProp('Prop_WoodenFence_Single.gltf', 22, 0, fz, 1.8, 1.8, 1.8, -Math.PI / 2);
+        }
+      }
+
+      // Street Lanterns
+      const lanternPositions = [
+        { x: -14, z: -14 }, { x: 14, z: -14 },
+        { x: -14, z: 14 }, { x: 14, z: 14 },
+        { x: -26, z: 0 }, { x: 26, z: 0 }
       ];
-      lampPositions.forEach(p => {
-        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 10), new THREE.MeshStandardMaterial({ color: 0x475569 }));
-        pole.position.set(p.x, 5.0, p.z);
-        pole.castShadow = true;
-        worldGroup.add(pole);
+      for (const lp of lanternPositions) {
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.28, 6.5), new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.8 }));
+        post.position.set(lp.x, 3.25, lp.z);
+        post.castShadow = true;
+        worldGroup.add(post);
 
-        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.7), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
-        bulb.position.set(p.x, 10.0, p.z);
-        worldGroup.add(bulb);
+        const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.8), new THREE.MeshStandardMaterial({ color: 0x1f1914, metalness: 0.8 }));
+        lamp.position.set(lp.x, 6.2, lp.z);
+        worldGroup.add(lamp);
 
-        const pool = new THREE.Mesh(new THREE.CircleGeometry(7.0, 16), new THREE.MeshBasicMaterial({
-          color: 0x38bdf8,
-          transparent: true,
-          opacity: 0.18
-        }));
-        pool.rotation.x = -Math.PI / 2;
-        pool.position.set(p.x, 0.25, p.z);
-        worldGroup.add(pool);
+        const flame = new THREE.Mesh(new THREE.SphereGeometry(0.35, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffaa33 }));
+        flame.position.set(lp.x, 6.2, lp.z);
+        worldGroup.add(flame);
 
-        const light = new THREE.PointLight(0x38bdf8, 1.4, 26);
-        light.position.set(p.x, 9.5, p.z);
+        const light = new THREE.PointLight(0xff9922, 2.0, 22);
+        light.position.set(lp.x, 6.0, lp.z);
         worldGroup.add(light);
-      });
+      }
 
-      // Trees in Planters
-      const treePositions = [
-        { x: -26, z: 8 }, { x: 26, z: 8 },
-        { x: -26, z: -8 }, { x: 26, z: -8 }
-      ];
-      treePositions.forEach(tp => {
-        const pot = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.0, 1.2, 16), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
-        pot.position.set(tp.x, 0.6, tp.z);
-        worldGroup.add(pot);
+      // ================= G. FLAT PORTAL RUNES, HERALDIC BANNERS & GUILD BOUNCER NPCS =================
+      for (const tid in TOWERS) {
+        const t = TOWERS[tid];
+        const isPassed = state.passedScreeners.includes(tid);
 
-        const neonRim = new THREE.Mesh(new THREE.TorusGeometry(2.45, 0.1, 8, 24), new THREE.MeshBasicMaterial({ color: 0x06b6d4 }));
-        neonRim.rotation.x = Math.PI / 2;
-        neonRim.position.set(tp.x, 1.2, tp.z);
-        worldGroup.add(neonRim);
+        // Flat Entrance Portal Rune Pad
+        const padMat = new THREE.MeshBasicMaterial({
+          color: isPassed ? 0x10b981 : t.color,
+          transparent: true,
+          opacity: 0.75
+        });
+        const padW = (tid === 'auto') ? 6.5 : 4.0;
+        const padH = (tid === 'auto') ? 4.0 : 6.5;
+        const pad = new THREE.Mesh(new THREE.PlaneGeometry(padW, padH), padMat);
+        pad.rotation.x = -Math.PI / 2;
+        pad.position.set(t.doorPos.x, 0.15, t.doorPos.z);
+        worldGroup.add(pad);
 
-        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 4.5), new THREE.MeshStandardMaterial({ color: 0x78350f }));
-        trunk.position.set(tp.x, 3.2, tp.z);
-        worldGroup.add(trunk);
+        // Energy Portal Access Beacon
+        const beamMat = new THREE.MeshBasicMaterial({ color: t.color, transparent: true, opacity: 0.18 });
+        const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 6.0, 16, 1, true), beamMat);
+        beam.position.set(t.doorPos.x, 3.0, t.doorPos.z);
+        worldGroup.add(beam);
 
-        const leaves = new THREE.Mesh(new THREE.DodecahedronGeometry(2.6), new THREE.MeshStandardMaterial({ color: 0x10b981, roughness: 0.85 }));
-        leaves.position.set(tp.x, 6.0, tp.z);
-        worldGroup.add(leaves);
-      });
+        // Heraldic Guild Banner
+        const bbTex = makeMedievalBannerTexture(t.name, t.payoutBillboard, '#' + t.color.toString(16).padStart(6, '0'));
+        const bbMesh = new THREE.Mesh(new THREE.PlaneGeometry(11, 3.4), new THREE.MeshBasicMaterial({ map: bbTex, transparent: true, side: THREE.DoubleSide }));
+        if (tid === 'tech') {
+          bbMesh.rotation.y = Math.PI / 2;
+          bbMesh.position.set(-31.6, 9.5, 0);
+        } else if (tid === 'fashion') {
+          bbMesh.rotation.y = -Math.PI / 2;
+          bbMesh.position.set(31.6, 9.5, 0);
+        } else if (tid === 'auto') {
+          bbMesh.rotation.y = Math.PI;
+          bbMesh.position.set(0, 10.5, 25.4);
+        }
+        worldGroup.add(bbMesh);
+
+        // Guard NPC
+        create3DNPC(t.bouncer.pos.x, t.bouncer.pos.z, t.color, t.bouncer.avatar, t.bouncer.name);
+      }
 
       initSkyTraffic();
+    }
+
+    // ================= 7C. MASTER STREET SCENE DISPATCHER =================
+    async function buildStreetScene() {
+      while(worldGroup.children.length > 0) {
+        worldGroup.remove(worldGroup.children[0]);
+      }
+      npcs.length = 0;
+
+      if (currentWorldTheme === 'retro') {
+        await buildRetroWorldScene();
+      } else {
+        await buildMedievalWorldScene();
+      }
+      updateWorldThemeUI();
     }
 
     function buildInteriorScene(isResearchFloor = false) {
       while(worldGroup.children.length > 0) {
         worldGroup.remove(worldGroup.children[0]);
       }
+      window.interiorAnimatedObjects = [];
 
       const t = TOWERS[state.activeTowerId];
-      const floorColor = isResearchFloor ? 0x0a0f1d : 0x0f172a;
       const themeColor = isResearchFloor ? 0x8b5cf6 : t.color;
+      const themeColorHex = '#' + themeColor.toString(16).padStart(6, '0');
+      const accentHex = isResearchFloor ? '#a78bfa' : t.accent;
 
-      const swTex = createSidewalkTexture();
-      const floor = new THREE.Mesh(new THREE.PlaneGeometry(64, 64), new THREE.MeshStandardMaterial({
-        color: floorColor,
-        roughness: 0.25,
-        metalness: 0.6,
-        map: swTex
+      // 1. REFLECTIVE SPECULAR FLOOR (84 x 84)
+      const floorTex = isResearchFloor ? createLabFloorTexture(themeColorHex) : createExecutiveFloorTexture(themeColorHex);
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(84, 84), new THREE.MeshStandardMaterial({
+        roughness: 0.22,
+        metalness: 0.55,
+        map: floorTex
       }));
       floor.rotation.x = -Math.PI / 2;
       floor.receiveShadow = true;
       worldGroup.add(floor);
 
-      const makeWallMat = () => new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4, transparent: true, opacity: 1.0 });
-      const backWall = new THREE.Mesh(new THREE.BoxGeometry(64, 20, 1), makeWallMat());
-      backWall.position.set(0, 10, -32);
-      worldGroup.add(backWall);
+      // 2. COFFERED CEILING WITH RECESSED LIGHT PANELS (Height: 22)
+      const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(84, 84), new THREE.MeshStandardMaterial({
+        color: 0x090d16,
+        roughness: 0.6
+      }));
+      ceiling.position.y = 22;
+      ceiling.rotation.x = Math.PI / 2;
+      worldGroup.add(ceiling);
 
-      const leftWall = new THREE.Mesh(new THREE.BoxGeometry(1, 20, 64), makeWallMat());
-      leftWall.position.set(-32, 10, 0);
+      // Overhead Architectural Girders & Recessed LED light strips
+      for (let z = -32; z <= 32; z += 16) {
+        const girder = new THREE.Mesh(new THREE.BoxGeometry(84, 1.2, 0.8), new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.8 }));
+        girder.position.set(0, 21.4, z);
+        worldGroup.add(girder);
+
+        const neonLightStrip = new THREE.Mesh(new THREE.BoxGeometry(60, 0.25, 0.35), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        neonLightStrip.position.set(0, 21.0, z);
+        worldGroup.add(neonLightStrip);
+      }
+
+      // 3. ARCHITECTURAL WALLS
+      const wallMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 });
+      const accentWallMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.7 });
+
+      // Left Wall (x = -42) with Vertical Neon Light Columns
+      const leftWall = new THREE.Mesh(new THREE.BoxGeometry(1.2, 22, 84), wallMat);
+      leftWall.position.set(-42, 11, 0);
       worldGroup.add(leftWall);
 
-      const rightWall = new THREE.Mesh(new THREE.BoxGeometry(1, 20, 64), makeWallMat());
-      rightWall.position.set(32, 10, 0);
+      // Right Wall (x = 42) with Vertical Neon Light Columns
+      const rightWall = new THREE.Mesh(new THREE.BoxGeometry(1.2, 22, 84), wallMat);
+      rightWall.position.set(42, 11, 0);
       worldGroup.add(rightWall);
 
-      // Front Enclosure Wall with Exit Doorway at Center
-      const frontWallL = new THREE.Mesh(new THREE.BoxGeometry(27, 20, 1), makeWallMat());
-      frontWallL.position.set(-18.5, 10, 32);
+      for (let z = -30; z <= 30; z += 15) {
+        // Left wall light pillars
+        const colL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 18, 0.45), new THREE.MeshBasicMaterial({ color: themeColor }));
+        colL.position.set(-41.2, 10, z);
+        worldGroup.add(colL);
+
+        // Right wall light pillars
+        const colR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 18, 0.45), new THREE.MeshBasicMaterial({ color: themeColor }));
+        colR.position.set(41.2, 10, z);
+        worldGroup.add(colR);
+      }
+
+      // Front Wall (z = 42) with Exit Portal Opening at Center (x: [-6, 6])
+      const frontWallL = new THREE.Mesh(new THREE.BoxGeometry(36, 22, 1.2), wallMat);
+      frontWallL.position.set(-24, 11, 42);
       worldGroup.add(frontWallL);
 
-      const frontWallR = new THREE.Mesh(new THREE.BoxGeometry(27, 20, 1), makeWallMat());
-      frontWallR.position.set(18.5, 10, 32);
+      const frontWallR = new THREE.Mesh(new THREE.BoxGeometry(36, 22, 1.2), wallMat);
+      frontWallR.position.set(24, 11, 42);
       worldGroup.add(frontWallR);
 
-      const doorHeader = new THREE.Mesh(new THREE.BoxGeometry(10, 8, 1), makeWallMat());
-      doorHeader.position.set(0, 16, 32);
-      worldGroup.add(doorHeader);
+      const frontHeader = new THREE.Mesh(new THREE.BoxGeometry(12, 10, 1.2), wallMat);
+      frontHeader.position.set(0, 17, 42);
+      worldGroup.add(frontHeader);
 
-      const neonWall = new THREE.Mesh(new THREE.BoxGeometry(63.8, 0.6, 0.6), new THREE.MeshBasicMaterial({ color: themeColor }));
-      neonWall.position.set(0, 0.3, -31.4);
-      worldGroup.add(neonWall);
+      // Back Wall (z = -42): Floor-to-ceiling Panoramic Glass Windows looking out onto Surveytopia skyline!
+      const glassMat = new THREE.MeshStandardMaterial({
+        color: 0x38bdf8,
+        transparent: true,
+        opacity: 0.18,
+        roughness: 0.1,
+        metalness: 0.9
+      });
+      const backGlass = new THREE.Mesh(new THREE.PlaneGeometry(84, 22), glassMat);
+      backGlass.position.set(0, 11, -41.8);
+      worldGroup.add(backGlass);
 
-      const exitPad = new THREE.Mesh(new THREE.PlaneGeometry(8, 5), new THREE.MeshBasicMaterial({ color: 0xf43f5e, transparent: true, opacity: 0.7 }));
+      // Window Frame Mullions
+      for (let x = -36; x <= 36; x += 12) {
+        const mullion = new THREE.Mesh(new THREE.BoxGeometry(0.6, 22, 0.6), accentWallMat);
+        mullion.position.set(x, 11, -41.6);
+        worldGroup.add(mullion);
+      }
+
+      // 4. EXTERIOR PANORAMIC 3D SKYLINE (VISIBLE THROUGH THE GLASS WINDOWS!)
+      const extSkylinePositions = [
+        { x: -35, z: -75, w: 22, h: 65, color: '#090e1a' },
+        { x: -10, z: -85, w: 28, h: 80, color: '#0f172a' },
+        { x: 18, z: -80, w: 24, h: 70, color: '#090e1a' },
+        { x: 42, z: -90, w: 26, h: 85, color: '#0f172a' }
+      ];
+      extSkylinePositions.forEach(ep => {
+        const bTex = createSkyscraperTexture(ep.color, '#38bdf8', accentHex);
+        const b = new THREE.Mesh(new THREE.BoxGeometry(ep.w, ep.h, ep.w), new THREE.MeshStandardMaterial({
+          map: bTex,
+          roughness: 0.4
+        }));
+        b.position.set(ep.x, ep.h / 2 - 10, ep.z);
+        worldGroup.add(b);
+
+        const beacon = new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 8), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+        beacon.position.set(ep.x, ep.h - 10, ep.z);
+        worldGroup.add(beacon);
+      });
+
+      // 5. CYBER AIRLOCK & EXIT PORTAL AT FRONT (z = 40)
+      const portalPylonMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.85, roughness: 0.2 });
+      const pylonL = new THREE.Mesh(new THREE.BoxGeometry(1.2, 13, 1.5), portalPylonMat);
+      pylonL.position.set(-5.6, 6.5, 40.5);
+      worldGroup.add(pylonL);
+
+      const pylonR = new THREE.Mesh(new THREE.BoxGeometry(1.2, 13, 1.5), portalPylonMat);
+      pylonR.position.set(5.6, 6.5, 40.5);
+      worldGroup.add(pylonR);
+
+      const pylonTop = new THREE.Mesh(new THREE.BoxGeometry(12.4, 1.4, 1.6), portalPylonMat);
+      pylonTop.position.set(0, 12.5, 40.5);
+      worldGroup.add(pylonTop);
+
+      const exitSignTex = isResearchFloor
+        ? createHoloPortalSignTexture('🛗 EXECUTIVE ELEVATOR', '▼ DESCEND TO RECEPTION ATRIUM', '#38bdf8')
+        : createHoloPortalSignTexture('🚪 SECURITY AIRLOCK', '▼ EXIT TO CITY CORPORATE PLAZA', '#f43f5e');
+      const exitSign = new THREE.Mesh(new THREE.PlaneGeometry(8, 2.2), new THREE.MeshBasicMaterial({
+        map: exitSignTex,
+        transparent: true,
+        side: THREE.DoubleSide
+      }));
+      exitSign.position.set(0, 11, 39.8);
+      worldGroup.add(exitSign);
+
+      const exitPad = new THREE.Mesh(new THREE.PlaneGeometry(9, 5), new THREE.MeshBasicMaterial({
+        color: isResearchFloor ? 0x38bdf8 : 0xf43f5e,
+        transparent: true,
+        opacity: 0.65
+      }));
       exitPad.rotation.x = -Math.PI / 2;
-      exitPad.position.set(0, 0.08, 26);
+      exitPad.position.set(0, 0.08, 38.5);
       worldGroup.add(exitPad);
 
       if (!isResearchFloor) {
-        const desk = new THREE.Mesh(new THREE.BoxGeometry(18, 3.6, 5), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3 }));
-        desk.position.set(0, 1.8, -10);
-        desk.castShadow = true;
-        worldGroup.add(desk);
+        // ================= STAGE 2 LOBBY: GRAND CORPORATE ATRIUM =================
+        // A. Grand Executive Reception Counter at z = -2
+        const deskGroup = new THREE.Group();
+        deskGroup.position.set(0, 0, -2);
 
-        const deskTrim = new THREE.Mesh(new THREE.BoxGeometry(18.2, 0.4, 5.2), new THREE.MeshBasicMaterial({ color: themeColor }));
-        deskTrim.position.set(0, 3.6, -10);
-        worldGroup.add(deskTrim);
+        const counterBase = new THREE.Mesh(new THREE.BoxGeometry(20, 3.8, 4.5), new THREE.MeshStandardMaterial({
+          color: 0x0f172a,
+          roughness: 0.25,
+          metalness: 0.8
+        }));
+        counterBase.position.y = 1.9;
+        counterBase.castShadow = true;
+        deskGroup.add(counterBase);
 
+        const counterTop = new THREE.Mesh(new THREE.BoxGeometry(20.4, 0.35, 4.8), new THREE.MeshStandardMaterial({
+          color: 0x1e293b,
+          roughness: 0.15,
+          metalness: 0.95
+        }));
+        counterTop.position.y = 3.8;
+        deskGroup.add(counterTop);
+
+        const counterNeonTrim = new THREE.Mesh(new THREE.BoxGeometry(20.5, 0.3, 0.3), new THREE.MeshBasicMaterial({ color: themeColor }));
+        counterNeonTrim.position.set(0, 3.75, 2.3);
+        deskGroup.add(counterNeonTrim);
+
+        // Floating Holographic Reception Terminal
+        const holoTerminal = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.4, 0.1), new THREE.MeshBasicMaterial({
+          color: themeColor,
+          wireframe: true
+        }));
+        holoTerminal.position.set(0, 4.9, 1.0);
+        deskGroup.add(holoTerminal);
+        window.interiorAnimatedObjects.push({ mesh: holoTerminal, type: 'pulse', freq: 3, amt: 0.06 });
+
+        worldGroup.add(deskGroup);
+
+        // Receptionist NPC standing behind the counter at (0, 0, -4.5)
         create3DNPC(t.receptionist.pos.x, t.receptionist.pos.z, themeColor, t.receptionist.avatar, t.receptionist.name);
 
-        const elevPad = new THREE.Mesh(new THREE.PlaneGeometry(10, 5), new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.8 }));
+        // B. Corporate Brand Motto Plaque on wall
+        const mottoTex = makeBillboardTexture(t.name.toUpperCase(), 'EXECUTIVE ATRIUM • STAGE 2', themeColorHex);
+        const mottoPlaque = new THREE.Mesh(new THREE.PlaneGeometry(16, 4.4), new THREE.MeshBasicMaterial({ map: mottoTex, transparent: true }));
+        mottoPlaque.position.set(0, 14, -41.4);
+        worldGroup.add(mottoPlaque);
+
+        // C. Executive Express Elevator Portal at far back (z = -40)
+        const elevPylonL = new THREE.Mesh(new THREE.BoxGeometry(1.2, 13, 1.5), portalPylonMat);
+        elevPylonL.position.set(-5.6, 6.5, -40.5);
+        worldGroup.add(elevPylonL);
+
+        const elevPylonR = new THREE.Mesh(new THREE.BoxGeometry(1.2, 13, 1.5), portalPylonMat);
+        elevPylonR.position.set(5.6, 6.5, -40.5);
+        worldGroup.add(elevPylonR);
+
+        const elevTop = new THREE.Mesh(new THREE.BoxGeometry(12.4, 1.4, 1.6), portalPylonMat);
+        elevTop.position.set(0, 12.5, -40.5);
+        worldGroup.add(elevTop);
+
+        const elevSignTex = createHoloPortalSignTexture('🛗 EXPRESS ELEVATOR', '▲ ASCEND TO 88F R&D SUITE', themeColorHex);
+        const elevSign = new THREE.Mesh(new THREE.PlaneGeometry(8, 2.2), new THREE.MeshBasicMaterial({
+          map: elevSignTex,
+          transparent: true,
+          side: THREE.DoubleSide
+        }));
+        elevSign.position.set(0, 11, -39.6);
+        worldGroup.add(elevSign);
+
+        const elevPad = new THREE.Mesh(new THREE.PlaneGeometry(10, 5), new THREE.MeshBasicMaterial({
+          color: themeColor,
+          transparent: true,
+          opacity: 0.75
+        }));
         elevPad.rotation.x = -Math.PI / 2;
-        elevPad.position.set(0, 0.08, -26);
+        elevPad.position.set(0, 0.08, -38.5);
         worldGroup.add(elevPad);
+
+        // D. VIP Lounge Seating (Left: x: -22, z: 14 & Right: x: 22, z: 14)
+        [-22, 22].forEach(lx => {
+          const sofa = new THREE.Mesh(new THREE.BoxGeometry(7, 2.2, 3.5), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 }));
+          sofa.position.set(lx, 1.1, 14);
+          sofa.castShadow = true;
+          worldGroup.add(sofa);
+
+          const table = new THREE.Mesh(new THREE.BoxGeometry(4.5, 1.2, 2.5), new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9 }));
+          table.position.set(lx, 0.6, 18.5);
+          worldGroup.add(table);
+
+          // Planter with bioluminescent cyber-flora
+          const planter = new THREE.Mesh(new THREE.BoxGeometry(2.5, 2.2, 2.5), new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8 }));
+          planter.position.set(lx > 0 ? 32 : -32, 1.1, 14);
+          worldGroup.add(planter);
+
+          const flora = new THREE.Mesh(new THREE.DodecahedronGeometry(1.6, 1), new THREE.MeshBasicMaterial({ color: themeColor, wireframe: true }));
+          flora.position.set(lx > 0 ? 32 : -32, 3.2, 14);
+          worldGroup.add(flora);
+          window.interiorAnimatedObjects.push({ mesh: flora, type: 'rotate', speed: 0.015 });
+        });
+
+        // E. Security Scanner Archway at z = 24
+        const archL = new THREE.Mesh(new THREE.BoxGeometry(0.8, 10, 0.8), portalPylonMat);
+        archL.position.set(-6, 5, 24);
+        worldGroup.add(archL);
+        const archR = new THREE.Mesh(new THREE.BoxGeometry(0.8, 10, 0.8), portalPylonMat);
+        archR.position.set(6, 5, 24);
+        worldGroup.add(archR);
+        const archLaser = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 12), new THREE.MeshBasicMaterial({ color: 0x10b981 }));
+        archLaser.rotation.z = Math.PI / 2;
+        archLaser.position.set(0, 9.5, 24);
+        worldGroup.add(archLaser);
+
       } else {
-        const serverRack1 = new THREE.Mesh(new THREE.BoxGeometry(4, 12, 3), new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9 }));
-        serverRack1.position.set(-14, 6, -26);
-        worldGroup.add(serverRack1);
+        // ================= STAGE 3 RESEARCH: R&D QUANTUM LAB & DATA VAULT =================
+        // A. Tower-Specific R&D Central Setpiece
+        if (state.activeTowerId === 'apex') {
+          // APEX CYBERTECH: Multi-tier supercomputer arrays & Floating Quantum Core
+          [-18, 18].forEach(sx => {
+            const server = new THREE.Mesh(new THREE.BoxGeometry(5, 14, 4), new THREE.MeshStandardMaterial({ color: 0x090d16, metalness: 0.95 }));
+            server.position.set(sx, 7, -10);
+            server.castShadow = true;
+            worldGroup.add(server);
 
-        const serverRack2 = serverRack1.clone();
-        serverRack2.position.x = 14;
-        worldGroup.add(serverRack2);
+            // Blinking status LED columns
+            for (let ly = 2; ly < 13; ly += 2) {
+              const led = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.4, 0.2), new THREE.MeshBasicMaterial({ color: ly % 4 === 0 ? 0x06b6d4 : 0x38bdf8 }));
+              led.position.set(sx, ly, -7.9);
+              worldGroup.add(led);
+            }
+          });
 
-        const holoBall = new THREE.Mesh(new THREE.SphereGeometry(2.5, 16, 16), new THREE.MeshBasicMaterial({ color: themeColor, wireframe: true }));
-        holoBall.position.set(0, 6, -10);
-        worldGroup.add(holoBall);
+          // Floating Quantum Neural Core
+          const coreGroup = new THREE.Group();
+          coreGroup.position.set(0, 7.5, -10);
 
+          const coreSphere = new THREE.Mesh(new THREE.SphereGeometry(2.4, 16, 16), new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true }));
+          coreGroup.add(coreSphere);
+
+          const ring1 = new THREE.Mesh(new THREE.TorusGeometry(3.6, 0.15, 8, 24), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+          coreGroup.add(ring1);
+
+          const ring2 = new THREE.Mesh(new THREE.TorusGeometry(4.4, 0.15, 8, 24), new THREE.MeshBasicMaterial({ color: 0xa855f7 }));
+          ring2.rotation.x = Math.PI / 3;
+          coreGroup.add(ring2);
+
+          worldGroup.add(coreGroup);
+          window.interiorAnimatedObjects.push({ mesh: coreGroup, type: 'rotate', speed: 0.02 });
+          window.interiorAnimatedObjects.push({ mesh: ring2, type: 'rotate', speed: -0.03 });
+
+        } else if (state.activeTowerId === 'fashion') {
+          // VOGUE LUXE: Central Haute Couture Fashion Runway with 3 Rotating Holographic Mannequins
+          const runway = new THREE.Mesh(new THREE.BoxGeometry(8, 0.7, 24), new THREE.MeshStandardMaterial({
+            color: 0x1e1b4b,
+            roughness: 0.1,
+            metalness: 0.8
+          }));
+          runway.position.set(0, 0.35, -10);
+          worldGroup.add(runway);
+
+          const runwayTrim = new THREE.Mesh(new THREE.BoxGeometry(8.4, 0.25, 24.2), new THREE.MeshBasicMaterial({ color: 0xf43f5e }));
+          runwayTrim.position.set(0, 0.65, -10);
+          worldGroup.add(runwayTrim);
+
+          // 3 Holographic Mannequins
+          [-7, 0, 7].forEach((mz, idx) => {
+            const mGroup = new THREE.Group();
+            mGroup.position.set(0, 0.7, -10 + mz);
+
+            const mBase = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 1.1, 0.4, 16), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95 }));
+            mBase.position.y = 0.2;
+            mGroup.add(mBase);
+
+            const mBody = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.7, 3.2, 12), new THREE.MeshBasicMaterial({
+              color: idx === 1 ? 0xf43f5e : (idx === 0 ? 0xfbbf24 : 0x06b6d4),
+              wireframe: true
+            }));
+            mBody.position.y = 2.0;
+            mGroup.add(mBody);
+
+            const mHead = new THREE.Mesh(new THREE.SphereGeometry(0.5, 12, 12), new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true }));
+            mHead.position.y = 4.0;
+            mGroup.add(mHead);
+
+            worldGroup.add(mGroup);
+            window.interiorAnimatedObjects.push({ mesh: mGroup, type: 'rotate', speed: 0.018 * (idx % 2 === 0 ? 1 : -1) });
+          });
+
+        } else {
+          // TITAN MOTORS: Illuminated Turntable with Wireframe Concept Hyper-Car Chassis!
+          const turntable = new THREE.Mesh(new THREE.CylinderGeometry(8.5, 8.8, 0.6, 32), new THREE.MeshStandardMaterial({
+            color: 0x0f172a,
+            metalness: 0.95,
+            roughness: 0.2
+          }));
+          turntable.position.set(0, 0.3, -10);
+          worldGroup.add(turntable);
+
+          const turntableRing = new THREE.Mesh(new THREE.TorusGeometry(8.5, 0.18, 8, 32), new THREE.MeshBasicMaterial({ color: 0xf59e0b }));
+          turntableRing.rotation.x = Math.PI / 2;
+          turntableRing.position.set(0, 0.6, -10);
+          worldGroup.add(turntableRing);
+
+          // Wireframe Hyper-Car Chassis
+          const carModel = new THREE.Group();
+          carModel.position.set(0, 1.6, -10);
+
+          const chassis = new THREE.Mesh(new THREE.BoxGeometry(5.5, 1.4, 10.5), new THREE.MeshBasicMaterial({ color: 0xf59e0b, wireframe: true }));
+          carModel.add(chassis);
+
+          const cockpit = new THREE.Mesh(new THREE.BoxGeometry(3.8, 1.2, 4.8), new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true }));
+          cockpit.position.set(0, 1.1, -0.6);
+          carModel.add(cockpit);
+
+          worldGroup.add(carModel);
+          window.interiorAnimatedObjects.push({ mesh: carModel, type: 'rotate', speed: 0.012 });
+
+          // Dual Robotic Welding Arms
+          [-12, 12].forEach(rx => {
+            const armBase = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.5, 3.2, 12), new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9 }));
+            armBase.position.set(rx, 1.6, -10);
+            worldGroup.add(armBase);
+
+            const armJ = new THREE.Mesh(new THREE.BoxGeometry(0.8, 4.5, 0.8), new THREE.MeshStandardMaterial({ color: 0x090d16, metalness: 0.9 }));
+            armJ.position.set(rx > 0 ? rx - 1.5 : rx + 1.5, 4.5, -10);
+            armJ.rotation.z = rx > 0 ? 0.35 : -0.35;
+            worldGroup.add(armJ);
+          });
+        }
+
+        // B. Lead Researcher Command Station at z = -28
+        const commandGroup = new THREE.Group();
+        commandGroup.position.set(0, 0, -28);
+
+        const commandDesk = new THREE.Mesh(new THREE.BoxGeometry(16, 3.6, 4.5), new THREE.MeshStandardMaterial({
+          color: 0x0f172a,
+          roughness: 0.2,
+          metalness: 0.9
+        }));
+        commandDesk.position.y = 1.8;
+        commandDesk.castShadow = true;
+        commandGroup.add(commandDesk);
+
+        const deskTrim = new THREE.Mesh(new THREE.BoxGeometry(16.4, 0.25, 4.7), new THREE.MeshBasicMaterial({ color: 0x8b5cf6 }));
+        deskTrim.position.y = 3.6;
+        commandGroup.add(deskTrim);
+
+        // 3 Floating Curved Holographic Telemetry Monitors
+        [-5, 0, 5].forEach(mx => {
+          const monitor = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 2.0), new THREE.MeshBasicMaterial({
+            color: 0x06b6d4,
+            wireframe: true,
+            side: THREE.DoubleSide
+          }));
+          monitor.position.set(mx, 5.0, 1.0);
+          monitor.rotation.y = mx === 0 ? 0 : (mx > 0 ? -0.25 : 0.25);
+          commandGroup.add(monitor);
+        });
+
+        worldGroup.add(commandGroup);
+
+        // Researcher NPC standing behind command console at (0, 0, -31)
         create3DNPC(t.researcher.pos.x, t.researcher.pos.z, 0x8b5cf6, t.researcher.avatar, t.researcher.name);
       }
     }
@@ -2418,6 +3505,19 @@
     // ================= 9. 3D PLAYER & VISUAL WEAPON ARSENAL =================
     const playerGroup = new THREE.Group();
     scene.add(playerGroup);
+
+    // Invulnerability Nano-Shield Sphere (Visual protective aura on respawn & dodge)
+    const shieldGeo = new THREE.SphereGeometry(2.4, 24, 24);
+    const shieldMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.75
+    });
+    const playerShieldMesh = new THREE.Mesh(shieldGeo, shieldMat);
+    playerShieldMesh.position.y = 2.0;
+    playerShieldMesh.visible = false;
+    playerGroup.add(playerShieldMesh);
 
     // Torso (Rotates during swings for realistic body animation)
     const torsoGroup = new THREE.Group();
@@ -2490,78 +3590,480 @@
       while(rightWeaponSocket.children.length > 0) rightWeaponSocket.remove(rightWeaponSocket.children[0]);
       while(leftWeaponSocket.children.length > 0) leftWeaponSocket.remove(leftWeaponSocket.children[0]);
 
+      // Neutral socket transforms aligned to hand palm
+      rightWeaponSocket.position.set(0, 0.08, 0.02);
+      rightWeaponSocket.rotation.set(0, 0, 0);
+      rightWeaponSocket.scale.set(1, 1, 1);
+
+      leftWeaponSocket.position.set(0, 0.08, 0.02);
+      leftWeaponSocket.rotation.set(0, 0, 0);
+      leftWeaponSocket.scale.set(1, 1, 1);
+
       const tier = state.selectedWeaponTier;
 
       if (tier === 0) {
-        // TIER 0: TWIN ARC GAUNTLETS (ON BOTH HANDS!)
-        const gauntletGeo = new THREE.BoxGeometry(0.65, 0.65, 0.7);
-        const gauntletMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9 });
-        const wireMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true });
+        // TIER 0: TWIN ARC GAUNTLETS (Sleek cybernetic combat gloves fitted to hands)
+        const makeGauntlet = (isLeft) => {
+          const g = new THREE.Group();
+          // Glove body wrapping around the fist
+          const glove = new THREE.Mesh(
+            new THREE.BoxGeometry(0.12, 0.15, 0.12),
+            new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3, metalness: 0.85 })
+          );
+          glove.position.set(0, 0.01, 0);
+          g.add(glove);
 
-        const gR = new THREE.Mesh(gauntletGeo, gauntletMat);
-        const wireR = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.75), wireMat);
-        gR.add(wireR);
-        rightWeaponSocket.add(gR);
+          // Armored Knuckle Guard plate
+          const knuckles = new THREE.Mesh(
+            new THREE.BoxGeometry(0.13, 0.04, 0.13),
+            new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.95, roughness: 0.2 })
+          );
+          knuckles.position.set(0, 0.07, 0.01);
+          g.add(knuckles);
 
-        const gL = new THREE.Mesh(gauntletGeo, gauntletMat);
-        const wireL = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.75), wireMat);
-        gL.add(wireL);
-        leftWeaponSocket.add(gL);
+          // Glowing Cyber Neon Conduit lines
+          const neonWire = new THREE.Mesh(
+            new THREE.BoxGeometry(0.135, 0.155, 0.135),
+            new THREE.MeshBasicMaterial({ color: 0x06b6d4, wireframe: true })
+          );
+          neonWire.position.set(0, 0.01, 0);
+          g.add(neonWire);
+
+          // Energy core emitter
+          const emitter = new THREE.Mesh(
+            new THREE.SphereGeometry(0.025, 8, 8),
+            new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+          );
+          emitter.position.set(0, 0.03, 0.06);
+          g.add(emitter);
+
+          const light = new THREE.PointLight(0x06b6d4, 0.9, 3.5);
+          light.position.set(0, 0.03, 0.06);
+          g.add(light);
+
+          return g;
+        };
+
+        rightWeaponSocket.add(makeGauntlet(false));
+        leftWeaponSocket.add(makeGauntlet(true));
+
       } else if (tier === 1) {
-        // TIER 1: QUANTUM NEON KATANA
-        const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 1.2), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
-        hilt.rotation.x = Math.PI / 2;
-        rightWeaponSocket.add(hilt);
+        // TIER 1: QUANTUM NEON KATANA (Ergonomic grip held naturally in right hand)
+        const katanaGroup = new THREE.Group();
+        katanaGroup.rotation.x = Math.PI / 2;
 
-        const guard = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.12, 0.65), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95 }));
-        guard.position.z = 0.6;
-        rightWeaponSocket.add(guard);
+        // Hilt (wrapped grip)
+        const hilt = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.018, 0.022, 0.28, 12),
+          new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6 })
+        );
+        hilt.position.y = -0.10;
+        katanaGroup.add(hilt);
 
-        const blade = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.32, 3.4), new THREE.MeshBasicMaterial({ color: 0x06b6d4 }));
-        blade.position.z = 2.4;
-        rightWeaponSocket.add(blade);
+        // Pommel
+        const pommel = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.024, 0.022, 0.03, 12),
+          new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95 })
+        );
+        pommel.position.y = -0.24;
+        katanaGroup.add(pommel);
 
-        const glow = new THREE.PointLight(0x06b6d4, 2.0, 8);
-        glow.position.z = 2.4;
-        rightWeaponSocket.add(glow);
+        // Guard (Tsuba)
+        const guard = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.065, 0.065, 0.012, 16),
+          new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.2 })
+        );
+        guard.position.y = 0.04;
+        katanaGroup.add(guard);
+
+        // Blade (sleek razor curve with glowing cyan edge)
+        const blade = new THREE.Mesh(
+          new THREE.BoxGeometry(0.014, 0.95, 0.045),
+          new THREE.MeshBasicMaterial({ color: 0x06b6d4 })
+        );
+        blade.position.set(0, 0.52, 0);
+        katanaGroup.add(blade);
+
+        // Luminescent Katana glow light
+        const glow = new THREE.PointLight(0x06b6d4, 1.4, 4.5);
+        glow.position.set(0, 0.5, 0);
+        katanaGroup.add(glow);
+
+        rightWeaponSocket.add(katanaGroup);
+
       } else if (tier === 2) {
-        // TIER 2: DUAL HYPER PLASMA CARBINES (HELD IN BOTH HANDS!)
+        // TIER 2: DUAL HYPER PLASMA CARBINES (Handheld compact dual blasters)
         const createCarbine = (colorHex) => {
           const g = new THREE.Group();
-          const carbineBody = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.7, 2.2), new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9 }));
-          carbineBody.position.z = 1.0;
-          g.add(carbineBody);
+          g.rotation.x = Math.PI / 2;
 
-          const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.4), new THREE.MeshBasicMaterial({ color: colorHex }));
-          barrel.rotation.x = Math.PI / 2;
-          barrel.position.set(0, 0.15, 2.0);
-          g.add(barrel);
+          // Grip / Handle
+          const handle = new THREE.Mesh(
+            new THREE.BoxGeometry(0.032, 0.14, 0.05),
+            new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4 })
+          );
+          handle.position.set(0, -0.06, 0.02);
+          handle.rotation.x = -0.2;
+          g.add(handle);
 
-          const light = new THREE.PointLight(colorHex, 1.8, 7);
-          light.position.set(0, 0.15, 2.1);
+          // Upper Receiver / Chassis
+          const body = new THREE.Mesh(
+            new THREE.BoxGeometry(0.055, 0.08, 0.32),
+            new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9, roughness: 0.3 })
+          );
+          body.position.set(0, 0.04, 0.04);
+          g.add(body);
+
+          // Top Sight Rail
+          const rail = new THREE.Mesh(
+            new THREE.BoxGeometry(0.04, 0.02, 0.22),
+            new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8 })
+          );
+          rail.position.set(0, 0.09, 0.04);
+          g.add(rail);
+
+          // Dual Energy Plasma Barrels
+          const barrel1 = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.014, 0.014, 0.18, 12),
+            new THREE.MeshBasicMaterial({ color: colorHex })
+          );
+          barrel1.rotation.x = Math.PI / 2;
+          barrel1.position.set(0.015, 0.04, 0.26);
+          g.add(barrel1);
+
+          const barrel2 = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.014, 0.014, 0.18, 12),
+            new THREE.MeshBasicMaterial({ color: colorHex })
+          );
+          barrel2.rotation.x = Math.PI / 2;
+          barrel2.position.set(-0.015, 0.04, 0.26);
+          g.add(barrel2);
+
+          // Muzzle glow
+          const light = new THREE.PointLight(colorHex, 1.2, 3.5);
+          light.position.set(0, 0.04, 0.32);
           g.add(light);
+
           return g;
         };
 
         rightWeaponSocket.add(createCarbine(0xec4899));
         leftWeaponSocket.add(createCarbine(0x06b6d4));
+
       } else if (tier === 3) {
-        // TIER 3: SINGULARITY VORTEX CANNON (HEAVY 2-HANDED WEAPON)
-        const cannon = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.75, 3.6, 16), new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.95 }));
-        cannon.rotation.x = Math.PI / 2;
-        cannon.position.z = 1.4;
-        rightWeaponSocket.add(cannon);
+        // TIER 3: SINGULARITY VORTEX CANNON (Compact heavy energy projector)
+        const cannonGroup = new THREE.Group();
+        cannonGroup.rotation.x = Math.PI / 2;
 
-        const vortexCore = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 16), new THREE.MeshBasicMaterial({ color: 0x8b5cf6, wireframe: true }));
-        vortexCore.position.z = 3.2;
-        rightWeaponSocket.add(vortexCore);
+        // Grip handle
+        const grip = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.025, 0.028, 0.18, 12),
+          new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5 })
+        );
+        grip.position.set(0, -0.06, 0);
+        cannonGroup.add(grip);
 
-        const vLight = new THREE.PointLight(0x8b5cf6, 2.8, 12);
-        vLight.position.z = 3.2;
-        rightWeaponSocket.add(vLight);
+        // Heavy Cannon Housing
+        const chassis = new THREE.Mesh(
+          new THREE.BoxGeometry(0.14, 0.16, 0.65),
+          new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.95, roughness: 0.25 })
+        );
+        chassis.position.set(0, 0.08, 0.12);
+        cannonGroup.add(chassis);
+
+        // Singular Vortex Containment Core
+        const vortexCore = new THREE.Mesh(
+          new THREE.SphereGeometry(0.075, 16, 16),
+          new THREE.MeshBasicMaterial({ color: 0x8b5cf6, wireframe: true })
+        );
+        vortexCore.position.set(0, 0.08, 0.12);
+        cannonGroup.add(vortexCore);
+
+        // Heavy Magnetic Accelerator Barrel
+        const muzzle = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.07, 0.085, 0.28, 16),
+          new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.95, roughness: 0.2 })
+        );
+        muzzle.rotation.x = Math.PI / 2;
+        muzzle.position.set(0, 0.08, 0.48);
+        cannonGroup.add(muzzle);
+
+        // Core glow light
+        const vLight = new THREE.PointLight(0x8b5cf6, 2.2, 5.0);
+        vLight.position.set(0, 0.08, 0.12);
+        cannonGroup.add(vLight);
+
+        rightWeaponSocket.add(cannonGroup);
       }
     }
     updatePlayerWeaponMesh();
+
+    // ================= 9B. QUATERNIUS UNIVERSAL ANIMATION LIBRARY LOADER =================
+    let playerMixer = null;
+    const playerActions = {};
+    let activeAnimName = '';
+    let currentAnimAction = null;
+    let isPlayingActionAnim = false;
+    let playerModel = null;
+
+    function getIdleAnimName() {
+      const tier = state.selectedWeaponTier;
+      if (tier === 1) return 'Sword_Idle';
+      if (tier === 2) return 'Pistol_Idle_Loop';
+      if (tier === 3) return 'Spell_Simple_Idle_Loop';
+      return 'Idle_Loop';
+    }
+
+    let activeOneShotListener = null;
+    let activeOneShotTimeout = null;
+
+    function playPlayerAnimation(name, duration = 0.18, loop = true, timeScale = 1.0, onComplete = null) {
+      if (!playerMixer || !playerActions[name]) return;
+      if (activeAnimName === name && loop) return;
+
+      // Clean up previous one-shot listener & timeout to avoid stale callbacks and listener leaks
+      if (activeOneShotListener) {
+        playerMixer.removeEventListener('finished', activeOneShotListener);
+        activeOneShotListener = null;
+      }
+      if (activeOneShotTimeout) {
+        clearTimeout(activeOneShotTimeout);
+        activeOneShotTimeout = null;
+      }
+
+      const prevAction = currentAnimAction;
+      const newAction = playerActions[name];
+
+      newAction.reset();
+      newAction.timeScale = timeScale;
+      if (!loop) {
+        newAction.setLoop(THREE.LoopOnce, 1);
+        newAction.clampWhenFinished = true;
+        isPlayingActionAnim = true;
+      } else {
+        newAction.setLoop(THREE.LoopRepeat);
+        isPlayingActionAnim = false;
+      }
+
+      if (prevAction && prevAction !== newAction) {
+        newAction.fadeIn(duration);
+        prevAction.fadeOut(duration);
+      } else {
+        newAction.fadeIn(duration);
+      }
+
+      newAction.play();
+      currentAnimAction = newAction;
+      activeAnimName = name;
+
+      if (!loop) {
+        const clipDuration = newAction.getClip() ? newAction.getClip().duration : 0.5;
+        const durationMs = Math.max(120, Math.floor((clipDuration / Math.max(0.1, timeScale)) * 1000));
+
+        const finishOneShot = () => {
+          if (activeOneShotListener) {
+            playerMixer.removeEventListener('finished', activeOneShotListener);
+            activeOneShotListener = null;
+          }
+          if (activeOneShotTimeout) {
+            clearTimeout(activeOneShotTimeout);
+            activeOneShotTimeout = null;
+          }
+          isPlayingActionAnim = false;
+          if (onComplete) onComplete();
+        };
+
+        activeOneShotListener = (e) => {
+          if (e.action === newAction) {
+            finishOneShot();
+          }
+        };
+        playerMixer.addEventListener('finished', activeOneShotListener);
+        // Fail-safe watchdog: guarantees character never gets stuck in action pose even if mixer finished drops
+        activeOneShotTimeout = setTimeout(finishOneShot, durationMs + 40);
+      }
+    }
+
+    let isDead = false;
+    let respawnShieldTimer = 0;
+    let deathCountdownInterval = null;
+
+    function triggerPlayerDeath() {
+      if (isDead) return;
+      isDead = true;
+      isPlayingActionAnim = true;
+      isHoldingAttack = false;
+      isDashing = false;
+      playerVelocityY = 0;
+      dashTimer = 0;
+      comboStep = 0;
+      attackCooldown = 0;
+      for (const k in keys) keys[k] = false;
+
+      sound.playExplosion();
+
+      // Show emergency revival overlay
+      const overlay = document.getElementById('death-overlay');
+      const fill = document.getElementById('death-meter-fill');
+      const timerTxt = document.getElementById('death-timer-text');
+      if (overlay) overlay.classList.remove('hidden');
+      if (fill) fill.style.width = '0%';
+      if (timerTxt) timerTxt.textContent = 'Revival in 2.4s...';
+
+      // Play death animation
+      playPlayerAnimation('Death01', 0.08, false, 1.2);
+
+      let remainingMs = 2400;
+      const intervalStep = 50;
+      if (deathCountdownInterval) clearInterval(deathCountdownInterval);
+      
+      deathCountdownInterval = setInterval(() => {
+        remainingMs -= intervalStep;
+        const pct = Math.max(0, Math.min(100, ((2400 - remainingMs) / 2400) * 100));
+        if (fill) fill.style.width = `${pct}%`;
+        if (timerTxt) timerTxt.textContent = `Revival in ${(Math.max(0, remainingMs) / 1000).toFixed(1)}s...`;
+
+        if (remainingMs <= 0) {
+          clearInterval(deathCountdownInterval);
+          deathCountdownInterval = null;
+          respawnPlayer();
+        }
+      }, intervalStep);
+    }
+
+    function respawnPlayer() {
+      if (deathCountdownInterval) {
+        clearInterval(deathCountdownInterval);
+        deathCountdownInterval = null;
+      }
+
+      const overlay = document.getElementById('death-overlay');
+      if (overlay) overlay.classList.add('hidden');
+
+      // Place player in safe sanctuary based on current scene
+      if (state.location === 'street') {
+        // Safe sanctuary in front of campsite depot (inSanctuary is true here, away from highway center!)
+        playerGroup.position.set(0, 0, -16);
+      } else if (state.location === 'lobby') {
+        // Front foyer entrance (safe distance from desk collider at z = -2)
+        playerGroup.position.set(0, 0, 32);
+      } else if (state.location === 'research') {
+        // Safe elevator entry pad
+        playerGroup.position.set(0, 0, 28);
+      }
+
+      state.hp = state.maxHp;
+      respawnShieldTimer = 180; // 3.0 seconds of complete invulnerability & enemy repulsion
+      isDead = false;
+      isPlayingActionAnim = false;
+      isHoldingAttack = false;
+      isDashing = false;
+      playerVelocityY = 0;
+      isGrounded = true;
+      jumpCount = 0;
+      comboStep = 0;
+      attackCooldown = 0;
+      dashCooldown = 0;
+      for (const k in keys) keys[k] = false;
+
+      // Repel any mechs near the respawn point and stun them
+      enemies.forEach(e => {
+        const d = e.mesh.position.distanceTo(playerGroup.position);
+        if (d < 18) {
+          const pDir = e.mesh.position.clone().sub(playerGroup.position).setY(0).normalize();
+          e.mesh.position.add(pDir.multiplyScalar(8.0));
+          e.attackTimer = 0;
+          e.stunTimer = 60;
+        }
+      });
+
+      sound.playFanfare();
+      updateHUD();
+      playPlayerAnimation(getIdleAnimName(), 0.2, true);
+      showFloatingText("🛡️ NANO-SHIELD ACTIVE (3s) • FULL HEALTH RESTORED!", "#10b981");
+    }
+    window.respawnPlayer = respawnPlayer;
+    window.triggerPlayerDeath = triggerPlayerDeath;
+
+    // Load Quaternius Universal Animation Library GLTF model
+    if (typeof THREE.GLTFLoader !== 'undefined') {
+      const gltfLoader = new THREE.GLTFLoader();
+      gltfLoader.load('/UAL1_Standard.glb', (gltf) => {
+        playerModel = gltf.scene;
+        playerModel.scale.set(2.6, 2.6, 2.6);
+        playerModel.position.set(0, 0, 0);
+
+        playerModel.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            if (child.isSkinnedMesh && child.material) {
+              child.material.skinning = true;
+            }
+            if (child.material) {
+              if (child.material.name === 'M_Main') {
+                child.material.color.setHex(0x1e293b);
+                child.material.roughness = 0.35;
+                child.material.metalness = 0.65;
+              } else if (child.material.name === 'M_Joints') {
+                child.material.color.setHex(0x06b6d4);
+                child.material.roughness = 0.2;
+                child.material.metalness = 0.9;
+                if (child.material.emissive) {
+                  child.material.emissive.setHex(0x083344);
+                  child.material.emissiveIntensity = 0.4;
+                }
+              }
+              child.material.needsUpdate = true;
+            }
+          }
+        });
+
+        // Find Bone Sockets
+        let boneHandR = null;
+        let boneHandL = null;
+        let boneHead = null;
+
+        playerModel.traverse((node) => {
+          if (node.isBone) {
+            const n = node.name.toLowerCase();
+            if (n === 'hand_r') boneHandR = node;
+            else if (n === 'hand_l') boneHandL = node;
+            else if (n === 'head') boneHead = node;
+          }
+        });
+
+        if (boneHandR) {
+          rightWeaponSocket.position.set(0, 0.08, 0.02);
+          rightWeaponSocket.rotation.set(0, 0, 0);
+          boneHandR.add(rightWeaponSocket);
+        }
+        if (boneHandL) {
+          leftWeaponSocket.position.set(0, 0.08, 0.02);
+          leftWeaponSocket.rotation.set(0, 0, 0);
+          boneHandL.add(leftWeaponSocket);
+        }
+
+        playerGroup.add(playerModel);
+
+        // Hide primitive box geometry once rigged GLTF model is active
+        torsoGroup.visible = false;
+        leftLeg.visible = false;
+        rightLeg.visible = false;
+
+        // Initialize Animation Mixer with all 43 Quaternius animation clips
+        playerMixer = new THREE.AnimationMixer(playerModel);
+        gltf.animations.forEach((clip) => {
+          playerActions[clip.name] = playerMixer.clipAction(clip);
+        });
+
+        updatePlayerWeaponMesh();
+        playPlayerAnimation('Idle_Loop', 0.2, true);
+        console.log('✅ Universal Animation Library loaded! 43 animations active with full skinning.');
+      }, undefined, (err) => {
+        console.warn('Could not load UAL1_Standard.glb, using procedural character.', err);
+      });
+    }
 
     // ================= 10. MENACING 3D COMBAT MECHS =================
     const enemies = [];
@@ -2771,9 +4273,16 @@
       const count = isStreet ? 6 : 3;
 
       for (let i = 0; i < count; i++) {
-        let sx = (Math.random() - 0.5) * (isStreet ? 90 : 28);
-        let sz = (Math.random() - 0.5) * (isStreet ? 90 : 28);
-        if (Math.hypot(sx, sz) < 14) sx += 18;
+        let sx, sz;
+        if (isStreet) {
+          const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
+          const dist = 18 + Math.random() * 7;
+          sx = Math.cos(angle) * dist;
+          sz = Math.sin(angle) * dist;
+        } else {
+          sx = (Math.random() - 0.5) * 36;
+          sz = (Math.random() - 0.5) * 36;
+        }
 
         if (i % 2 === 0) createTitanEnforcerMech(sx, sz);
         else createHoverSkimmer(sx, sz);
@@ -2942,13 +4451,24 @@
         tier: tier,
         combo: comboStep,
         progress: 0,
-        speed: tier === 0 ? 0.12 : (tier === 1 ? 0.09 : (tier === 2 ? 0.22 : 0.06)),
+        speed: tier === 0 ? 0.12 : (tier === 1 ? 0.09 : (tier === 2 ? 0.22 : 0.14)),
         startAngle: playerGroup.rotation.y
+      };
+
+      const resumeMovementOrIdle = () => {
+        isPlayingActionAnim = false;
+        const hasKeys = keys['KeyW'] || keys['KeyS'] || keys['KeyA'] || keys['KeyD'] || keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight'];
+        if (hasKeys) {
+          playPlayerAnimation('Jog_Fwd_Loop', 0.14, true, 1.15);
+        } else {
+          playPlayerAnimation(getIdleAnimName(), 0.18, true);
+        }
       };
 
       if (tier === 0) {
         // TIER 0: TWIN ARC GAUNTLETS (SHORT RANGE - STAND RIGHT NEXT TO ENEMY)
         sound.playPunch(0.9 + comboStep * 0.25);
+        playPlayerAnimation(comboStep === 0 ? 'Punch_Jab' : 'Punch_Cross', 0.06, false, 1.6, resumeMovementOrIdle);
         attackCooldown = comboStep === 2 ? 18 : 10;
 
         // Subtle stance weight shift (NO distant sliding/lunging)
@@ -2977,6 +4497,7 @@
       } else if (tier === 1) {
         // TIER 1: QUANTUM NEON KATANA (SHORT RANGE - PHYSICAL SWORD REACH ONLY)
         sound.playSlash(0.95 + comboStep * 0.2);
+        playPlayerAnimation('Sword_Attack', 0.06, false, 1.8, resumeMovementOrIdle);
         attackCooldown = comboStep === 2 ? 20 : 12;
 
         // Subtle forward stance shift
@@ -3001,6 +4522,7 @@
       } else if (tier === 2) {
         // TIER 2: DUAL HYPER PLASMA CARBINES (LONG RANGE PROJECTILES)
         sound.playLaser(1.0 + (comboStep % 2) * 0.25);
+        playPlayerAnimation('Pistol_Shoot', 0.04, false, 2.2, resumeMovementOrIdle);
         attackCooldown = 7;
         triggerScreenShake(0.12);
 
@@ -3038,7 +4560,8 @@
       } else if (tier === 3) {
         // TIER 3: SINGULARITY VORTEX CANNON (LONG RANGE GRAVITATIONAL ORB)
         sound.playVortex();
-        attackCooldown = 32;
+        playPlayerAnimation('Spell_Simple_Shoot', 0.05, false, 1.6, resumeMovementOrIdle);
+        attackCooldown = 26;
         triggerScreenShake(0.65);
 
         let shootDir = aimForward.clone();
@@ -3142,8 +4665,8 @@
 
     // ================= 13. MOUSE CAMERA ORBIT & INPUT =================
     let cameraYaw = 0;
-    let cameraPitch = 0.50;
-    let cameraDistance = 20;
+    let cameraPitch = 0.45;
+    let cameraDistance = 11.5;
     let isDraggingMouse = false;
     let lastUserCameraDragTime = 0;
     let lastMouseX = 0;
@@ -3171,13 +4694,85 @@
     let dashCooldown = 0;
     let dashDir = new THREE.Vector3();
 
+    // ================= JUMP & VERTICAL PHYSICS =================
+    let playerVelocityY = 0;
+    let isGrounded = true;
+    let jumpCount = 0;
+    const MAX_JUMPS = 2; // Jump + Jet Double Jump!
+    const JUMP_FORCE = 0.50;
+    const GRAVITY = 0.024;
+
+    function spawnJumpVFX(pos, isDouble = false) {
+      const count = isDouble ? 14 : 8;
+      const colorHex = isDouble ? 0x38bdf8 : 0x10b981;
+      for (let i = 0; i < count; i++) {
+        const sparkMat = new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.85 });
+        const spark = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 0.18), sparkMat);
+        spark.position.copy(pos).add(new THREE.Vector3((Math.random() - 0.5) * 0.8, 0.1, (Math.random() - 0.5) * 0.8));
+        scene.add(spark);
+
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 0.15 + Math.random() * 0.35;
+        hitSparks.push({
+          mesh: spark,
+          velocity: new THREE.Vector3(
+            Math.cos(angle) * speed,
+            isDouble ? -0.12 : 0.08,
+            Math.sin(angle) * speed
+          ),
+          life: 0,
+          maxLife: 16
+        });
+      }
+
+      if (isDouble) {
+        const ringGeo = new THREE.RingGeometry(0.3, 1.8, 16);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
+        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+        ringMesh.rotation.x = -Math.PI / 2;
+        ringMesh.position.copy(pos).add(new THREE.Vector3(0, 0.15, 0));
+        scene.add(ringMesh);
+
+        let ringLife = 0;
+        const ringInterval = setInterval(() => {
+          ringLife++;
+          ringMesh.scale.multiplyScalar(1.12);
+          ringMesh.material.opacity *= 0.82;
+          if (ringLife > 10) {
+            clearInterval(ringInterval);
+            scene.remove(ringMesh);
+          }
+        }, 20);
+      }
+    }
+
+    function triggerJump() {
+      if (isModalOpen()) return;
+      if (jumpCount >= MAX_JUMPS) return;
+
+      const isDouble = jumpCount === 1;
+      playerVelocityY = isDouble ? JUMP_FORCE * 0.92 : JUMP_FORCE;
+      isGrounded = false;
+      jumpCount++;
+
+      sound.init();
+      sound.playJump(isDouble ? 1.4 : 1.0);
+      spawnJumpVFX(playerGroup.position.clone(), isDouble);
+      playPlayerAnimation('Jump_Start', 0.06, false, 1.8, () => {
+        if (!isGrounded) playPlayerAnimation('Jump_Loop', 0.12, true);
+      });
+      showFloatingText(isDouble ? "🚀 JET DOUBLE JUMP!" : "🦘 JUMP!", isDouble ? "#38bdf8" : "#10b981");
+    }
+
     function triggerDash() {
       if (dashCooldown > 0 || isModalOpen()) return;
-      dashCooldown = 28; // ~0.5s cooldown
+      dashCooldown = 26; // ~0.45s cooldown
       isDashing = true;
-      dashTimer = 12;
+      dashTimer = 14;
+      sound.init();
       sound.playLaser(1.6);
-      showFloatingText("💨 CYBER DASH!", "#38bdf8");
+      playPlayerAnimation('Roll', 0.06, false, 1.4, () => { isPlayingActionAnim = false; });
+      showFloatingText("💨 CYBER DODGE (INVULNERABLE)!", "#38bdf8");
 
       // Dash in current movement direction or facing direction
       const camForward = new THREE.Vector3(-Math.sin(cameraYaw), 0, -Math.cos(cameraYaw)).normalize();
@@ -3221,6 +4816,19 @@
       }
     });
 
+    window.addEventListener('blur', () => {
+      isHoldingAttack = false;
+      isDraggingMouse = false;
+      for (const k in keys) keys[k] = false;
+    });
+
+    window.addEventListener('touchend', () => { isHoldingAttack = false; });
+    window.addEventListener('touchcancel', () => { isHoldingAttack = false; });
+
+    canvas.addEventListener('mouseleave', () => {
+      isHoldingAttack = false;
+    });
+
     window.addEventListener('mousemove', (e) => {
       if (isModalOpen()) return;
 
@@ -3245,8 +4853,8 @@
     window.addEventListener('wheel', (e) => {
       if (isModalOpen()) return;
       lastUserCameraDragTime = Date.now();
-      const minD = state.location === 'street' ? 6.0 : 4.0;
-      const maxD = state.location === 'street' ? 32.0 : 16.0;
+      const minD = state.location === 'street' ? 4.5 : 3.5;
+      const maxD = state.location === 'street' ? 24.0 : 15.0;
       cameraDistance = THREE.MathUtils.clamp(cameraDistance + e.deltaY * 0.02, minD, maxD);
     }, { passive: true });
 
@@ -3263,7 +4871,24 @@
         isHoldingAttack = true;
         executeAttack();
       });
-      window.addEventListener('mouseup', () => { isHoldingAttack = false; });
+      btnAtkHud.addEventListener('touchstart', (e) => {
+        e.stopPropagation();
+        sound.init();
+        isHoldingAttack = true;
+        executeAttack();
+      }, { passive: true });
+      btnAtkHud.addEventListener('touchend', (e) => {
+        e.stopPropagation();
+        isHoldingAttack = false;
+      }, { passive: true });
+    }
+
+    const btnJumpHud = document.getElementById('btn-jump-hud');
+    if (btnJumpHud) {
+      btnJumpHud.addEventListener('click', (e) => {
+        e.stopPropagation();
+        triggerJump();
+      });
     }
 
     const btnDodgeHud = document.getElementById('btn-dodge-hud');
@@ -3276,8 +4901,19 @@
 
     const keys = {};
     window.addEventListener('keydown', (e) => {
+      if (isDead) {
+        if (e.code === 'Space' || e.code === 'Enter') {
+          e.preventDefault();
+          respawnPlayer();
+        }
+        return;
+      }
       keys[e.code] = true;
-      if (e.code === 'KeyF' || e.code === 'Space') {
+      if (e.code === 'Space' || e.code === 'KeyC') {
+        e.preventDefault();
+        triggerJump();
+      }
+      if (e.code === 'KeyF') {
         isHoldingAttack = true;
         executeAttack();
       }
@@ -3285,20 +4921,34 @@
         triggerDash();
       }
       if (e.code === 'KeyE') tryInteract();
+      if (e.code === 'KeyG') {
+        playPlayerAnimation('Dance_Loop', 0.2, false, 1.0, () => { isPlayingActionAnim = false; });
+        showFloatingText("🕺 CELEBRATION DANCE!", "#fbbf24");
+      }
       if (e.code === 'Digit1') selectWeaponSlot(0);
       if (e.code === 'Digit2') selectWeaponSlot(1);
       if (e.code === 'Digit3') selectWeaponSlot(2);
       if (e.code === 'Digit4') selectWeaponSlot(3);
     });
 
+    const btnRebootEl = document.getElementById('btn-instant-reboot');
+    if (btnRebootEl) {
+      btnRebootEl.addEventListener('click', () => {
+        if (isDead) respawnPlayer();
+      });
+    }
+
     window.addEventListener('keyup', (e) => {
       keys[e.code] = false;
-      if (e.code === 'KeyF' || e.code === 'Space') isHoldingAttack = false;
+      if (e.code === 'KeyF') isHoldingAttack = false;
     });
 
     window.selectWeaponSlot = function(tier) {
       if (state.unlockedTiers.includes(tier)) {
         state.selectWeapon(tier);
+        if (playerMixer && !isPlayingActionAnim) {
+          playPlayerAnimation(getIdleAnimName(), 0.2, true);
+        }
       } else {
         showFloatingText(`🔒 Qualify Stage ${tier} to Unlock!`, '#f43f5e');
       }
@@ -3307,13 +4957,16 @@
     let walkCycle = 0;
 
     function updatePlayerMovement() {
-      if (isModalOpen()) return;
+      if (isModalOpen() || isDead) return;
 
       if (dashCooldown > 0) dashCooldown--;
       if (isDashing) {
         dashTimer--;
-        const dashSpeed = 0.95;
+        const dashSpeed = 1.05;
         safeStepTowards(dashDir, dashSpeed, 0.85);
+
+        // Aerodynamic lean into dash
+        torsoGroup.rotation.x = 0.45;
 
         // Spawn glowing cyber dash trail sparks
         if (Math.random() < 0.6) {
@@ -3322,6 +4975,31 @@
 
         if (dashTimer <= 0) {
           isDashing = false;
+          torsoGroup.rotation.x = 0;
+        }
+      }
+
+      // Vertical Physics (Gravity & Jumping)
+      if (!isGrounded || playerVelocityY !== 0 || playerGroup.position.y > 0) {
+        playerGroup.position.y += playerVelocityY;
+        playerVelocityY -= GRAVITY;
+
+        // Mid-air tuck pose when not attacking or dashing
+        if (!isDashing && !activeAttackAnim) {
+          leftLeg.rotation.x = -0.32;
+          rightLeg.rotation.x = -0.32;
+        }
+
+        if (playerGroup.position.y <= 0) {
+          playerGroup.position.y = 0;
+          playerVelocityY = 0;
+          if (!isGrounded) {
+            sound.playLand();
+            spawnJumpVFX(playerGroup.position.clone(), false);
+            playPlayerAnimation('Jump_Land', 0.08, false, 2.0, () => { isPlayingActionAnim = false; });
+          }
+          isGrounded = true;
+          jumpCount = 0;
         }
       }
 
@@ -3357,7 +5035,7 @@
       if (isMoving && !isDashing) {
         moveVec.normalize();
         const speed = 0.38;
-        const radius = 0.95;
+        const radius = 1.15;
 
         // SOLID COLLISION DETECTION WITH SMOOTH WALL-SLIDING
         const newX = playerGroup.position.x + moveVec.x * speed;
@@ -3371,7 +5049,7 @@
         }
 
         const targetAngle = Math.atan2(moveVec.x, moveVec.z);
-        if (!activeAttackAnim) {
+        if (!activeAttackAnim || state.selectedWeaponTier >= 2) {
           playerGroup.rotation.y = lerpAngle(playerGroup.rotation.y, targetAngle, 0.35);
         }
 
@@ -3397,6 +5075,19 @@
         }
       }
 
+      // Quaternius Skeletal Animation State Machine
+      if (playerMixer && !isPlayingActionAnim) {
+        if (!isGrounded) {
+          playPlayerAnimation('Jump_Loop', 0.15, true);
+        } else if (isDashing) {
+          playPlayerAnimation('Roll', 0.08, false, 1.4);
+        } else if (isMoving) {
+          playPlayerAnimation('Jog_Fwd_Loop', 0.18, true, 1.15);
+        } else {
+          playPlayerAnimation(getIdleAnimName(), 0.22, true);
+        }
+      }
+
       // Handle Attack Animation Tweening (Fluid Easing & Articulated Body Mechanics)
       if (activeAttackAnim) {
         activeAttackAnim.progress += activeAttackAnim.speed;
@@ -3405,64 +5096,23 @@
         const combo = activeAttackAnim.combo;
         const ease = Math.sin(p * Math.PI);
 
-        if (tier === 0) {
-          // Gauntlet Punch Combos
-          if (combo === 0) {
-            // Left Jab with forward punch extension
-            leftArm.rotation.x = -Math.PI / 2.2 - ease * 0.4;
-            leftArm.position.z = ease * 0.7;
-            torsoGroup.rotation.y = ease * 0.45;
-          } else if (combo === 1) {
-            // Right Power Cross with deep torso twist
-            rightArm.rotation.x = -Math.PI / 2.2 - ease * 0.5;
-            rightArm.position.z = ease * 0.85;
-            torsoGroup.rotation.y = -ease * 0.55;
-          } else {
-            // Dual Thunder Ground Slam Finisher
-            leftArm.rotation.x = -Math.PI / 2.5 - ease * 0.9;
-            rightArm.rotation.x = -Math.PI / 2.5 - ease * 0.9;
-            torsoGroup.rotation.x = ease * 0.45;
-          }
-        } else if (tier === 1) {
-          // Katana Combos
-          if (combo === 0) {
-            // Horizontal Slash Right-to-Left: arm cuts across chest, torso twists
+        // Procedural mesh fallback only when GLTF model is not active
+        if (!playerModel || torsoGroup.visible) {
+          if (tier === 0) {
+            if (combo === 0) {
+              leftArm.rotation.x = -Math.PI / 2.2 - ease * 0.4;
+              torsoGroup.rotation.y = ease * 0.45;
+            } else if (combo === 1) {
+              rightArm.rotation.x = -Math.PI / 2.2 - ease * 0.5;
+              torsoGroup.rotation.y = -ease * 0.55;
+            } else {
+              leftArm.rotation.x = -Math.PI / 2.5 - ease * 0.9;
+              rightArm.rotation.x = -Math.PI / 2.5 - ease * 0.9;
+            }
+          } else if (tier === 1) {
             torsoGroup.rotation.y = (0.5 - p) * 1.3;
             rightArm.rotation.x = -Math.PI / 3;
-            rightArm.rotation.y = -ease * 1.5;
-            rightArm.rotation.z = Math.cos(p * Math.PI) * 0.7;
-            rightWeaponSocket.rotation.y = -ease * 1.4;
-          } else if (combo === 1) {
-            // Rising Diagonal Cleave Left-to-Right
-            torsoGroup.rotation.y = -(0.5 - p) * 1.3;
-            rightArm.rotation.x = 0.3 - ease * 1.8;
-            rightArm.rotation.y = (0.5 - p) * 1.4;
-            rightArm.rotation.z = -0.4 + ease * 0.9;
-            rightWeaponSocket.rotation.y = ease * 1.5;
-          } else {
-            // 360° Leaping Whirlwind Finisher
-            playerGroup.rotation.y = activeAttackAnim.startAngle + p * Math.PI * 2;
-            rightArm.rotation.x = -Math.PI / 2.2;
-            rightArm.rotation.z = 0.5;
-            leftArm.rotation.x = -Math.PI / 2.2;
-            leftArm.rotation.z = -0.5;
-            torsoGroup.rotation.x = ease * 0.2;
           }
-        } else if (tier === 2) {
-          // Dual Plasma Recoil
-          const isLeft = combo % 2 === 0;
-          if (isLeft) {
-            leftArm.rotation.x = -Math.PI / 2.3 + ease * 0.45;
-            leftArm.position.z = -ease * 0.3;
-          } else {
-            rightArm.rotation.x = -Math.PI / 2.3 + ease * 0.45;
-            rightArm.position.z = -ease * 0.3;
-          }
-        } else if (tier === 3) {
-          // Heavy Cannon Recoil
-          rightArm.rotation.x = -Math.PI / 2.2 + ease * 0.6;
-          leftArm.rotation.x = -Math.PI / 2.4 + ease * 0.5;
-          torsoGroup.rotation.x = ease * 0.35;
         }
 
         if (p >= 1.0) {
@@ -3497,8 +5147,8 @@
       }
 
       // ================= SMART CAMERA BOOM COLLISION & WALL OCCLUSION =================
-      const focusPoint = playerGroup.position.clone().add(new THREE.Vector3(0, 2.2, 0));
-      const MIN_CAM_DIST = state.location === 'street' ? 5.5 : 4.0;
+      const focusPoint = playerGroup.position.clone().add(new THREE.Vector3(0, 2.6, 0));
+      const MIN_CAM_DIST = state.location === 'street' ? 4.5 : 3.5;
 
       // Desired spherical orbit offset
       const camOffsetX = cameraDistance * Math.sin(cameraYaw) * Math.cos(cameraPitch);
@@ -3548,9 +5198,9 @@
 
       // 2. WORLD CLAMPING: Allow camera to orbit freely without clipping into outer world void
       if (state.location !== 'street') {
-        targetCamPos.x = THREE.MathUtils.clamp(targetCamPos.x, -33.5, 33.5);
-        targetCamPos.z = THREE.MathUtils.clamp(targetCamPos.z, -33.5, 33.5);
-        targetCamPos.y = THREE.MathUtils.clamp(targetCamPos.y, 1.8, 18.0);
+        targetCamPos.x = THREE.MathUtils.clamp(targetCamPos.x, -41.5, 41.5);
+        targetCamPos.z = THREE.MathUtils.clamp(targetCamPos.z, -41.5, 41.5);
+        targetCamPos.y = THREE.MathUtils.clamp(targetCamPos.y, 1.8, 20.0);
       } else {
         targetCamPos.y = Math.max(1.8, targetCamPos.y);
         targetCamPos.x = THREE.MathUtils.clamp(targetCamPos.x, -95, 95);
@@ -3630,7 +5280,11 @@
     }
 
     // ================= 14. SCENE TRANSITIONS & TRIGGERS =================
-    function switchScene(newLocation, towerId = null, spawnX = 0, spawnZ = 10) {
+    let transitionCooldown = 0;
+    window.interiorAnimatedObjects = [];
+
+    function switchScene(newLocation, towerId = null, spawnX = 0, spawnZ = 24) {
+      transitionCooldown = 50; // Debounce triggers (~1.6s) to completely prevent accidental bouncing!
       sound.playFanfare();
       const curtain = document.getElementById('scene-transition');
       curtain.classList.add('active');
@@ -3639,24 +5293,23 @@
         state.location = newLocation;
         state.activeTowerId = towerId;
         playerGroup.position.set(spawnX, 0, spawnZ);
-        playerGroup.rotation.y = Math.PI;
-        inputRefCamYaw = 0;
+        // Face forward into room: if spawning from back elevator (spawnZ < 0), face South (0); if from front airlock (spawnZ > 0), face North (PI)
+        playerGroup.rotation.y = spawnZ < 0 ? 0 : Math.PI;
+        inputRefCamYaw = playerGroup.rotation.y;
+        cameraYaw = playerGroup.rotation.y - Math.PI;
         lastKeyString = '';
 
         if (newLocation === 'street') {
-          cameraDistance = 18;
-          cameraPitch = 0.45;
-          cameraYaw = 0;
+          cameraDistance = 11.5;
+          cameraPitch = 0.42;
           buildStreetScene();
         } else if (newLocation === 'lobby') {
-          cameraDistance = 11.5;
-          cameraPitch = 0.40;
-          cameraYaw = 0;
+          cameraDistance = 9.5;
+          cameraPitch = 0.38;
           buildInteriorScene(false);
         } else if (newLocation === 'research') {
-          cameraDistance = 11.5;
-          cameraPitch = 0.40;
-          cameraYaw = 0;
+          cameraDistance = 9.5;
+          cameraPitch = 0.38;
           buildInteriorScene(true);
         }
 
@@ -3667,33 +5320,43 @@
     }
 
     function checkTriggers() {
+      if (transitionCooldown > 0) return;
+
+      const px = playerGroup.position.x;
+      const pz = playerGroup.position.z;
+
       if (state.location === 'street') {
-        for (const tid in TOWERS) {
-          const t = TOWERS[tid];
-          const dist = playerGroup.position.distanceTo(new THREE.Vector3(t.doorPos.x, 0, t.doorPos.z));
-          if (dist < 4.5) {
-            if (state.passedScreeners.includes(tid)) {
-              switchScene('lobby', tid, 0, 10);
-            } else {
-              openBouncerModal(t);
-            }
-          }
-        }
+        // OUTSIDE ON STREET: NEVER automatically teleport the player into a building!
+        // Entering buildings requires pressing [E] on the door prompt or speaking with the bouncer.
+        // This ensures combat and killing enemies outside never pulls the player inside against their will.
+        return;
       } else if (state.location === 'lobby') {
-        if (playerGroup.position.distanceTo(new THREE.Vector3(0, 0, 26)) < 4.0) {
+        // Deep step onto exit pad at far front (z >= 40.2)
+        if (pz >= 40.2 && Math.abs(px) < 4.5) {
           const t = TOWERS[state.activeTowerId];
-          switchScene('street', null, t.bouncer.pos.x, t.bouncer.pos.z + 4);
+          let exitX = t.doorPos.x;
+          let exitZ = t.doorPos.z;
+          if (t.id === 'tech') exitX += 7;
+          else if (t.id === 'fashion') exitX -= 7;
+          else if (t.id === 'auto') exitZ -= 7;
+          switchScene('street', null, exitX, exitZ);
+          return;
         }
-        if (playerGroup.position.distanceTo(new THREE.Vector3(0, 0, -26)) < 4.0) {
+        // Deep step onto express elevator pad at far back (z <= -40.2)
+        if (pz <= -40.2 && Math.abs(px) < 4.5) {
           if (state.passedLobbies.includes(state.activeTowerId)) {
-            switchScene('research', state.activeTowerId, 0, 10);
+            switchScene('research', state.activeTowerId, 0, 24);
+            return;
           } else {
             openReceptionistModal(TOWERS[state.activeTowerId]);
+            return;
           }
         }
       } else if (state.location === 'research') {
-        if (playerGroup.position.distanceTo(new THREE.Vector3(0, 0, 26)) < 4.0) {
-          switchScene('lobby', state.activeTowerId, 0, -18);
+        // Deep step onto elevator pad down at far front (z >= 40.2)
+        if (pz >= 40.2 && Math.abs(px) < 4.5) {
+          switchScene('lobby', state.activeTowerId, 0, -22);
+          return;
         }
       }
     }
@@ -3701,26 +5364,75 @@
     const promptEl = document.getElementById('interaction-prompt');
     function checkNearbyInteractables() {
       let found = null;
+      const px = playerGroup.position.x;
+      const pz = playerGroup.position.z;
+
       if (state.location === 'street') {
-        if (playerGroup.position.distanceTo(new THREE.Vector3(0, 0, -8)) < 5.5) {
-          found = { text: '[E] Open Federal Cashout Kiosk', action: () => openCashoutModal() };
+        if (playerGroup.position.distanceTo(new THREE.Vector3(0, 0, -22)) < 6.5) {
+          const cashTitle = (currentWorldTheme === 'retro') 
+            ? '💰 [E] Access Federal Cashout Terminal & Depot' 
+            : '🏛️ [E] Access Royal Treasury Cashout Vault';
+          found = { text: cashTitle, action: () => openCashoutModal() };
         }
 
         for (const tid in TOWERS) {
-          const b = TOWERS[tid].bouncer;
-          if (playerGroup.position.distanceTo(new THREE.Vector3(b.pos.x, 0, b.pos.z)) < 5.5) {
-            found = { text: `[E] Talk to ${b.name}`, action: () => openBouncerModal(TOWERS[tid]) };
+          const t = TOWERS[tid];
+          const b = t.bouncer;
+          const distBouncer = playerGroup.position.distanceTo(new THREE.Vector3(b.pos.x, 0, b.pos.z));
+          const distDoor = playerGroup.position.distanceTo(new THREE.Vector3(t.doorPos.x, 0, t.doorPos.z));
+
+          if (distBouncer < 5.5) {
+            found = { text: `[E] Talk to ${b.name}`, action: () => openBouncerModal(t) };
+            break;
+          } else if (distDoor < 5.5) {
+            const hubName = (currentWorldTheme === 'retro') ? (t.retroName || t.name) : t.name;
+            if (state.passedScreeners.includes(tid)) {
+              found = { text: `[E] Enter ${hubName} Executive Lobby`, action: () => switchScene('lobby', tid, 0, 24) };
+            } else {
+              found = { text: `[E] Speak to ${b.name} for Access`, action: () => openBouncerModal(t) };
+            }
+            break;
           }
         }
       } else if (state.location === 'lobby') {
-        const r = TOWERS[state.activeTowerId].receptionist;
-        if (playerGroup.position.distanceTo(new THREE.Vector3(r.pos.x, 0, r.pos.z)) < 6.0) {
-          found = { text: `[E] Talk to ${r.name}`, action: () => openReceptionistModal(TOWERS[state.activeTowerId]) };
+        const t = TOWERS[state.activeTowerId];
+        const r = t.receptionist;
+        const distRec = playerGroup.position.distanceTo(new THREE.Vector3(r.pos.x, 0, r.pos.z));
+        const distExit = playerGroup.position.distanceTo(new THREE.Vector3(0, 0, 40));
+        const distElev = playerGroup.position.distanceTo(new THREE.Vector3(0, 0, -40));
+
+        if (distRec < 6.5) {
+          found = { text: `[E] Talk to ${r.name}`, action: () => openReceptionistModal(t) };
+        } else if (distExit < 6.5) {
+          const exitDestination = (currentWorldTheme === 'retro') ? 'Route 66 Outpost' : 'Citadel Plaza';
+          found = {
+            text: `🚪 [E] Exit to ${exitDestination}`,
+            action: () => {
+              let exitX = t.doorPos.x;
+              let exitZ = t.doorPos.z;
+              if (t.id === 'tech') exitX += 7;
+              else if (t.id === 'fashion') exitX -= 7;
+              else if (t.id === 'auto') exitZ -= 7;
+              switchScene('street', null, exitX, exitZ);
+            }
+          };
+        } else if (distElev < 6.5) {
+          if (state.passedLobbies.includes(state.activeTowerId)) {
+            found = { text: `🛗 [E] Take Express Elevator to R&D Suite`, action: () => switchScene('research', state.activeTowerId, 0, 24) };
+          } else {
+            found = { text: `🛗 [E] Speak to Reception for VIP Elevator Keycard`, action: () => openReceptionistModal(t) };
+          }
         }
       } else if (state.location === 'research') {
-        const res = TOWERS[state.activeTowerId].researcher;
-        if (playerGroup.position.distanceTo(new THREE.Vector3(res.pos.x, 0, res.pos.z)) < 6.0) {
-          found = { text: `[E] Talk to ${res.name}`, action: () => openResearcherModal(TOWERS[state.activeTowerId]) };
+        const t = TOWERS[state.activeTowerId];
+        const res = t.researcher;
+        const distRes = playerGroup.position.distanceTo(new THREE.Vector3(res.pos.x, 0, res.pos.z));
+        const distElev = playerGroup.position.distanceTo(new THREE.Vector3(0, 0, 40));
+
+        if (distRes < 6.5) {
+          found = { text: `[E] Talk to ${res.name}`, action: () => openResearcherModal(t) };
+        } else if (distElev < 6.5) {
+          found = { text: `🛗 [E] Take Elevator Down to Lobby`, action: () => switchScene('lobby', state.activeTowerId, 0, -22) };
         }
       }
 
@@ -3735,7 +5447,10 @@
     }
 
     function tryInteract() {
-      if (window.currentAction) window.currentAction();
+      if (window.currentAction) {
+        playPlayerAnimation('Interact', 0.1, false, 1.6, () => { isPlayingActionAnim = false; });
+        window.currentAction();
+      }
     }
 
     // ================= 15. FUNNEL MODALS =================
@@ -3754,7 +5469,8 @@
       const b = tower.bouncer;
       document.getElementById('modal-npc-portrait').textContent = b.avatar;
       document.getElementById('modal-npc-name').textContent = b.name;
-      document.getElementById('modal-npc-role').textContent = `${tower.name} • Gate Security`;
+      const hubTitle = (currentWorldTheme === 'retro') ? (tower.retroName || tower.name) : tower.name;
+      document.getElementById('modal-npc-role').textContent = `${hubTitle} • Gate Security`;
       const stageTag = document.getElementById('modal-stage-tag');
       stageTag.className = 'stage-tag bouncer';
       stageTag.textContent = 'Stage 1: Screener';
@@ -3767,7 +5483,7 @@
           <div class="dialogue-speech">
             <p class="dialogue-prompt">"Welcome back, citizen! The security gate is unlocked and your weapon authorization is confirmed. Step right into the lobby!"</p>
           </div>
-          <button class="btn-submit" onclick="switchScene('lobby', '${tower.id}', 0, 16); closeModal();">Enter Lobby ➔</button>
+          <button class="btn-submit" onclick="switchScene('lobby', '${tower.id}', 0, 24); closeModal();">Enter Lobby ➔</button>
         `;
       } else {
         body.innerHTML = `
@@ -3809,7 +5525,7 @@
               </div>
             </div>
           </div>
-          <button class="btn-submit" onclick="switchScene('lobby', '${towerId}', 0, 16); closeModal();">
+          <button class="btn-submit" onclick="switchScene('lobby', '${towerId}', 0, 24); closeModal();">
             Proceed into Lobby ➔
           </button>
         `;
@@ -3848,7 +5564,7 @@
           <div class="dialogue-speech">
             <p class="dialogue-prompt">"VIP Keycard active! Rear elevator is ready to take you up to the R&D Research Suite."</p>
           </div>
-          <button class="btn-submit" onclick="switchScene('research', '${tower.id}', 0, 16); closeModal();">Take Elevator Up ➔</button>
+          <button class="btn-submit" onclick="switchScene('research', '${tower.id}', 0, 24); closeModal();">Take Elevator Up ➔</button>
         `;
       } else {
         body.innerHTML = `
@@ -3890,7 +5606,7 @@
               </div>
             </div>
           </div>
-          <button class="btn-submit" onclick="switchScene('research', '${towerId}', 0, 16); closeModal();">
+          <button class="btn-submit" onclick="switchScene('research', '${towerId}', 0, 24); closeModal();">
             Take Elevator to R&D Floor ➔
           </button>
         `;
@@ -4137,17 +5853,74 @@
 
       const locEl = document.getElementById('hud-location');
       if (state.location === 'street') {
-        locEl.textContent = 'Street Level • Corporate Plaza';
+        locEl.textContent = (currentWorldTheme === 'retro') 
+          ? 'Route 66 Outpost • Cyber-Retro Hub' 
+          : 'Citadel Square • Grand Medieval Plaza';
       } else if (state.location === 'lobby') {
-        locEl.textContent = `${TOWERS[state.activeTowerId].name} • Lobby (Stage 2)`;
+        const hubTitle = (currentWorldTheme === 'retro') ? (TOWERS[state.activeTowerId].retroName || TOWERS[state.activeTowerId].name) : TOWERS[state.activeTowerId].name;
+        locEl.textContent = `${hubTitle} • Grand Atrium (Stage 2)`;
       } else if (state.location === 'research') {
-        locEl.textContent = `${TOWERS[state.activeTowerId].name} • R&D Suite (Stage 3)`;
+        const hubTitle = (currentWorldTheme === 'retro') ? (TOWERS[state.activeTowerId].retroName || TOWERS[state.activeTowerId].name) : TOWERS[state.activeTowerId].name;
+        locEl.textContent = `${hubTitle} • Inner Sanctum (Stage 3)`;
       }
 
-      document.getElementById('badge-tech').classList.toggle('unlocked', state.badges.includes('⚡ Apex CyberTech'));
-      document.getElementById('badge-fashion').classList.toggle('unlocked', state.badges.includes('👗 Vogue Luxe'));
-      document.getElementById('badge-auto').classList.toggle('unlocked', state.badges.includes('🏎️ Titan Motors'));
+      document.getElementById('badge-tech').classList.toggle('unlocked', state.badges.includes('⚡ Apex CyberTech') || state.badges.includes('⚡ Apex Citadel'));
+      document.getElementById('badge-fashion').classList.toggle('unlocked', state.badges.includes('👗 Vogue Luxe') || state.badges.includes('👗 Vogue Royale'));
+      document.getElementById('badge-auto').classList.toggle('unlocked', state.badges.includes('🏎️ Titan Motors') || state.badges.includes('🏎️ Titan Ironworks'));
+
+      updateWorldThemeUI();
     }
+
+    function updateWorldThemeUI() {
+      const isRetro = currentWorldTheme === 'retro';
+      const btnIcon = document.getElementById('theme-btn-icon');
+      const btnLabel = document.getElementById('theme-btn-label');
+      if (btnIcon && btnLabel) {
+        btnIcon.textContent = isRetro ? '📻' : '🏰';
+        btnLabel.textContent = isRetro ? '3D Retro World' : 'Medieval Citadel';
+      }
+
+      const cashIcon = document.getElementById('cashout-btn-icon');
+      const cashLabel = document.getElementById('cashout-btn-label');
+      if (cashIcon && cashLabel) {
+        cashIcon.textContent = isRetro ? '💰' : '🏛️';
+        cashLabel.textContent = isRetro ? 'Cashout Depot' : 'Royal Vault';
+      }
+
+      const bTech = document.getElementById('badge-tech');
+      const bFashion = document.getElementById('badge-fashion');
+      const bAuto = document.getElementById('badge-auto');
+      if (bTech) bTech.textContent = isRetro ? '⚡ Apex CyberTech' : '⚡ Apex Citadel';
+      if (bFashion) bFashion.textContent = isRetro ? '👗 Vogue Luxe' : '👗 Vogue Royale';
+      if (bAuto) bAuto.textContent = isRetro ? '🏎️ Titan Motors' : '🏎️ Titan Ironworks';
+
+      const locEl = document.getElementById('hud-location');
+      if (locEl && state.location === 'street') {
+        locEl.textContent = isRetro ? 'Route 66 Outpost • Cyber-Retro Hub' : 'Citadel Square • Grand Medieval Plaza';
+      }
+    }
+
+    function toggleWorldTheme() {
+      sound.init();
+      currentWorldTheme = (currentWorldTheme === 'retro') ? 'medieval' : 'retro';
+      try {
+        localStorage.setItem('surveytopia_world_theme', currentWorldTheme);
+      } catch(e){}
+      sound.playFanfare();
+      const curtain = document.getElementById('scene-transition');
+      if (curtain) curtain.classList.add('active');
+
+      setTimeout(() => {
+        if (state.location === 'street') {
+          buildStreetScene();
+        }
+        updateWorldThemeUI();
+        if (curtain) curtain.classList.remove('active');
+        showFloatingText(currentWorldTheme === 'retro' ? '📻 Switched to 3D Retro World!' : '🏰 Switched to Medieval Citadel!', '#fbbf24');
+      }, 350);
+    }
+    window.toggleWorldTheme = toggleWorldTheme;
+
     updateHUD();
 
     function showWeaponBanner(tier) {
@@ -4200,7 +5973,27 @@
     function animate() {
       requestAnimationFrame(animate);
 
+      if (transitionCooldown > 0) transitionCooldown--;
+
+      // Animate Tower-specific Holograms & R&D Rotating Core/Mannequins/Platform
+      if (window.interiorAnimatedObjects && window.interiorAnimatedObjects.length > 0) {
+        for (let i = 0; i < window.interiorAnimatedObjects.length; i++) {
+          const item = window.interiorAnimatedObjects[i];
+          if (!item.mesh) continue;
+          if (item.type === 'rotate') {
+            item.mesh.rotation.y += item.speed;
+          } else if (item.type === 'pulse') {
+            const s = 1.0 + Math.sin(Date.now() * 0.003 * item.freq) * item.amt;
+            item.mesh.scale.set(s, s, s);
+          }
+        }
+      }
+
       updatePlayerMovement();
+
+      // Update Quaternius Skeletal Animation Mixer
+      const delta = clock.getDelta();
+      if (playerMixer) playerMixer.update(delta);
 
       // Update Skyway traffic
       skyCars.forEach(sc => {
@@ -4292,14 +6085,52 @@
         if (v.life >= v.maxLife) {
           sound.playExplosion();
           triggerScreenShake(0.6);
-          enemies.forEach((enemy) => {
-            if (v.mesh.position.distanceTo(enemy.mesh.position) < 20) {
+          for (let eIdx = enemies.length - 1; eIdx >= 0; eIdx--) {
+            const enemy = enemies[eIdx];
+            if (enemy && v.mesh.position.distanceTo(enemy.mesh.position) < 20) {
               damageEnemy(enemy, v.dmg, true);
             }
-          });
+          }
           scene.remove(v.mesh);
           vortexSpheres.splice(i, 1);
         }
+      }
+
+      // Check if player is within Citadel Guild Sanctuary (near guards or treasury)
+      let inSanctuary = false;
+      if (state.location === 'street') {
+        for (const tid in TOWERS) {
+          const bp = TOWERS[tid].bouncer.pos;
+          if (Math.hypot(playerGroup.position.x - bp.x, playerGroup.position.z - bp.z) < 14) {
+            inSanctuary = true;
+            break;
+          }
+        }
+        // Sanctuary near campsite depot & bonfire
+        if (Math.hypot(playerGroup.position.x, playerGroup.position.z - (-20)) < 16) {
+          inSanctuary = true;
+        }
+      }
+
+      // Update Nano-Shield Invulnerability Sphere
+      if (respawnShieldTimer > 0) {
+        respawnShieldTimer--;
+        playerShieldMesh.visible = true;
+        playerShieldMesh.rotation.y += 0.04;
+        playerShieldMesh.rotation.x += 0.02;
+        playerShieldMesh.material.opacity = 0.45 + Math.sin(Date.now() * 0.01) * 0.3;
+
+        // Forcefully push enemies away from shield perimeter
+        enemies.forEach(e => {
+          const d = e.mesh.position.distanceTo(playerGroup.position);
+          if (d < 5.2) {
+            const pushDir = e.mesh.position.clone().sub(playerGroup.position).setY(0).normalize();
+            e.mesh.position.add(pushDir.multiplyScalar(0.45));
+            e.stunTimer = 18;
+          }
+        });
+      } else {
+        playerShieldMesh.visible = false;
       }
 
       // Update Enemy Mechs AI & Walking Animations
@@ -4313,7 +6144,7 @@
         }
 
         if (enemy.type === 'titan') {
-          if (dist < 26 && dist > 3.5 && !isModalOpen()) {
+          if (dist < 26 && dist > 3.5 && !isModalOpen() && !inSanctuary && !isDead) {
             enemy.walkCycle += 0.16;
             enemy.leftLeg.rotation.x = Math.sin(enemy.walkCycle) * 0.7;
             enemy.rightLeg.rotation.x = -Math.sin(enemy.walkCycle) * 0.7;
@@ -4328,7 +6159,7 @@
             enemy.rightLeg.rotation.x = 0;
           }
 
-          if (dist <= 3.8 && !isModalOpen() && !isDashing) {
+          if (dist <= 3.8 && !isModalOpen() && !inSanctuary && !isDashing && !isDead && respawnShieldTimer <= 0 && playerGroup.position.y < 2.0) {
             enemy.attackTimer++;
             if (enemy.attackTimer > 50) {
               enemy.attackTimer = 0;
@@ -4341,23 +6172,20 @@
               setTimeout(() => flash.style.opacity = '0', 120);
 
               if (state.hp <= 0) {
-                state.hp = 100;
-                playerGroup.position.set(0, 0, 16);
-                showFloatingText("Respawned at Plaza!");
-                updateHUD();
+                triggerPlayerDeath();
               }
             }
           }
         } else if (enemy.type === 'skimmer') {
           enemy.mesh.position.y = 4.0 + Math.sin(Date.now() * 0.005 + enemy.mesh.position.x) * 0.4;
 
-          if (dist < 28 && dist > 4.5 && !isModalOpen()) {
+          if (dist < 28 && dist > 4.5 && !isModalOpen() && !inSanctuary && !isDead) {
             const dir = playerGroup.position.clone().sub(enemy.mesh.position).normalize();
             enemy.mesh.position.add(dir.multiplyScalar(enemy.speed));
             enemy.mesh.lookAt(playerGroup.position.clone().setY(enemy.mesh.position.y));
           }
 
-          if (dist <= 18 && !isModalOpen() && !isDashing) {
+          if (dist <= 18 && !isModalOpen() && !inSanctuary && !isDashing && !isDead && respawnShieldTimer <= 0) {
             enemy.attackTimer++;
             if (enemy.attackTimer > 65) {
               enemy.attackTimer = 0;
@@ -4370,10 +6198,7 @@
               setTimeout(() => flash.style.opacity = '0', 120);
 
               if (state.hp <= 0) {
-                state.hp = 100;
-                playerGroup.position.set(0, 0, 16);
-                showFloatingText("Respawned at Plaza!");
-                updateHUD();
+                triggerPlayerDeath();
               }
             }
           }
@@ -4381,7 +6206,7 @@
       });
 
       // Passive HP Regeneration
-      if (state.hp < state.maxHp && Math.random() < 0.015) {
+      if (state.hp < state.maxHp && !isDead && Math.random() < 0.015) {
         state.hp = Math.min(state.maxHp, state.hp + 1);
         updateHUD();
       }
