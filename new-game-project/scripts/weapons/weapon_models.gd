@@ -6,6 +6,7 @@ extends RefCounted
 
 const SPECS := {
 	"Temple Sword": {"len": 1.15, "w": 0.08, "steel": Color(0.55, 0.6, 0.65), "rune": Color(0.4, 0.85, 1.0), "guard": 0.32, "grip": 0.22},
+	"Ashen Edge": {"len": 1.4, "w": 0.11, "steel": Color(0.14, 0.14, 0.17), "rune": Color(1.0, 0.12, 0.12), "guard": 0.5, "grip": 0.32},
 	"Shadow Blade": {"len": 1.2, "w": 0.09, "steel": Color(0.12, 0.12, 0.14), "rune": Color(1.0, 0.1, 0.08), "guard": 0.42, "grip": 0.24},
 	"Great Sword": {"len": 1.75, "w": 0.17, "steel": Color(0.45, 0.45, 0.48), "rune": Color(1.0, 0.5, 0.1), "guard": 0.62, "grip": 0.42},
 	"Dual Blades": {"len": 0.78, "w": 0.07, "steel": Color(0.2, 0.18, 0.24), "rune": Color(0.75, 0.3, 1.0), "guard": 0.24, "grip": 0.18},

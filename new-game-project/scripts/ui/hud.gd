@@ -8,7 +8,7 @@ signal start_pressed
 signal restart_pressed
 signal sensitivity_changed(value: float)
 
-const HELP := "WASD  Move\nMouse  Camera\nShift  Sprint\nF  Jump\nSpace  Dodge roll (i-frames)\nLMB  Light combo (x3)\nRMB  Heavy attack\nQ  Shockwave\nTab  Lock-on\nE  Collect item\nG  Start next wave (after rewards)\nEsc  Pause"
+const HELP := "WASD  Move\nMouse  Camera\nShift  Sprint\nF  Jump\nSpace  Dodge roll (i-frames)\nLMB  Light combo (x4)\nRMB  Heavy attack\nQ  Shockwave\n1 / 2 / 3  Crimson Flash / Phantom Tempest / Heavenfall Cleaver\nV  Ultimate (when meter is full)\nTab  Lock-on\nE  Collect item\nG  Start next wave (after rewards)\nEsc  Pause"
 
 var playing := false
 var _hp: ProgressBar
@@ -33,6 +33,19 @@ var _toast_tween: Tween
 var _debug: Label
 ## Set by Game while the survey is open so Esc does not open the pause menu.
 var block_pause := false
+var _skills: Label
+var _ult: ProgressBar
+var _ult_label: Label
+signal shake_reduced(reduced: bool)
+
+func set_skills(t: String) -> void:
+	_skills.text = t
+
+func set_ult(v: float, mx: float) -> void:
+	_ult.value = v / mx * 100.0
+	var full := v >= mx
+	_ult_label.text = "[V] Requiem of a Thousand Ashes  %s" % ("READY!" if full else "%d%%" % int(v / mx * 100.0))
+	_ult_label.modulate = Color(1.6, 1.3, 1.3) if full else Color.WHITE
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -89,9 +102,17 @@ func _ready() -> void:
 	hint.modulate.a = 0.6
 	root.add_child(hint)
 	# --- weapon / buff line under the bars
-	_buffs = _label("Weapon: Temple Sword", 15)
+	_buffs = _label("Weapon: Ashen Edge", 15)
 	_buffs.modulate = Color(1.0, 0.8, 0.5)
 	box.add_child(_buffs)
+	_skills = _label("", 15)
+	box.add_child(_skills)
+	_ult_label = _label("[V] Requiem of a Thousand Ashes  0%", 16)
+	_ult_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.45))
+	box.add_child(_ult_label)
+	_ult = _bar(Color(0.9, 0.08, 0.12), Vector2(360, 14))
+	_ult.value = 0
+	box.add_child(_ult)
 	# --- interaction prompt (bottom-center)
 	_prompt = PanelContainer.new()
 	var ps := StyleBoxFlat.new()
@@ -239,6 +260,13 @@ func _build_overlays(root: Control) -> void:
 	var sc := CenterContainer.new()
 	sc.add_child(_sens)
 	p[1].add_child(sc)
+	var shake_box := CheckBox.new()
+	shake_box.text = "Reduce camera shake"
+	shake_box.add_theme_font_size_override("font_size", 18)
+	shake_box.toggled.connect(func(on: bool): shake_reduced.emit(on))
+	var shc := CenterContainer.new()
+	shc.add_child(shake_box)
+	p[1].add_child(shc)
 	_help(p[1])
 	p = _panel(root, "", "")
 	_end = p[0]

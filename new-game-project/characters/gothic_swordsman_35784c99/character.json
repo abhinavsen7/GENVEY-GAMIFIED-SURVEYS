@@ -1,0 +1,160 @@
+{
+  "id": "character-35784c99-7071-4666-aa08-3607b30817fd",
+  "rig": {
+    "path": "res://characters/gothic_swordsman_35784c99/rig.glb",
+    "assetId": "35784c99-7071-4666-aa08-3607b30817fd",
+    "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1786836532/summer_3d/character_35784c99-7071-4666-aa08-3607b30817fd_runtime_1786836531643_c3i578za.glb",
+    "sourceFileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1786836524/summer_3d/rig_image-to-3d-65xr9w-animation-batch_1786836523075_tztvx469",
+    "artifactFingerprint": "publicId:summer_3d/character_35784c99-7071-4666-aa08-3607b30817fd_runtime_1786836531643_c3i578za.glb"
+  },
+  "status": "ready",
+  "version": 2,
+  "provider": {
+    "mode": "managed",
+    "name": "fal",
+    "rigTaskId": "01a007c0-2511-7659-ad95-941c586d3755"
+  },
+  "animations": [
+    {
+      "id": "animation-35784c99-7071-4666-aa08-3607b30817fd-11",
+      "loop": true,
+      "name": "Idle",
+      "path": "res://characters/gothic_swordsman_35784c99/rig.glb",
+      "assetId": "267648f5-dd2d-4ac0-81e9-cd9046a9aa7a",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1786836527/summer_animations/animation_image-to-3d-65xr9w-11_1786836526716_0wqexvvf",
+      "actionId": 11,
+      "description": "Idle animation for Gothic Swordsman.",
+      "semanticRole": "idle",
+      "artifactFingerprint": "assetId:267648f5-dd2d-4ac0-81e9-cd9046a9aa7a"
+    },
+    {
+      "id": "animation-35784c99-7071-4666-aa08-3607b30817fd-1",
+      "loop": true,
+      "name": "Walk",
+      "path": "res://characters/gothic_swordsman_35784c99/rig.glb",
+      "assetId": "d5154726-c719-4945-b879-5f9e39ab0afc",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1786836528/summer_animations/animation_image-to-3d-65xr9w-1_1786836527256_8p70lzcv",
+      "actionId": 1,
+      "description": "Walk animation for Gothic Swordsman.",
+      "semanticRole": "walk",
+      "artifactFingerprint": "assetId:d5154726-c719-4945-b879-5f9e39ab0afc"
+    },
+    {
+      "id": "animation-35784c99-7071-4666-aa08-3607b30817fd-15",
+      "loop": true,
+      "name": "Run",
+      "path": "res://characters/gothic_swordsman_35784c99/rig.glb",
+      "assetId": "fe682926-feab-4874-8d18-be71fc3646d5",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1786836528/summer_animations/animation_image-to-3d-65xr9w-15_1786836527096_lep2rdyy",
+      "actionId": 15,
+      "description": "Run animation for Gothic Swordsman.",
+      "semanticRole": "run",
+      "artifactFingerprint": "assetId:fe682926-feab-4874-8d18-be71fc3646d5"
+    },
+    {
+      "id": "animation-35784c99-7071-4666-aa08-3607b30817fd-158",
+      "loop": false,
+      "name": "Roll Dodge",
+      "path": "res://characters/gothic_swordsman_35784c99/rig.glb",
+      "assetId": "e46646a1-f1ff-4752-8f6f-b73160bd3444",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1786836528/summer_animations/animation_image-to-3d-65xr9w-158_1786836527163_n1t7d0kq",
+      "actionId": 158,
+      "description": "Roll Dodge animation for Gothic Swordsman.",
+      "semanticRole": "custom",
+      "artifactFingerprint": "assetId:e46646a1-f1ff-4752-8f6f-b73160bd3444"
+    },
+    {
+      "id": "animation-35784c99-7071-4666-aa08-3607b30817fd-4",
+      "loop": false,
+      "name": "Attack",
+      "path": "res://characters/gothic_swordsman_35784c99/rig.glb",
+      "assetId": "fdfe8142-e83b-4855-9ffe-1354a77953e6",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1786836527/summer_animations/animation_image-to-3d-65xr9w-4_1786836526824_7xn98zy8",
+      "actionId": 4,
+      "description": "Attack animation for Gothic Swordsman.",
+      "semanticRole": "attack",
+      "artifactFingerprint": "assetId:fdfe8142-e83b-4855-9ffe-1354a77953e6"
+    },
+    {
+      "id": "animation-35784c99-7071-4666-aa08-3607b30817fd-92",
+      "loop": false,
+      "name": "Double Combo Attack",
+      "path": "res://characters/gothic_swordsman_35784c99/rig.glb",
+      "assetId": "0d7a74e5-11ba-44c4-ae67-5f8e50b66307",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1786836527/summer_animations/animation_image-to-3d-65xr9w-92_1786836526737_okblw3qu",
+      "actionId": 92,
+      "description": "Double Combo Attack animation for Gothic Swordsman.",
+      "semanticRole": "custom",
+      "artifactFingerprint": "assetId:0d7a74e5-11ba-44c4-ae67-5f8e50b66307"
+    }
+  ],
+  "characterId": "35784c99-7071-4666-aa08-3607b30817fd",
+  "displayName": "Gothic Swordsman",
+  "forwardAxis": "-Z",
+  "directoryName": "gothic_swordsman_35784c99",
+  "runtimeBundle": {
+    "clips": [
+      "Idle",
+      "Walk",
+      "Run",
+      "Roll Dodge",
+      "Attack",
+      "Double Combo Attack"
+    ],
+    "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1786836532/summer_3d/character_35784c99-7071-4666-aa08-3607b30817fd_runtime_1786836531643_c3i578za.glb",
+    "publicId": "summer_3d/character_35784c99-7071-4666-aa08-3607b30817fd_runtime_1786836531643_c3i578za.glb",
+    "validation": {
+      "ok": true,
+      "clips": [
+        {
+          "name": "Idle",
+          "channels": 72,
+          "duration": 2.367
+        },
+        {
+          "name": "Walk",
+          "channels": 72,
+          "duration": 1
+        },
+        {
+          "name": "Run",
+          "channels": 72,
+          "duration": 0.833
+        },
+        {
+          "name": "Roll Dodge",
+          "channels": 72,
+          "duration": 1.867
+        },
+        {
+          "name": "Attack",
+          "channels": 72,
+          "duration": 2.833
+        },
+        {
+          "name": "Double Combo Attack",
+          "channels": 72,
+          "duration": 2.867
+        }
+      ],
+      "errors": [],
+      "sizeBytes": 9310832
+    },
+    "skeletonFingerprint": "1jo30oa"
+  },
+  "rootYawRadians": 3.141592653589793,
+  "unriggedSource": {
+    "assetId": "35784c99-7071-4666-aa08-3607b30817fd",
+    "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1786836364/summer_3d/3d_35784c9970714666aa083607_1786836363424.glb"
+  },
+  "scaleMultiplier": 1,
+  "sourceForwardAxis": "+Z",
+  "groundOffsetMeters": 0,
+  "targetHeightMeters": 1.8,
+  "skeletonFingerprint": "1jo30oa",
+  "packageRevision": "sha256:1dda35a05fdbc8c71c4ee78228d4214df18d77ccadbdb1d70bcc92597a364f60",
+  "normalization": {
+    "targetHeightMeters": 1.8,
+    "forwardAxis": "-Z"
+  }
+}

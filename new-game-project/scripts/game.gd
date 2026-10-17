@@ -6,6 +6,7 @@ extends Node3D
 enum Phase { TITLE, COMBAT, REWARD, SURVEY, FINAL, ENDED }
 
 const PickupRes := preload("res://scripts/loot/pickup.gd")
+const SFX := preload("res://scripts/audio/sfx.gd")
 
 ## Survives scene reloads so Restart skips the title screen.
 static var skip_title := false
@@ -60,10 +61,14 @@ func _ready() -> void:
 	survey_ui.abandoned.connect(_on_survey_abandoned)
 	survey_ui.completed.connect(_on_survey_completed)
 	player.global_position = arena.player_spawn
+	player.reset_camera()
 	player.health.changed.connect(hud.set_health)
 	player.health.died.connect(_on_player_died)
 	player.combat.combo_changed.connect(hud.set_combo)
 	player.combat.special_changed.connect(hud.set_special)
+	player.combat.skills_changed.connect(hud.set_skills)
+	player.combat.ult_changed.connect(hud.set_ult)
+	hud.shake_reduced.connect(func(on: bool): player.shake_scale = 0.35 if on else 1.0)
 	hud.start_pressed.connect(start)
 	hud.restart_pressed.connect(restart)
 	hud.sensitivity_changed.connect(func(v: float): player.mouse_sensitivity = v)
@@ -225,6 +230,7 @@ func _collect(p: PickupRes) -> void:
 				hud.toast("Health is already full - save the potion for later")
 				return
 			if p.try_collect():
+				SFX.pickup(self)
 				player.health.heal(player.health.max_health * potion_heal_fraction)
 				FX.hit_sparks(self, pos)
 				hud.toast("+30% Health restored", Color(1, 0.4, 0.4))
@@ -233,12 +239,14 @@ func _collect(p: PickupRes) -> void:
 				hud.toast("Shockwave is already charged")
 				return
 			if p.try_collect():
+				SFX.pickup(self)
 				player.combat.restore_energy(1.0)
 				FX.shockwave(self, p.global_position, 1.5)
 				hud.toast("Shockwave recharged", Color(0.6, 0.55, 1))
 		PickupRes.Kind.WEAPON:
 			if player.combat.owned_weapons.has(p.item_name) or not p.try_collect():
 				return
+			SFX.pickup(self)
 			player.combat.owned_weapons.append(p.item_name)
 			player.combat.weapon_mult *= 1.0 + weapon_bonus
 			player.combat.weapon_name = p.item_name
@@ -249,6 +257,7 @@ func _collect(p: PickupRes) -> void:
 		PickupRes.Kind.SURVEY:
 			if survey_ui.is_open or _survey_done.has(p.wave) or not p.try_collect():
 				return
+			SFX.pickup(self)
 			if not _token_counted.has(p.wave):
 				_token_counted[p.wave] = true
 				SurveyStore.count("tokens_collected")

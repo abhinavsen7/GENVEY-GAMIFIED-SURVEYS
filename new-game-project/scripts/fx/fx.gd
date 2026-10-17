@@ -108,17 +108,17 @@ static func damage_number(parent: Node, pos: Vector3, amount: float, crit := fal
 	t.chain().tween_callback(lbl.queue_free)
 
 ## Expanding magic ring used by the special ability.
-static func shockwave(parent: Node, pos: Vector3, radius: float) -> void:
+static func shockwave(parent: Node, pos: Vector3, radius: float, color := Color(0.55, 0.3, 1.0)) -> void:
 	_init_cache()
 	var ring := MeshInstance3D.new()
 	ring.mesh = _ring_mesh
-	var m := _emissive(Color(0.55, 0.3, 1.0), 6.0, 0.9)
+	var m := _emissive(color, 6.0, 0.9)
 	ring.material_override = m
 	parent.add_child(ring)
 	ring.global_position = pos + Vector3(0, 0.3, 0)
 	ring.scale = Vector3.ONE * 0.3
 	var l := OmniLight3D.new()
-	l.light_color = Color(0.6, 0.35, 1.0)
+	l.light_color = color
 	l.light_energy = 10.0
 	l.omni_range = radius * 1.5
 	ring.add_child(l)
@@ -130,11 +130,29 @@ static func shockwave(parent: Node, pos: Vector3, radius: float) -> void:
 	_one_shot(parent, pos + Vector3(0, 0.5, 0), _burst_mat, _burst_mesh, 50, 0.9)
 
 ## Fading afterimage left behind by a dodge.
-static func afterimage(parent: Node, xform: Transform3D) -> void:
+## Huge flat crescent of crimson energy (ultimate finisher / big slashes).
+static func crimson_arc(parent: Node, pos: Vector3, yaw: float, radius: float) -> void:
+	_init_cache()
+	var arc := MeshInstance3D.new()
+	arc.mesh = _ring_mesh
+	var m := _emissive(Color(1.0, 0.12, 0.15), 9.0, 0.95)
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	arc.material_override = m
+	arc.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(arc)
+	arc.global_position = pos + Vector3(0, 1.0, 0)
+	arc.rotation = Vector3(0, yaw, 0.35)
+	arc.scale = Vector3(0.5, 0.15, 0.5)
+	var t := arc.create_tween().set_parallel(true)
+	t.tween_property(arc, "scale", Vector3(radius, 0.25, radius), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_EXPO)
+	t.tween_property(m, "albedo_color", Color(0.6, 0.2, 1.0, 0.0), 0.55)
+	t.chain().tween_callback(arc.queue_free)
+
+static func afterimage(parent: Node, xform: Transform3D, color := Color(0.4, 0.6, 1.0)) -> void:
 	_init_cache()
 	var g := MeshInstance3D.new()
 	g.mesh = _ghost_mesh
-	var m := _emissive(Color(0.4, 0.6, 1.0), 2.0, 0.45)
+	var m := _emissive(color, 2.0, 0.45)
 	g.material_override = m
 	parent.add_child(g)
 	g.global_transform = xform

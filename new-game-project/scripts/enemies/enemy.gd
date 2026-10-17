@@ -26,7 +26,7 @@ enum State { IDLE, PATROL, CHASE, ATTACK, RECOVER, STAGGER, DEAD }
 @export var flanker := false
 @export var gravity := 22.0
 
-var target: Player
+var target: CharacterBody3D
 var state := State.IDLE
 var health: Health
 var bar_height := 2.2
@@ -48,6 +48,7 @@ var _tween: Tween
 var _accent := Color(1, 0.15, 0.1)
 
 const ARM_REST := Vector3(-0.6, 0, 0)
+const SFX := preload("res://scripts/audio/sfx.gd")
 
 # Rigged library monsters (dungeon-dark-fantasy). GLB forward is +Z, so the
 # model is turned 180 degrees to match the Godot -Z forward used by the AI.
@@ -63,6 +64,9 @@ const TARGET_HEIGHT := {Kind.GRUNT: 1.95, Kind.KNIGHT: 2.7, Kind.ASSASSIN: 1.25,
 const BODY_RADIUS := {Kind.GRUNT: 0.4, Kind.KNIGHT: 0.6, Kind.ASSASSIN: 0.55, Kind.ELITE: 0.7}
 
 var _model: Node3D
+var _glow: OmniLight3D       # telegraph light (eyes / cracks)
+var _attack_count := 0
+var _slam := false           # grunt Corrupted Slam variant
 var _anim: AnimationPlayer
 var _clips := {}            # logical name -> real clip name
 var _flash_mat: StandardMaterial3D
@@ -257,6 +261,7 @@ func _build_visual(sc: float) -> void:
 		_mesh(_arm, wpn, Vector3(0, 0, -wpn.size.z * 0.5), wmat)
 	var glow := OmniLight3D.new()
 	glow.light_color = _accent
+	_glow = glow
 	glow.light_energy = 0.7
 	glow.omni_range = 2.5
 	glow.position.y = 1.6
@@ -311,7 +316,7 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 	_t -= delta
-	var has_target := target != null and is_instance_valid(target) and not target.health.dead
+	var has_target: bool = target != null and is_instance_valid(target) and not target.health.dead
 	var to_p := Vector3.ZERO
 	var dist := INF
 	if has_target:
@@ -368,7 +373,7 @@ func _physics_process(delta: float) -> void:
 	_update_locomotion_anim()
 
 func _process(_delta: float) -> void:
-	if _bar.visible and target and is_instance_valid(target):
+	if _bar and _bar.visible and target and is_instance_valid(target) and target.camera:
 		_bar.global_basis = target.camera.global_basis
 
 func _face(dir: Vector3, speed: float, delta: float) -> void:
@@ -393,6 +398,17 @@ func _begin_windup(t: float) -> void:
 	# Stalker opens a string with a pounce; everyone else uses the attack clip.
 	var pounce := kind == Kind.ASSASSIN and _hits_left == combo_hits and _clips.has("pounce")
 	_play("pounce" if pounce else "attack", 1.0, true)
+	if _hits_left == combo_hits:
+		_attack_count += 1
+		_slam = kind == Kind.GRUNT and _attack_count % 3 == 0
+		if _slam:
+			_state(State.ATTACK, t * 1.8)  # Corrupted Slam: longer, readable wind-up
+	# Readable warning: telegraph light ramps up through the wind-up.
+	if _glow:
+		var heavy_kind := kind == Kind.KNIGHT or kind == Kind.ELITE or _slam
+		create_tween().tween_property(_glow, "light_energy", 6.0 if heavy_kind else 3.0, _t * 0.9)
+	if kind == Kind.ASSASSIN and _model:
+		create_tween().tween_property(_model, "position:y", -0.25, _t * 0.8)  # crouch
 	_pose(Vector3(1.8, 0, 0), 0.2, t * 0.8)
 
 func _strike(has_target: bool, to_p: Vector3, dist: float) -> void:
@@ -401,9 +417,35 @@ func _strike(has_target: bool, to_p: Vector3, dist: float) -> void:
 	velocity += -global_basis.z * (6.0 if kind == Kind.ASSASSIN else 3.0)
 	if kind == Kind.KNIGHT or kind == Kind.ELITE:
 		# Ground slam: impact ring at the weapon's landing spot + camera shake.
-		FX.shockwave(get_parent(), global_position - global_basis.z * 1.6, 2.2)
+		SFX.shockwave(self, global_position - global_basis.z * 1.6)
+		FX.shockwave(get_parent(), global_position - global_basis.z * 1.6, 2.8, Color(1.0, 0.5, 0.1))
+		FX.hit_sparks(get_parent(), global_position - global_basis.z * 1.6 + Vector3(0, 0.2, 0), true)
 		if has_target and dist < 6.0:
 			target.shake(0.6)
+	else:
+		SFX.swing(self, 0.85)
+	if _glow:
+		_glow.light_energy = 0.7
+	if kind == Kind.ASSASSIN:
+		# Phantom Pounce: real lunge (physics movement) + purple afterimage.
+		FX.afterimage(get_parent(), global_transform, Color(0.7, 0.3, 1.0))
+		velocity += -global_basis.z * 4.0
+		if _model:
+			create_tween().tween_property(_model, "position:y", 0.0, 0.15)
+	elif kind == Kind.GRUNT and not _slam:
+		FX.afterimage(get_parent(), global_transform, Color(1.0, 0.15, 0.1))  # Claw Rend lunge
+	if _slam or kind == Kind.KNIGHT or kind == Kind.ELITE:
+		# Area strikes: damage only if the player is inside the impact circle
+		# at this moment (a successful dodge leaves it or is invulnerable).
+		var impact := global_position - global_basis.z * 1.6
+		var r := 2.0 if _slam else 2.8
+		if _slam:
+			FX.shockwave(get_parent(), impact, r, Color(0.8, 0.15, 0.1))
+		if has_target and target.global_position.distance_to(impact) < r:
+			if target.health.take_damage(attack_damage * (1.3 if _slam else 1.0), impact, 2):
+				FX.hit_sparks(get_parent(), target.global_position + Vector3(0, 1.1, 0), true)
+		has_target = false  # skip the frontal check below
+	_slam = false
 	if has_target and dist <= attack_range + 0.6:
 		var fwd := -global_basis.z
 		if dist < 0.8 or fwd.angle_to(to_p.normalized()) < deg_to_rad(75.0):
@@ -453,6 +495,11 @@ func take_hit(amount: float, from: Vector3, stagger_power: int) -> bool:
 		_state(State.STAGGER, stagger_time if stagger_power >= poise else stagger_time * 1.4)
 		_pose(Vector3(0.6, 0, 0.6), 0.45 if _model == null else 0.0, 0.1)
 		_play("hit", 1.0, true)
+		_slam = false
+		if _glow:
+			_glow.light_energy = 0.7
+		if _model:
+			_model.position.y = 0.0
 	elif state == State.IDLE or state == State.PATROL:
 		_state(State.CHASE)
 	return true
@@ -462,7 +509,9 @@ func _on_died() -> void:
 	remove_from_group("enemies")
 	collision_layer = 0
 	collision_mask = 1
-	_bar.visible = false
+	if _bar:
+		_bar.visible = false
+	SFX.death(get_parent(), global_position)
 	FX.death_burst(get_parent(), global_position + Vector3(0, 1.0, 0))
 	died.emit(self)
 	if _tween:

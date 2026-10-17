@@ -1,26 +1,31 @@
 class_name Player
 extends CharacterBody3D
-## Third-person player: movement, sprint, jump, dodge roll with i-frames,
-## camera rig (CameraYaw/CameraPitch/SpringArm3D/Camera3D) and lock-on.
-## Melee/special logic lives in the PlayerCombat child component.
+## Third-person player: grounded Soulslike movement, camera rig
+## (CameraYaw/CameraPitch/SpringArm3D/Camera3D) and lock-on.
+## Melee/special logic lives in the PlayerCombat child component; the skinned
+## hero mesh, its animation blending, two-hand grip and foot contact live in
+## the HeroRig component (scripts/player/hero_rig.gd).
 ## Physics layers: 1 = world, 2 = player, 3 (bit value 4) = enemies.
 
 signal lock_target_changed(target: Node3D)
 
 const WeaponLib := preload("res://scripts/weapons/weapon_models.gd")
+const SFX := preload("res://scripts/audio/sfx.gd")
 
 @export_group("Movement")
-@export var walk_speed := 5.0
-@export var sprint_speed := 8.5
-@export var acceleration := 40.0
-@export var turn_speed := 14.0
+@export var walk_speed := 2.8
+@export var run_speed := 5.6
+@export var sprint_speed := 8.4
+@export var acceleration := 34.0
+@export var deceleration := 44.0
+@export var turn_speed := 18.0
 @export var jump_velocity := 7.0
-@export var gravity := 22.0
+@export var gravity := 24.0
 @export_group("Dodge")
 @export var dodge_speed := 15.0
-@export var dodge_duration := 0.35
-@export var dodge_iframes := 0.28
-@export var dodge_cooldown := 0.45
+@export var dodge_duration := 0.45
+@export var dodge_iframes := 0.30
+@export var dodge_cooldown := 0.35
 @export_group("Camera")
 @export var mouse_sensitivity := 0.0025
 @export var camera_distance := 4.6
@@ -32,16 +37,21 @@ const WeaponLib := preload("res://scripts/weapons/weapon_models.gd")
 @export var hit_grace := 0.45
 
 var health: Health
-var combat: PlayerCombat
+var combat: Node
+var hero: Node        ## imported skinned hero: animation, grip, foot contact
 var visual: Node3D       # rotates to face movement; forward is -Z
-var rig: Node3D          # rolls/tilts for animations
+var rig: Node3D          # the mesh root; rolls/tilts for animations
+var hand_attach: Node3D  # driven onto the sword hand bone by HeroRig
 var arm_pivot: Node3D    # holds the sword; attack animations rotate this
 var sword_tip: Node3D
 var trail: GPUParticles3D
 var cam_yaw: Node3D
+var cam_pitch: Node3D
 var camera: Camera3D
-var lock_target: Enemy
+var lock_target: CharacterBody3D
 var input_enabled := false
+## 1.0 = rested, lower while moving; scales how much combat stance is blended in.
+var stamina := 1.0
 
 var _dodge_time := 0.0
 var _dodge_cd := 0.0
@@ -50,18 +60,29 @@ var _ghost_timer := 0.0
 var _stun := 0.0
 var _shake := 0.0
 var _anim_t := 0.0
-var _body_mat: StandardMaterial3D
+var _buffered_action := ""
+var _buffer_timer := 0.0
+const BUFFER_WINDOW := 0.25
 var blade_mat: StandardMaterial3D  ## kept for compatibility (old sword glow)
 var _weapon: Node3D
-var _left_pivot: Node3D  ## off-hand blade for Dual Blades; mirrors the sword arm
+var _sword_light: OmniLight3D
+## 1.0 = full camera shake; the pause menu "Reduce camera shake" sets 0.35.
+@export var shake_scale := 1.0
+var _left_pivot: Node3D  ## off-hand blade for Dual Blades; driven to the left hand
 var _lock_marker: MeshInstance3D
 
 const REST_ARM := Vector3(-0.8, 0.25, 0.0)
 
 func _ready() -> void:
 	add_to_group("player")
+	axis_lock_angular_x = true
+	axis_lock_angular_z = true
 	collision_layer = 2
 	collision_mask = 1 | 4
+	floor_snap_length = 0.45
+	floor_stop_on_slope = true
+	floor_constant_speed = true
+	floor_max_angle = deg_to_rad(48.0)
 	var col := CollisionShape3D.new()
 	var cap := CapsuleShape3D.new()
 	cap.radius = 0.4
@@ -100,39 +121,37 @@ func _part(parent: Node3D, mesh: Mesh, pos: Vector3, mat: Material) -> MeshInsta
 	parent.add_child(mi)
 	return mi
 
+## Build order matters: the hero mesh and the sword pivot both live under `rig`,
+## so every existing tilt, roll and spin that rotates `rig` keeps working, and
+## the mesh stays visual-only (collision is the capsule built in _ready, so
+## movement speed never depends on the model).
 func _build_visual() -> void:
 	visual = Node3D.new()
 	add_child(visual)
 	rig = Node3D.new()
 	rig.position.y = 0.9
 	visual.add_child(rig)
-	_body_mat = _mat(Color(0.16, 0.17, 0.22), 0.0, 0.7)
-	var body := CapsuleMesh.new()
-	body.radius = 0.33
-	body.height = 1.3
-	_part(rig, body, Vector3(0, -0.1, 0), _body_mat)
-	var cloak := CylinderMesh.new()
-	cloak.top_radius = 0.3
-	cloak.bottom_radius = 0.5
-	cloak.height = 0.9
-	_part(rig, cloak, Vector3(0, -0.4, 0.06), _mat(Color(0.35, 0.05, 0.08), 0.0, 0.0))
-	var head := SphereMesh.new()
-	head.radius = 0.2
-	head.height = 0.4
-	_part(rig, head, Vector3(0, 0.75, 0), _mat(Color(0.2, 0.2, 0.25), 0.0, 0.8))
-	var eye := BoxMesh.new()
-	eye.size = Vector3(0.26, 0.04, 0.05)
-	_part(rig, eye, Vector3(0, 0.77, -0.18), _mat(Color(0.3, 0.8, 1.0), 6.0))
-	var pauld := SphereMesh.new()
-	pauld.radius = 0.16
-	pauld.height = 0.25
-	_part(rig, pauld, Vector3(-0.38, 0.45, 0), _body_mat)
+	hero = HeroRig.new()
+	hero.name = "HeroRig"
+	# Solve the rig before the skeleton's own update for this frame.
+	hero.process_priority = -10
+	add_child(hero)
+	# The sword pivot is driven onto the sword hand bone every frame instead of
+	# sitting at a fixed offset beside the hip.
+	hand_attach = Node3D.new()
+	hand_attach.name = "HandAttach"
+	rig.add_child(hand_attach)
 	arm_pivot = Node3D.new()
-	arm_pivot.position = Vector3(0.38, 0.45, 0)
-	arm_pivot.rotation = REST_ARM
-	rig.add_child(arm_pivot)
+	arm_pivot.name = "ArmPivot"
+	arm_pivot.rotation = Vector3.ZERO
+	hero.setup(self, visual, rig, arm_pivot, hand_attach, REST_ARM)
+	var socket: Node3D = hero.get_weapon_socket()
+	if socket:
+		socket.add_child(arm_pivot)
+	else:
+		hand_attach.add_child(arm_pivot)
 	blade_mat = _mat(Color(0.4, 0.85, 1.0), 3.0, 0.9)
-	equip_weapon("Temple Sword")
+	equip_weapon("Ashen Edge")
 	sword_tip = Node3D.new()
 	sword_tip.position = Vector3(0, 0, -1.35)
 	arm_pivot.add_child(sword_tip)
@@ -163,7 +182,8 @@ func _build_visual() -> void:
 	trail.position = Vector3(0, 0, -0.85)
 	arm_pivot.add_child(trail)
 	var glow := OmniLight3D.new()
-	glow.light_color = Color(0.4, 0.8, 1.0)
+	_sword_light = glow
+	glow.light_color = Color(1.0, 0.2, 0.15)
 	glow.light_energy = 0.8
 	glow.omni_range = 3.0
 	glow.position = Vector3(0, 0, -0.8)
@@ -189,11 +209,12 @@ func equip_weapon(weapon_name: String) -> void:
 	if _left_pivot:
 		_left_pivot.queue_free()
 		_left_pivot = null
+	# Dual Blades is the only off-hand weapon; HeroRig places it on the left hand.
 	if weapon_name == "Dual Blades":
 		_left_pivot = Node3D.new()
-		_left_pivot.position = Vector3(-0.38, 0.45, 0)
-		rig.add_child(_left_pivot)
+		_left_pivot.name = "LeftBlade"
 		_left_pivot.add_child(WeaponLib.build(weapon_name))
+		hand_attach.add_child(_left_pivot)
 	var L := WeaponLib.blade_length(weapon_name)
 	if trail:
 		trail.position = Vector3(0, 0, -0.12 - L * 0.55)
@@ -204,6 +225,8 @@ func equip_weapon(weapon_name: String) -> void:
 		qm.emission = c
 	if sword_tip:
 		sword_tip.position = Vector3(0, 0, -0.2 - L)
+	if hero:
+		hero.set_left_blade(_left_pivot)
 
 func _build_camera() -> void:
 	cam_yaw = Node3D.new()
@@ -213,6 +236,7 @@ func _build_camera() -> void:
 	var pitch := Node3D.new()
 	pitch.name = "CameraPitch"
 	pitch.rotation.x = camera_pitch
+	cam_pitch = pitch
 	cam_yaw.add_child(pitch)
 	var arm := SpringArm3D.new()
 	arm.spring_length = camera_distance
@@ -226,7 +250,12 @@ func _build_camera() -> void:
 	camera.fov = 70.0
 	camera.current = true
 	arm.add_child(camera)
-	cam_yaw.global_position = global_position + Vector3(0, 1.5, 0)
+	reset_camera()
+
+## Instantly snaps the camera rig to the player's position (e.g. after spawn/teleport).
+func reset_camera() -> void:
+	if cam_yaw:
+		cam_yaw.global_position = global_position + Vector3(0, 1.5, 0)
 
 # ---------------------------------------------------------------- input
 func _unhandled_input(event: InputEvent) -> void:
@@ -236,6 +265,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and lock_target == null:
 		cam_yaw.rotation.y -= event.relative.x * mouse_sensitivity
+		if cam_pitch:
+			cam_pitch.rotation.x = clampf(cam_pitch.rotation.x - event.relative.y * mouse_sensitivity, -1.2, 0.4)
 	elif event is InputEventMouseButton and event.pressed and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	if event.is_action_pressed("lock_on"):
@@ -243,10 +274,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func get_move_input() -> Vector3:
 	var v := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
-	if v == Vector2.ZERO:
+	if v.length_squared() < 0.001:
 		return Vector3.ZERO
-	# Camera-relative, -Z is forward.
-	return (cam_yaw.global_basis * Vector3(v.x, 0, v.y)).normalized() * Vector3(1, 0, 1)
+	# Planar camera-relative motion preserving analog magnitude
+	var yaw := cam_yaw.rotation.y if cam_yaw else 0.0
+	var cam_basis := Basis(Vector3.UP, yaw)
+	return cam_basis * Vector3(v.x, 0.0, v.y)
 
 func is_dodging() -> bool:
 	return _dodge_time > 0.0
@@ -255,76 +288,125 @@ func is_dodging() -> bool:
 func face_attack_direction() -> void:
 	var dir := Vector3.ZERO
 	if lock_target and is_instance_valid(lock_target):
-		dir = (lock_target.global_position - global_position) * Vector3(1, 0, 1)
+		dir = Vector3(lock_target.global_position.x - global_position.x, 0.0, lock_target.global_position.z - global_position.z)
 	else:
 		dir = get_move_input()
-	if dir.length() > 0.01:
+	dir.y = 0.0
+	if dir.length_squared() > 0.001 and visual:
 		visual.rotation.y = atan2(-dir.x, -dir.z)
+		visual.rotation.x = 0.0
+		visual.rotation.z = 0.0
 
 func forward() -> Vector3:
-	return -visual.global_basis.z
+	return -visual.global_basis.z if visual else Vector3.FORWARD
 
 # ---------------------------------------------------------------- physics
 func _physics_process(delta: float) -> void:
 	_dodge_cd = maxf(_dodge_cd - delta, 0.0)
 	_stun = maxf(_stun - delta, 0.0)
-	if not is_on_floor():
+	_buffer_timer = maxf(_buffer_timer - delta, 0.0)
+	if _buffer_timer <= 0.0:
+		_buffered_action = ""
+	if is_on_floor() and velocity.y <= 0.0:
+		velocity.y = -4.0  # Ground adhesion force keeping character firmly glued to floor/slopes
+	else:
 		velocity.y -= gravity * delta
-	if health.dead or not input_enabled:
-		velocity.x = move_toward(velocity.x, 0, acceleration * delta)
-		velocity.z = move_toward(velocity.z, 0, acceleration * delta)
+	if (health and health.dead) or not input_enabled:
+		var cur_h_stop := Vector2(velocity.x, velocity.z).move_toward(Vector2.ZERO, deceleration * delta)
+		velocity.x = cur_h_stop.x
+		velocity.z = cur_h_stop.y
 		move_and_slide()
 		return
+	var raw_v := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var dir := get_move_input()
 	if _dodge_time > 0.0:
 		_process_dodge(delta)
 	elif _stun > 0.0:
-		velocity.x = move_toward(velocity.x, 0, 30.0 * delta)
-		velocity.z = move_toward(velocity.z, 0, 30.0 * delta)
-	elif combat.is_busy():
+		var cur_h_stun := Vector2(velocity.x, velocity.z).move_toward(Vector2.ZERO, 30.0 * delta)
+		velocity.x = cur_h_stun.x
+		velocity.z = cur_h_stun.y
+	elif combat and combat.is_busy():
 		# Attacks root the player except for the scripted lunge.
-		var lunge := combat.current_lunge()
-		var f := forward() * lunge
+		var lunge: float = float(combat.current_lunge())
+		var f: Vector3 = forward() * lunge
 		velocity.x = f.x
 		velocity.z = f.z
+		if Input.is_action_just_pressed("dodge"):
+			_buffered_action = "dodge"
+			_buffer_timer = BUFFER_WINDOW
 	else:
 		var sprinting := Input.is_action_pressed("sprint") and dir != Vector3.ZERO
-		var speed := sprint_speed if sprinting else walk_speed
-		velocity.x = move_toward(velocity.x, dir.x * speed, acceleration * delta)
-		velocity.z = move_toward(velocity.z, dir.z * speed, acceleration * delta)
-		if lock_target and is_instance_valid(lock_target):
-			var to_t := (lock_target.global_position - global_position) * Vector3(1, 0, 1)
-			if to_t.length() > 0.1:
-				visual.rotation.y = lerp_angle(visual.rotation.y, atan2(-to_t.x, -to_t.z), turn_speed * delta)
-		elif dir != Vector3.ZERO:
-			visual.rotation.y = lerp_angle(visual.rotation.y, atan2(-dir.x, -dir.z), turn_speed * delta)
+		var target_speed := walk_speed
+		if sprinting:
+			target_speed = sprint_speed
+		elif dir.length_squared() > 0.01:
+			target_speed = lerpf(walk_speed, run_speed, clampf(raw_v.length(), 0.0, 1.0))
+		var rate := acceleration if dir != Vector3.ZERO else deceleration
+		var cur_h := Vector2(velocity.x, velocity.z)
+		var tgt_h := Vector2(dir.x, dir.z) * target_speed
+		cur_h = cur_h.move_toward(tgt_h, rate * delta)
+		velocity.x = cur_h.x
+		velocity.z = cur_h.y
+		
+		var is_locked: bool = lock_target != null and is_instance_valid(lock_target) and not lock_target.is_dead()
+		if is_locked:
+			# Dark Souls Lock-On Strafing: character stays facing the enemy while strafing/backpedaling
+			var to_t := Vector3(lock_target.global_position.x - global_position.x, 0.0, lock_target.global_position.z - global_position.z)
+			if to_t.length_squared() > 0.01 and visual:
+				var target_yaw := atan2(-to_t.x, -to_t.z)
+				visual.rotation.y = lerp_angle(visual.rotation.y, target_yaw, turn_speed * 1.5 * delta)
+				visual.rotation.x = 0.0
+				visual.rotation.z = 0.0
+		elif dir != Vector3.ZERO and visual:
+			# Free-Running: character smoothly turns toward travel direction
+			var target_yaw := atan2(-dir.x, -dir.z)
+			visual.rotation.y = lerp_angle(visual.rotation.y, target_yaw, turn_speed * delta)
+			visual.rotation.x = 0.0
+			visual.rotation.z = 0.0
 		if Input.is_action_just_pressed("jump") and is_on_floor():
 			velocity.y = jump_velocity
-		if Input.is_action_just_pressed("dodge") and _dodge_cd <= 0.0:
+			if hero and hero.has_method("on_jump"):
+				hero.on_jump()
+		if (Input.is_action_just_pressed("dodge") or _buffered_action == "dodge") and _dodge_cd <= 0.0:
+			_buffered_action = ""
 			_start_dodge(dir)
+	stamina = move_toward(stamina, 1.0 if velocity.length() < 0.6 else 0.55, delta * 1.5)
 	move_and_slide()
 	_animate_locomotion(delta)
 
 func _start_dodge(dir: Vector3) -> void:
-	_dodge_dir = dir if dir != Vector3.ZERO else -forward()
-	visual.rotation.y = atan2(-_dodge_dir.x, -_dodge_dir.z)
-	_dodge_time = dodge_duration
-	_dodge_cd = dodge_duration + dodge_cooldown
-	health.invulnerable = true
+	_dodge_dir = dir.normalized() if dir.length_squared() > 0.01 else forward()
+	_dodge_dir.y = 0.0
+	_dodge_dir = _dodge_dir.normalized()
+	if visual:
+		visual.rotation.y = atan2(-_dodge_dir.x, -_dodge_dir.z)
+		visual.rotation.x = 0.0
+		visual.rotation.z = 0.0
+	var dur := dodge_duration
+	var rolled: bool = hero != null and hero.play_roll()
+	if rolled:
+		var rd: float = hero.roll_duration()
+		dur = rd if rd > 0.05 else dodge_duration
+	_dodge_time = dur
+	_dodge_cd = dur + dodge_cooldown
+	if health:
+		health.invulnerable = true
 	collision_mask = 1  # roll through enemies
-	combat.cancel()
-	var t := create_tween()
-	rig.rotation.x = 0.0
-	t.tween_property(rig, "rotation:x", -TAU, dodge_duration).set_trans(Tween.TRANS_SINE)
-	t.tween_callback(func(): rig.rotation.x = 0.0)
-	get_tree().create_timer(dodge_iframes).timeout.connect(_end_iframes)
+	if combat:
+		combat.cancel()
+	if rig:
+		rig.rotation.x = 0.0
+		rig.rotation.z = 0.0
+	SFX.dodge(self)
+	if is_inside_tree():
+		get_tree().create_timer(dodge_iframes).timeout.connect(_end_iframes)
 
 func _end_iframes() -> void:
-	if _stun <= 0.0:
+	if _stun <= 0.0 and health:
 		health.invulnerable = false
 
 func _end_grace() -> void:
-	if _dodge_time <= 0.0:
+	if _dodge_time <= 0.0 and health:
 		health.invulnerable = false
 
 func _process_dodge(delta: float) -> void:
@@ -332,27 +414,38 @@ func _process_dodge(delta: float) -> void:
 	velocity.x = _dodge_dir.x * dodge_speed
 	velocity.z = _dodge_dir.z * dodge_speed
 	_ghost_timer -= delta
-	if _ghost_timer <= 0.0:
+	if _ghost_timer <= 0.0 and is_inside_tree():
 		_ghost_timer = 0.06
 		FX.afterimage(get_parent(), global_transform)
 	if _dodge_time <= 0.0:
 		collision_mask = 1 | 4
+		if rig:
+			rig.rotation.x = 0.0
+			rig.rotation.z = 0.0
 
 func _animate_locomotion(delta: float) -> void:
-	if combat.is_busy() or _dodge_time > 0.0:
+	if _dodge_time > 0.0:
+		return
+	var is_combat_busy: bool = combat != null and combat.is_busy()
+	if hero:
+		# When busy in combat, pass Vector3.ZERO so legs plant into stance instead of cycling run in place
+		var leg_vel := Vector3.ZERO if is_combat_busy else velocity
+		hero.update_locomotion(leg_vel, delta)
+	if is_combat_busy:
 		return
 	var hs := Vector2(velocity.x, velocity.z).length()
-	var freq := 2.0 if hs < 0.5 else (10.0 if hs < 6.0 else 14.0)
-	_anim_t += delta * freq
-	var bob := sin(_anim_t) * (0.03 if hs < 0.5 else 0.07)
-	rig.position.y = 0.9 + bob
-	rig.rotation.x = lerpf(rig.rotation.x, -clampf(hs / sprint_speed, 0.0, 1.0) * 0.25, 10.0 * delta)
-	arm_pivot.rotation = arm_pivot.rotation.lerp(REST_ARM + Vector3(sin(_anim_t) * 0.1 * minf(hs, 1.0), 0, 0), 10.0 * delta)
+	_anim_t += delta * lerpf(1.5, 7.0, clampf(hs / maxf(sprint_speed, 0.1), 0.0, 1.0))
+	if (hero == null or not hero.has_skeleton()) and rig:
+		# No imported rig: keep the old procedural bob as a fallback.
+		rig.position.y = 0.9 + sin(_anim_t) * (0.03 if hs < 0.5 else 0.06)
+	if (hero == null or not hero.has_skeleton()) and arm_pivot:
+		arm_pivot.rotation = arm_pivot.rotation.lerp(REST_ARM + Vector3(sin(_anim_t) * 0.08 * minf(hs, 1.0), 0, 0), 8.0 * delta)
+	elif arm_pivot:
+		arm_pivot.rotation = Vector3.ZERO
 
 func _process(delta: float) -> void:
-	if _left_pivot:
-		var a := arm_pivot.rotation
-		_left_pivot.rotation = Vector3(a.x, -a.y, -a.z)
+	# The HeroRig child solves the skeleton, the grip and the foot contact on its
+	# own, one step before the camera reads the new pose.
 	# Smooth camera follow + lock-on framing + shake.
 	var target_pos := global_position + Vector3(0, 1.5, 0)
 	cam_yaw.global_position = cam_yaw.global_position.lerp(target_pos, clampf(camera_follow_speed * delta, 0.0, 1.0))
@@ -363,6 +456,11 @@ func _process(delta: float) -> void:
 			var to_t := (lock_target.global_position - global_position) * Vector3(1, 0, 1)
 			if to_t.length() > 0.5:
 				cam_yaw.rotation.y = lerp_angle(cam_yaw.rotation.y, atan2(-to_t.x, -to_t.z), 6.0 * delta)
+			if cam_pitch:
+				var to_t_3d := lock_target.global_position + Vector3(0, 1.0, 0) - (global_position + Vector3(0, 1.5, 0))
+				var dist_flat := Vector2(to_t_3d.x, to_t_3d.z).length()
+				var desired_pitch := clampf(-atan2(to_t_3d.y, maxf(dist_flat, 0.1)) - 0.2, -1.0, 0.2)
+				cam_pitch.rotation.x = lerp_angle(cam_pitch.rotation.x, desired_pitch, 4.0 * delta)
 			_lock_marker.global_position = lock_target.global_position + Vector3(0, lock_target.bar_height + 0.5, 0)
 	if _shake > 0.0:
 		_shake = maxf(_shake - delta * 2.5, 0.0)
@@ -374,14 +472,26 @@ func _process(delta: float) -> void:
 		camera.v_offset = 0.0
 
 func shake(amount: float) -> void:
-	_shake = maxf(_shake, amount)
+	_shake = maxf(_shake, amount * shake_scale)
+
+## Weapon trail colour/intensity per attack strength (set by PlayerCombat).
+func set_trail(c: Color, energy: float) -> void:
+	var qm := (trail.draw_pass_1 as QuadMesh).material as StandardMaterial3D
+	qm.albedo_color = c
+	qm.emission = c
+	qm.emission_energy_multiplier = energy
+
+## Crimson blade glow: brighter during skills and the ultimate.
+func set_blade_glow(energy: float) -> void:
+	if _sword_light:
+		create_tween().tween_property(_sword_light, "light_energy", energy, 0.12)
 
 # ---------------------------------------------------------------- lock-on
 func _toggle_lock() -> void:
 	if lock_target:
 		_set_lock(null)
 		return
-	var best: Enemy = null
+	var best: CharacterBody3D = null
 	var best_d := lock_on_range
 	for e in get_tree().get_nodes_in_group("enemies"):
 		if e.is_dead():
@@ -392,7 +502,7 @@ func _toggle_lock() -> void:
 			best = e
 	_set_lock(best)
 
-func _set_lock(t: Enemy) -> void:
+func _set_lock(t: CharacterBody3D) -> void:
 	lock_target = t
 	_lock_marker.visible = t != null
 	lock_target_changed.emit(t)
@@ -407,19 +517,20 @@ func _on_damaged(amount: float, source_pos: Vector3, _power: int) -> void:
 	if away.length() > 0.01:
 		velocity += away.normalized() * 6.0
 	shake(0.8)
+	SFX.hurt(self)
 	FX.damage_number(get_parent(), global_position + Vector3(0, 2.0, 0), amount, true)
-	# Hit reaction: flinch backwards and flash red.
-	_body_mat.emission_enabled = true
-	_body_mat.emission = Color(1, 0.1, 0.1)
-	_body_mat.emission_energy_multiplier = 3.0
-	var t := create_tween()
-	t.tween_property(rig, "rotation:x", 0.45, 0.08)
-	t.tween_property(rig, "rotation:x", 0.0, 0.2)
-	t.parallel().tween_property(_body_mat, "emission_energy_multiplier", 0.0, 0.25)
+	# Hit reaction: the model flashes and the grip recoils.
+	if hero:
+		hero.flash()
+		hero.flinch()
 
 func _on_died() -> void:
 	combat.cancel()
 	_set_lock(null)
-	var t := create_tween()
-	t.tween_property(rig, "rotation:x", PI * 0.5, 0.5).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
-	t.parallel().tween_property(rig, "position:y", 0.35, 0.5)
+	# Hand the body over to HeroRig so the arms stop holding the sword and the
+	# collapse blends out of the stance.
+	if hero:
+		hero.release()
+	if rig:
+		rig.rotation.x = 0.0
+		rig.rotation.z = 0.0

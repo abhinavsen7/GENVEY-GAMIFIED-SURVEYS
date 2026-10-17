@@ -9,7 +9,7 @@ signal portal_entered
 @export var half_size := 20.0
 @export var wall_height := 6.0
 
-var player_spawn := Vector3(0, 0.1, 14)
+var player_spawn := Vector3(0, 0.0, 14)
 var spawn_points: Array[Vector3] = []
 var _torches: Array[OmniLight3D] = []
 var _torch_base: Array[float] = []
@@ -25,11 +25,11 @@ func _ready() -> void:
 	var nm := NavigationMesh.new()
 	nm.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
 	nm.geometry_collision_mask = 1
-	nm.agent_radius = 0.6
-	nm.agent_height = 1.8
-	nm.agent_max_climb = 0.3
 	nm.cell_size = 0.25
 	nm.cell_height = 0.25
+	nm.agent_radius = 0.5
+	nm.agent_height = 2.0
+	nm.agent_max_climb = 0.25
 	navigation_mesh = nm
 	bake_navigation_mesh(false)
 	for i in 8:

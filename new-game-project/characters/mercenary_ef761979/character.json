@@ -1,0 +1,160 @@
+{
+  "id": "character-ef761979-fc18-4217-9ff3-83c064112bae",
+  "rig": {
+    "path": "res://characters/mercenary_ef761979/rig.glb",
+    "assetId": "ef761979-fc18-4217-9ff3-83c064112bae",
+    "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1791658353/summer_3d/character_ef761979-fc18-4217-9ff3-83c064112bae_runtime_1791658351608_mde5fxwh.glb",
+    "sourceFileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1791658339/summer_3d/rig_image-to-3d-1k9ajxn-animation-batch_1791658338142_y9tv03mc.glb",
+    "artifactFingerprint": "publicId:summer_3d/character_ef761979-fc18-4217-9ff3-83c064112bae_runtime_1791658351608_mde5fxwh.glb"
+  },
+  "status": "ready",
+  "version": 2,
+  "provider": {
+    "mode": "managed",
+    "name": "fal",
+    "rigTaskId": "01a12726-bce0-720c-a489-fa4eb4b9cba1"
+  },
+  "animations": [
+    {
+      "id": "animation-ef761979-fc18-4217-9ff3-83c064112bae-4",
+      "loop": false,
+      "name": "Attack",
+      "path": "res://characters/mercenary_ef761979/rig.glb",
+      "assetId": "8297a222-b7cc-45a2-bbf5-a7885166840c",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1791658344/summer_animations/animation_image-to-3d-1k9ajxn-4_1791658342784_96j8fjyk.glb",
+      "actionId": 4,
+      "description": "Attack animation for Mercenary.",
+      "semanticRole": "attack",
+      "artifactFingerprint": "assetId:8297a222-b7cc-45a2-bbf5-a7885166840c"
+    },
+    {
+      "id": "animation-ef761979-fc18-4217-9ff3-83c064112bae-102",
+      "loop": false,
+      "name": "Sword Judgment",
+      "path": "res://characters/mercenary_ef761979/rig.glb",
+      "assetId": "6f1694a6-7b9e-4361-8741-2410ea81c4e3",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1791658343/summer_animations/animation_image-to-3d-1k9ajxn-102_1791658342479_qbndz0xd.glb",
+      "actionId": 102,
+      "description": "Sword Judgment animation for Mercenary.",
+      "semanticRole": "custom",
+      "artifactFingerprint": "assetId:6f1694a6-7b9e-4361-8741-2410ea81c4e3"
+    },
+    {
+      "id": "animation-ef761979-fc18-4217-9ff3-83c064112bae-11",
+      "loop": true,
+      "name": "Idle",
+      "path": "res://characters/mercenary_ef761979/rig.glb",
+      "assetId": "49b070b6-870b-4aa7-b2b5-4502690aa065",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1791658344/summer_animations/animation_image-to-3d-1k9ajxn-11_1791658342773_h8o809p4.glb",
+      "actionId": 11,
+      "description": "Idle animation for Mercenary.",
+      "semanticRole": "idle",
+      "artifactFingerprint": "assetId:49b070b6-870b-4aa7-b2b5-4502690aa065"
+    },
+    {
+      "id": "animation-ef761979-fc18-4217-9ff3-83c064112bae-1",
+      "loop": true,
+      "name": "Walk",
+      "path": "res://characters/mercenary_ef761979/rig.glb",
+      "assetId": "d8c46d77-a78f-4f21-b385-880e02f3bd1d",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1791658344/summer_animations/animation_image-to-3d-1k9ajxn-1_1791658342720_w7wby9g1.glb",
+      "actionId": 1,
+      "description": "Walk animation for Mercenary.",
+      "semanticRole": "walk",
+      "artifactFingerprint": "assetId:d8c46d77-a78f-4f21-b385-880e02f3bd1d"
+    },
+    {
+      "id": "animation-ef761979-fc18-4217-9ff3-83c064112bae-178",
+      "loop": false,
+      "name": "Hit Reaction",
+      "path": "res://characters/mercenary_ef761979/rig.glb",
+      "assetId": "e19ef136-cb87-404a-93eb-ea5e8aa57e07",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1791658343/summer_animations/animation_image-to-3d-1k9ajxn-178_1791658342757_d0brd9kg.glb",
+      "actionId": 178,
+      "description": "Hit Reaction animation for Mercenary.",
+      "semanticRole": "custom",
+      "artifactFingerprint": "assetId:e19ef136-cb87-404a-93eb-ea5e8aa57e07"
+    },
+    {
+      "id": "animation-ef761979-fc18-4217-9ff3-83c064112bae-366",
+      "loop": false,
+      "name": "Falling Down",
+      "path": "res://characters/mercenary_ef761979/rig.glb",
+      "assetId": "c63a8b6c-7d47-4329-883f-519700b3cf78",
+      "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1791658344/summer_animations/animation_image-to-3d-1k9ajxn-366_1791658342935_b3cvuea0.glb",
+      "actionId": 366,
+      "description": "Falling Down animation for Mercenary.",
+      "semanticRole": "custom",
+      "artifactFingerprint": "assetId:c63a8b6c-7d47-4329-883f-519700b3cf78"
+    }
+  ],
+  "characterId": "ef761979-fc18-4217-9ff3-83c064112bae",
+  "displayName": "Mercenary",
+  "forwardAxis": "-Z",
+  "directoryName": "mercenary_ef761979",
+  "runtimeBundle": {
+    "clips": [
+      "Attack",
+      "Sword Judgment",
+      "Idle",
+      "Walk",
+      "Hit Reaction",
+      "Falling Down"
+    ],
+    "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1791658353/summer_3d/character_ef761979-fc18-4217-9ff3-83c064112bae_runtime_1791658351608_mde5fxwh.glb",
+    "publicId": "summer_3d/character_ef761979-fc18-4217-9ff3-83c064112bae_runtime_1791658351608_mde5fxwh.glb",
+    "validation": {
+      "ok": true,
+      "clips": [
+        {
+          "name": "Attack",
+          "channels": 66,
+          "duration": 2.833
+        },
+        {
+          "name": "Sword Judgment",
+          "channels": 66,
+          "duration": 4.367
+        },
+        {
+          "name": "Idle",
+          "channels": 66,
+          "duration": 1.9
+        },
+        {
+          "name": "Walk",
+          "channels": 66,
+          "duration": 1
+        },
+        {
+          "name": "Hit Reaction",
+          "channels": 66,
+          "duration": 1.667
+        },
+        {
+          "name": "Falling Down",
+          "channels": 66,
+          "duration": 2.3
+        }
+      ],
+      "errors": [],
+      "sizeBytes": 15413892
+    },
+    "skeletonFingerprint": "14oi3ri"
+  },
+  "rootYawRadians": 3.141592653589793,
+  "unriggedSource": {
+    "assetId": "ef761979-fc18-4217-9ff3-83c064112bae",
+    "fileUrl": "https://res.cloudinary.com/dol86wsz1/raw/upload/v1791658168/summer_3d/3d_ef761979fc1842179ff383c0_1791658167456.glb"
+  },
+  "scaleMultiplier": 1,
+  "sourceForwardAxis": "+Z",
+  "groundOffsetMeters": 0,
+  "targetHeightMeters": 1.8,
+  "skeletonFingerprint": "14oi3ri",
+  "packageRevision": "sha256:794399bdedaac2e97f053857e644d2ccf1a8f66b82ea07cbaf927a65085ab7ee",
+  "normalization": {
+    "targetHeightMeters": 1.8,
+    "forwardAxis": "-Z"
+  }
+}
