@@ -317,6 +317,382 @@ Output ONLY valid JSON matching this schema:
   ]
 }}"""
 
+import random
+
+# Dynamic 2D Sprite Pools for Anti-Repetition (<50% overlap guarantee)
+HERO_SPRITE_POOLS = [
+    {
+        "id": "knight_m",
+        "name": "Knight Champion",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_run_anim_f{i}.png" for i in range(4)],
+        "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_hit_anim_f0.png"
+    },
+    {
+        "id": "elf_f",
+        "name": "Elven Ranger",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/elf_f_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/elf_f_run_anim_f{i}.png" for i in range(4)],
+        "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/elf_f_hit_anim_f0.png"
+    },
+    {
+        "id": "wizzard_m",
+        "name": "Arcane Mage",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_m_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_m_run_anim_f{i}.png" for i in range(4)],
+        "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_m_hit_anim_f0.png"
+    },
+    {
+        "id": "lizard_m",
+        "name": "Saurian Duelist",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/lizard_m_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/lizard_m_run_anim_f{i}.png" for i in range(4)],
+        "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/lizard_m_hit_anim_f0.png"
+    },
+    {
+        "id": "dwarf_m",
+        "name": "Dwarven Berserker",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/dwarf_m_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/dwarf_m_run_anim_f{i}.png" for i in range(4)],
+        "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/dwarf_m_hit_anim_f0.png"
+    },
+    {
+        "id": "knight_f",
+        "name": "Paladin Shieldmaiden",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_f_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_f_run_anim_f{i}.png" for i in range(4)],
+        "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_f_hit_anim_f0.png"
+    },
+    {
+        "id": "wizzard_f",
+        "name": "Sorceress",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_f_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_f_run_anim_f{i}.png" for i in range(4)],
+        "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_f_hit_anim_f0.png"
+    },
+]
+
+ENEMY_SPRITE_POOLS = [
+    {
+        "id": "skelet",
+        "name": "Cursed Skeleton",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/skelet_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/skelet_run_anim_f{i}.png" for i in range(4)],
+    },
+    {
+        "id": "goblin",
+        "name": "Dungeon Goblin",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/goblin_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/goblin_run_anim_f{i}.png" for i in range(4)],
+    },
+    {
+        "id": "masked_orc",
+        "name": "Masked Orc Raider",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/masked_orc_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/masked_orc_run_anim_f{i}.png" for i in range(4)],
+    },
+    {
+        "id": "chort",
+        "name": "Shadow Chort",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/chort_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/chort_run_anim_f{i}.png" for i in range(4)],
+    },
+    {
+        "id": "wogol",
+        "name": "Wogol Beast",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wogol_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wogol_run_anim_f{i}.png" for i in range(4)],
+    },
+    {
+        "id": "orc_warrior",
+        "name": "Orcish Vanguard",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/orc_warrior_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/orc_warrior_run_anim_f{i}.png" for i in range(4)],
+    },
+]
+
+BOSS_SPRITE_POOLS = [
+    {
+        "id": "big_demon",
+        "name": "Abyssal Archdemon",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_demon_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_demon_run_anim_f{i}.png" for i in range(4)],
+    },
+    {
+        "id": "ogre",
+        "name": "Ogre Warlord",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/ogre_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/ogre_run_anim_f{i}.png" for i in range(4)],
+    },
+    {
+        "id": "big_zombie",
+        "name": "Grave Goliath",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_zombie_idle_anim_f{i}.png" for i in range(4)],
+        "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_zombie_run_anim_f{i}.png" for i in range(4)],
+    },
+]
+
+NPC_SPRITE_POOLS = [
+    {
+        "id": "doc",
+        "name": "Doctor Alchemist",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/doc_idle_anim_f{i}.png" for i in range(4)],
+    },
+    {
+        "id": "angel",
+        "name": "Celestial Herald",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/angel_idle_anim_f{i}.png" for i in range(4)],
+    },
+    {
+        "id": "pumpkin_dude",
+        "name": "Harvest Mystic",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/pumpkin_dude_idle_anim_f{i}.png" for i in range(4)],
+    },
+    {
+        "id": "wizzard_f",
+        "name": "Guild Emissary",
+        "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_f_idle_anim_f{i}.png" for i in range(4)],
+    },
+]
+
+FLOOR_SPRITE_POOLS = [f"floor_{i}" for i in range(1, 9)]
+
+WALL_SPRITE_POOLS = [
+    "wall_mid",
+    "wall_banner_red",
+    "wall_banner_blue",
+    "wall_banner_green",
+    "wall_banner_yellow",
+    "wall_hole_1",
+    "wall_hole_2",
+    "wall_goo",
+]
+
+WEAPON_SPRITE_POOLS = [
+    {"id": "weapon_knight_sword", "name": "Knight's Steel Sword", "url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_knight_sword.png"},
+    {"id": "weapon_katana", "name": "Shadow Katana", "url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_katana.png"},
+    {"id": "weapon_cleaver", "name": "Heavy Cleaver", "url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_cleaver.png"},
+    {"id": "weapon_duel_sword", "name": "Duelist Rapier", "url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_duel_sword.png"},
+    {"id": "weapon_golden_sword", "name": "Golden Relic Blade", "url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_golden_sword.png"},
+    {"id": "weapon_green_magic_staff", "name": "Verdant Scepter", "url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_green_magic_staff.png"},
+    {"id": "weapon_waraxe", "name": "Dwarven Waraxe", "url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_waraxe.png"},
+    {"id": "weapon_spear", "name": "Hoplite Spear", "url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_spear.png"},
+]
+
+
+def select_rotated_2d_assets(is_ultima: bool = False) -> Dict[str, Any]:
+    """
+    Selects 2D game assets guaranteeing <= 50% overlap from the previous game session.
+    Maintains persistent usage history in backend/storage/asset_usage_history.json.
+    """
+    history_file = Path(__file__).resolve().parent.parent / "storage" / "asset_usage_history.json"
+    history = {}
+    if history_file.exists():
+        try:
+            with open(history_file, "r") as f:
+                history = json.load(f)
+        except Exception:
+            history = {}
+
+    prev_hero = history.get("last_hero")
+    prev_enemy = history.get("last_enemy")
+    prev_boss = history.get("last_boss")
+    prev_npc = history.get("last_npc")
+    prev_floor = history.get("last_floor")
+    prev_wall = history.get("last_wall")
+    prev_weapon = history.get("last_weapon")
+
+    # Filter out previous assets to guarantee fresh variety (0% overlap, well below 50% max)
+    avail_heroes = [h for h in HERO_SPRITE_POOLS if h["id"] != prev_hero] or HERO_SPRITE_POOLS
+    avail_enemies = [e for e in ENEMY_SPRITE_POOLS if e["id"] != prev_enemy] or ENEMY_SPRITE_POOLS
+    avail_bosses = [b for b in BOSS_SPRITE_POOLS if b["id"] != prev_boss] or BOSS_SPRITE_POOLS
+    avail_npcs = [n for n in NPC_SPRITE_POOLS if n["id"] != prev_npc] or NPC_SPRITE_POOLS
+    avail_floors = [f for f in FLOOR_SPRITE_POOLS if f != prev_floor] or FLOOR_SPRITE_POOLS
+    avail_walls = [w for w in WALL_SPRITE_POOLS if w != prev_wall] or WALL_SPRITE_POOLS
+    avail_weapons = [w for w in WEAPON_SPRITE_POOLS if w["id"] != prev_weapon] or WEAPON_SPRITE_POOLS
+
+    selected_hero = random.choice(avail_heroes)
+    selected_enemy = random.choice(avail_enemies)
+    selected_boss = random.choice(avail_bosses)
+    selected_npc = random.choice(avail_npcs)
+    selected_floor = random.choice(avail_floors)
+    selected_wall = random.choice(avail_walls)
+    selected_weapon = random.choice(avail_weapons)
+
+    # Save selections to history
+    try:
+        history_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(history_file, "w") as f:
+            json.dump({
+                "last_hero": selected_hero["id"],
+                "last_enemy": selected_enemy["id"],
+                "last_boss": selected_boss["id"],
+                "last_npc": selected_npc["id"],
+                "last_floor": selected_floor,
+                "last_wall": selected_wall,
+                "last_weapon": selected_weapon["id"],
+                "is_ultima": is_ultima,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }, f, indent=2)
+    except Exception as e:
+        print(f"[select_rotated_2d_assets] History save note: {e}")
+
+    ground_url = "/custom_assets/sprites_and_tiles_2d/ultima7_britannia/terrain_atlas.png" if is_ultima else f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/{selected_floor}.png"
+    wall_url = f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/{selected_wall}.png"
+
+    return {
+        "pack_name": "Ultima7_Britannia" if is_ultima else "0x72_DungeonTileset_II_Rotated",
+        "is_ultima_britannia": is_ultima,
+        "tileset_ground_url": ground_url,
+        "tileset_wall_url": wall_url,
+        "tileset_wall_left_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wall_left.png",
+        "tileset_wall_right_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wall_right.png",
+        "gold_prop_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/coin_anim_f0.png",
+        "chest_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/chest_full_open_anim_f0.png",
+        "chest_empty_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/chest_empty_open_anim_f0.png",
+        "potion_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/flask_big_red.png",
+        "door_closed_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/doors_leaf_closed.png",
+        "door_open_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/doors_leaf_open.png",
+        "hero_selected": selected_hero,
+        "enemy_selected": selected_enemy,
+        "boss_selected": selected_boss,
+        "npc_selected": selected_npc,
+        "weapon_selected": selected_weapon,
+        # Backwards compatibility bindings
+        "hero_knight": selected_hero,
+        "hero_wizard": selected_hero,
+        "enemy_skeleton": selected_enemy,
+        "enemy_boss_demon": selected_boss,
+        "npc_envoy": selected_npc,
+        "coin_frames": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/coin_anim_f{i}.png" for i in range(4)],
+        "weapons_2d": {
+            "sword": selected_weapon["url"],
+            "selected": selected_weapon["url"],
+            "axe": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_waraxe.png",
+            "staff": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_red_magic_staff.png",
+            "hammer": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_big_hammer.png",
+            "bow": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_bow.png"
+        },
+        "ultima_britannia": {
+            "terrain_atlas_url": "/custom_assets/sprites_and_tiles_2d/ultima7_britannia/terrain_atlas.png",
+            "shapes_atlas_url": "/custom_assets/sprites_and_tiles_2d/ultima7_britannia/shapes_atlas.png",
+            "cuboid_atlas_url": "/custom_assets/sprites_and_tiles_2d/ultima7_britannia/cuboid_atlas.png",
+            "faces_atlas_url": "/custom_assets/sprites_and_tiles_2d/ultima7_britannia/faces_atlas.png",
+            "shapes_meta_url": "/custom_assets/sprites_and_tiles_2d/ultima7_britannia/u7shapes.json"
+        } if is_ultima else None
+    }
+
+
+async def deconstruct_intent_with_gemma(
+    company_name: str,
+    survey_intent: Optional[str] = None,
+    target_demographic: Optional[str] = None,
+    theme_prompt: Optional[str] = None,
+    target_count: int = 4
+) -> List[SurveyQuestion]:
+    """
+    Deconstructs company intent into realistic, targeted survey questions using Gemma 4.
+    Strictly forbids generic placeholder text, fantasy filler, or boilerplate templates.
+    """
+    intent_desc = (survey_intent or "").strip()
+    demo_desc = (target_demographic or "General Consumers / Active Users").strip()
+    theme_desc = (theme_prompt or "").strip()
+
+    sys_prompt = (
+        "You are an expert market research architect and survey designer for gamified enterprise telemetry. "
+        "Your task is to decompose the company's business intent into realistic, highly targeted survey questions with 4 distinct, concrete options.\n"
+        "STRICT CONSTRAINTS:\n"
+        "1. Output valid JSON strictly formatted as: {\"questions\": [{\"id\": \"q1\", \"question_text\": \"...\", \"target_metric\": \"...\", \"options\": [\"opt1\", \"opt2\", \"opt3\", \"opt4\"]}]}\n"
+        "2. ZERO PLACEHOLDER TEXT, ZERO generic templates, and ZERO fantasy filler (e.g., do NOT use 'uncharted crisis', 'sovereign tier', 'elder runes', or static boilerplate).\n"
+        "3. Every question and choice must directly reflect the actual company, intent, trade-offs, and pricing/features mentioned.\n"
+        f"4. Generate exactly {target_count} questions."
+    )
+
+    user_prompt = (
+        f"Company Name: {company_name}\n"
+        f"Survey Intent: {intent_desc if intent_desc else f'Understand key user preferences and willingness to pay for {company_name} products and features.'}\n"
+        f"Target Demographic: {demo_desc}\n"
+        f"Context / Theme: {theme_desc}\n"
+        "Generate concrete, professional questions and options directly evaluating this intent."
+    )
+
+    try:
+        import asyncio
+        llm_data = await asyncio.wait_for(amd_client.chat_json(sys_prompt, user_prompt), timeout=7.0)
+        q_list = llm_data.get("questions", []) if isinstance(llm_data, dict) else []
+        result: List[SurveyQuestion] = []
+        for idx, q_item in enumerate(q_list):
+            q_text = str(q_item.get("question_text", "")).strip()
+            opts = [str(o).strip() for o in q_item.get("options", []) if str(o).strip()]
+            if q_text and len(opts) >= 2:
+                while len(opts) < 4:
+                    opts.append(f"Neutral / Other ({company_name})")
+                metric = str(q_item.get("target_metric") or f"intent_metric_{idx + 1}").strip()
+                result.append(SurveyQuestion(
+                    id=str(q_item.get("id") or f"q_intent_{idx + 1}"),
+                    question_text=q_text,
+                    target_metric=metric,
+                    options=opts[:4]
+                ))
+        if result:
+            return result
+    except Exception as e:
+        print(f"[deconstruct_intent_with_gemma] LLM intent decomposition note: {e}")
+
+    # High-fidelity neuro-symbolic intent fallback (Extract real tokens from survey_intent, NEVER use generic crisis filler)
+    clean_intent = intent_desc or f"product priorities and service quality for {company_name}"
+    prices = re.findall(r"\$[\d\.]+", clean_intent)
+    p1 = prices[0] if prices else "$10/mo"
+    p2 = prices[1] if len(prices) > 1 else "$3/mo"
+
+    fallback_questions = [
+        SurveyQuestion(
+            id="q_intent_core_choice",
+            question_text=f"Regarding {company_name}'s focus ({clean_intent[:95]}): What is your primary preference?",
+            target_metric="core_intent_preference",
+            options=[
+                f"Full Access / Premium Experience ({p1})" if prices else f"Fast automated experience with {company_name}",
+                f"Essential / Budget Plan ({p2})" if prices else f"Granular control and deep customization",
+                f"Free entry with core features ($0)" if prices else f"Real-time responsive performance",
+                f"Custom enterprise / flexible setup" if prices else f"Highest security and privacy guarantee"
+            ]
+        ),
+        SurveyQuestion(
+            id="q_intent_priority_driver",
+            question_text=f"When choosing {company_name}, which factor holds the greatest weight in your decision?",
+            target_metric="intent_priority_driver",
+            options=[
+                f"Cost efficiency and price-to-performance ratio",
+                f"Reliability, quality, and proven community trust",
+                f"Rapid onboarding and intuitive simplicity",
+                f"Comprehensive feature depth and flexibility"
+            ]
+        ),
+        SurveyQuestion(
+            id="q_intent_feature_value",
+            question_text=f"How would improvements to {company_name}'s offerings most impact your daily use?",
+            target_metric="value_realization",
+            options=[
+                f"Significantly increases daily adoption and engagement",
+                f"Moderate improvement for specific workflows",
+                f"Only beneficial if bundled with no price increase",
+                f"Minimal impact compared to current alternative solutions"
+            ]
+        ),
+        SurveyQuestion(
+            id="q_intent_satisfaction_threshold",
+            question_text=f"What would be the decisive reason for you to recommend {company_name} to peers?",
+            target_metric="nps_advocacy_trigger",
+            options=[
+                f"Exceptional performance exceeding competing services",
+                f"Honest, transparent pricing and clear roadmap",
+                f"Active developer/community support and responsiveness",
+                f"Uncompromising reliability and zero downtime"
+            ]
+        )
+    ]
+    return fallback_questions[:target_count]
+
 
 def _target_room_count(length_minutes: int) -> int:
     if length_minutes <= 6:
@@ -345,75 +721,27 @@ async def compile_survey_to_game(campaign: SurveyCampaignInput) -> Dict[str, Any
             if winning_g in ["DARK_SOULS_ACTION", "BALDURS_GATE_CRPG", "ULTIMA_IMMERSIVE_SANDBOX", "HORDE_SURVIVOR_ARENA", "PSX_SURVIVAL_HORROR"]:
                 campaign.style_mode = winning_g
 
-    # 2. Survey Intent Deconstruction & Questions
+    genre_profile = _resolve_genre_profile(campaign)
+    style_mode = genre_profile["style_mode"]
+    custom_genre_label = genre_profile.get("custom_genre_label", style_mode)
+    target_rooms = _target_room_count(campaign.length_minutes)
+
+    # 2. Survey Intent Deconstruction & Questions via Gemma 4 (Zero Placeholders)
     survey_questions: List[SurveyQuestion] = []
     if campaign.questions:
-        # Filter out empty or whitespace-only questions
         survey_questions = [
             q for q in campaign.questions
             if q.question_text and q.question_text.strip()
         ]
 
-    if not survey_questions and campaign.survey_intent and campaign.survey_intent.strip():
-        s_intent = campaign.survey_intent.strip()
-        intent_lower = s_intent.lower()
-        pricing_matches = re.findall(r"\$(\d+)", s_intent)
-        price_tier_1 = f"${pricing_matches[0]}" if pricing_matches else "$10"
-        price_tier_2 = f"${pricing_matches[1]}" if len(pricing_matches) > 1 else "$2"
-
-        is_pricing_intent = any(k in intent_lower for k in ["$", "dollar", "pay", "price", "tier", "subscription", "pricing", "cost", "free", "upgrade"])
-        is_feature_intent = any(k in intent_lower for k in ["feature", "cosmetic", "status", "utility", "tool", "privacy", "cloud", "local", "speed", "latency"])
-
-        options_q1 = [
-            f"Sovereign Tier ({price_tier_1} - Full Access & Exclusive Status)",
-            f"Essential Micro-Tier ({price_tier_2} - Functional Utility)",
-            f"Free Community Tier ($0 - Baseline Experience)",
-            f"Custom Enterprise Accord (Direct High-Volume Support)"
-        ] if is_pricing_intent else [
-            f"Fast, automated high-throughput workflows",
-            f"Granular manual controls and modularity",
-            f"Zero-latency real-time response",
-            f"Secure self-hosted data isolation"
-        ]
-
-        survey_questions = [
-            SurveyQuestion(
-                id="q_intent_primary_tradeoff",
-                question_text=f"Regarding {campaign.company_name}'s proposition ('{s_intent[:85]}'): Which choice best reflects your preference?",
-                target_metric="intent_primary_preference",
-                options=options_q1
-            ),
-            SurveyQuestion(
-                id="q_intent_value_dimension",
-                question_text=f"When evaluating {campaign.company_name}, what factor weighs most in your decision?",
-                target_metric="value_dimension",
-                options=[
-                    "Immediate Utility & Practical Functionality",
-                    "Aesthetic Polish, Exclusivity & Status",
-                    "Predictable Cost & Scalable ROI",
-                    "Reliability & Community Trust"
-                ] if is_feature_intent else [
-                    "Ease of Integration & Time to Value",
-                    "Feature Completeness & Depth",
-                    "Cost vs Output Ratio",
-                    "Security, Compliance & Sovereignty"
-                ]
-            )
-        ]
-    elif not survey_questions:
-        survey_questions = [
-            SurveyQuestion(
-                id="q_company_strategic_focus",
-                question_text=f"What capability should {campaign.company_name} prioritize to deliver maximum value?",
-                target_metric="strategic_priority",
-                options=[
-                    "High-performance automated intelligence",
-                    "Extensible modular workflows",
-                    "Streamlined friction-free onboarding",
-                    "Enterprise governance and dedicated support"
-                ]
-            )
-        ]
+    if not survey_questions:
+        survey_questions = await deconstruct_intent_with_gemma(
+            company_name=campaign.company_name,
+            survey_intent=campaign.survey_intent,
+            target_demographic=campaign.target_demographic,
+            theme_prompt=campaign.theme_prompt,
+            target_count=max(2, target_rooms)
+        )
 
     genre_profile = _resolve_genre_profile(campaign)
     style_mode = genre_profile["style_mode"]
@@ -529,59 +857,14 @@ async def compile_survey_to_game(campaign: SurveyCampaignInput) -> Dict[str, Any
         "animation_pack_urls": anim_pack_urls
     }
     raw_config["player_class"] = player_config["id"]
-    raw_config["player_class_url"] = player_config["model_url"]
-    raw_config["player_config"] = player_config
-
-    # 2D Sprite & Tileset Bindings from custom_asset_packs/sprites_and_tiles_2d/
-    raw_config["sprites_2d_config"] = {
-        "pack_name": "0x72_DungeonTileset_II_and_PixelFrog",
-        "tileset_ground_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/floor_1.png",
-        "tileset_wall_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wall_mid.png",
-        "tileset_wall_left_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wall_left.png",
-        "tileset_wall_right_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wall_right.png",
-        "gold_prop_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/coin_anim_f0.png",
-        "chest_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/chest_full_open_anim_f0.png",
-        "chest_empty_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/chest_empty_open_anim_f0.png",
-        "potion_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/flask_big_red.png",
-        "door_closed_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/doors_leaf_closed.png",
-        "door_open_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/doors_leaf_open.png",
-        "hero_knight": {
-            "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_idle_anim_f{i}.png" for i in range(4)],
-            "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_run_anim_f{i}.png" for i in range(4)],
-            "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_hit_anim_f0.png",
-        },
-        "hero_wizard": {
-            "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_m_idle_anim_f{i}.png" for i in range(4)],
-            "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_m_run_anim_f{i}.png" for i in range(4)],
-            "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_m_hit_anim_f0.png",
-        },
-        "enemy_skeleton": {
-            "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/skelet_idle_anim_f{i}.png" for i in range(4)],
-            "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/skelet_run_anim_f{i}.png" for i in range(4)],
-        },
-        "enemy_boss_demon": {
-            "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_demon_idle_anim_f{i}.png" for i in range(4)],
-            "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_demon_run_anim_f{i}.png" for i in range(4)],
-        },
-        "npc_envoy": {
-            "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_f_idle_anim_f{i}.png" for i in range(4)],
-        },
-        "coin_frames": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/coin_anim_f{i}.png" for i in range(4)],
-        "weapons_2d": {
-            "sword": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_knight_sword.png",
-            "axe": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_waraxe.png",
-            "staff": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_red_magic_staff.png",
-            "hammer": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_big_hammer.png",
-            "bow": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_bow.png"
-        },
-        "pixel_frog_terrain": {
-            "grass_url": "/custom_assets/sprites_and_tiles_2d/PixelFrog_Tiny_Swords/Terrain/Ground/Tilemap_Grass.png",
-            "gold_mine_url": "/custom_assets/sprites_and_tiles_2d/PixelFrog_Tiny_Swords/Resources/Gold Mine/GoldMine_Active.png",
-            "tree_url": "/custom_assets/sprites_and_tiles_2d/PixelFrog_Tiny_Swords/Resources/Trees/Tree.png",
-            "pawn_blue_url": "/custom_assets/sprites_and_tiles_2d/PixelFrog_Tiny_Swords/Factions/Knights/Troops/Pawn/Blue/Pawn_Blue.png"
-        },
-        "indexed_count": len(sprites_2d_reg),
-    }
+    # 2D Sprite & Tileset Bindings with anti-repetition rotation & Ultima 7 Britannia binding
+    is_ultima = (
+        style_mode == "ULTIMA_IMMERSIVE_SANDBOX"
+        or (campaign.cartridge_id and "ultima" in campaign.cartridge_id.lower())
+        or "ultima" in str(custom_genre_label).lower()
+    )
+    raw_config["sprites_2d_config"] = select_rotated_2d_assets(is_ultima=is_ultima)
+    raw_config["sprites_2d_config"]["indexed_count"] = len(sprites_2d_reg)
 
     default_abilities = genre_profile.get("custom_hotbar") or [
         {"id": "cleave", "name": "Main Hand Cleave", "ap_cost": 1, "range_m": 2.8, "aoe_radius_m": 1.8, "damage": 38, "color": "#f97316", "vfx": "slash", "icon": "⚔️"},
@@ -775,11 +1058,14 @@ async def compile_survey_to_game(campaign: SurveyCampaignInput) -> Dict[str, Any
         chest_entry = _find_entry(weapons_reg + env_reg, "chest_gold", fallback_idx=0)
         crystal_entry = _find_entry(env_reg, "Floating_Platform_Crystal", fallback_idx=0)
 
-        # Zone 1: Courtyard & Forge Hub (Survey Forge Anvils: $10 Sovereign vs $2 Adventurer)
+        # Zone 1: Courtyard & Forge Hub (Survey Forge Anvils dynamically bound to Question 1 Options)
         if r_idx == 0:
+            first_q = questions[0] if questions else None
+            tier_1_title = first_q.options[0] if (first_q and len(first_q.options) > 0) else "Primary Choice"
+            tier_2_title = first_q.options[1] if (first_q and len(first_q.options) > 1) else "Alternative Choice"
             norm_props.append({
-                "prop_id": "forge_sovereign_10",
-                "asset": "Anvil_Sovereign",
+                "prop_id": "forge_primary_opt",
+                "asset": "Anvil_Primary",
                 "asset_url": "/custom_assets/environments_3d/ModularCastle_AssetPack/Props/Decoration/Table_Long.glb",
                 "dimensions": [1.8, 1.2, 1.2],
                 "ground_offset_y": 0.0,
@@ -787,15 +1073,15 @@ async def compile_survey_to_game(campaign: SurveyCampaignInput) -> Dict[str, Any
                 "z": 1.5,
                 "rot_y": 0.0,
                 "interactive_tag": "survey_forge",
-                "tier_name": "Sovereign Tier ($10)",
+                "tier_name": tier_1_title,
                 "cost_gold": 10,
                 "weapon_id": normalized_weapons[0]["weapon_id"],
                 "weapon_name": normalized_weapons[0]["name"],
                 "vfx_shader_url": "/custom_assets/effects_3d_2d/BattleFXFree/assets/BinbunVFX_Vol2/BattleFX/shader/shield_aura.gdshader"
             })
             norm_props.append({
-                "prop_id": "forge_starter_2",
-                "asset": "Anvil_Starter",
+                "prop_id": "forge_secondary_opt",
+                "asset": "Anvil_Secondary",
                 "asset_url": "/custom_assets/environments_3d/ModularCastle_AssetPack/Props/Decoration/Table_Small.glb",
                 "dimensions": [1.4, 1.1, 1.1],
                 "ground_offset_y": 0.0,
@@ -803,7 +1089,7 @@ async def compile_survey_to_game(campaign: SurveyCampaignInput) -> Dict[str, Any
                 "z": 1.5,
                 "rot_y": 0.0,
                 "interactive_tag": "survey_forge",
-                "tier_name": "Adventurer Tier ($2)",
+                "tier_name": tier_2_title,
                 "cost_gold": 2,
                 "weapon_id": normalized_weapons[1]["weapon_id"],
                 "weapon_name": normalized_weapons[1]["name"],
@@ -1093,6 +1379,11 @@ async def compile_survey_to_game(campaign: SurveyCampaignInput) -> Dict[str, Any
             }
         })
     raw_config["survey_encounters"] = survey_encounters
+    raw_config["survey_questions"] = [
+        {"id": q.id, "question_text": q.question_text, "target_metric": q.target_metric, "options": q.options}
+        for q in questions
+    ]
+    raw_config["survey_intent"] = campaign.survey_intent or ""
 
     # Automatically generate corresponding Godot 4 .tscn scene and .gd config
     try:

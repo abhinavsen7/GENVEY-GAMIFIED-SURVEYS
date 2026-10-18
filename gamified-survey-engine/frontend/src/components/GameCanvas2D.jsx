@@ -88,10 +88,14 @@ export default function GameCanvas2D({
 
     const roomObj = (compiledGame?.rooms || [])[activeRoomIdx] || {};
 
+    const spritesCfg = compiledGame?.sprites_2d_config || {};
+    const enemyName = spritesCfg.enemy_selected?.name || 'Skeleton Sentinel';
+    const bossName = spritesCfg.boss_selected?.name || 'Abyssal Archdemon';
+
     // 1. Initialize Enemies
     rt.enemies = (roomObj.enemies || []).map((en, idx) => ({
       id: en.enemy_id || `en_${idx}`,
-      name: en.name || 'Skeleton Sentinel',
+      name: en.name || (en.is_boss ? bossName : enemyName),
       isBoss: Boolean(en.is_boss),
       hp: en.hp || 140,
       maxHp: en.max_hp || en.hp || 140,
@@ -110,6 +114,12 @@ export default function GameCanvas2D({
     }));
 
     // 2. Initialize Props dynamically from roomObj.props
+    const companyName = compiledGame?.company_name || 'The Studio';
+    const surveyIntent = compiledGame?.survey_intent || '';
+    const surveyQuestions = compiledGame?.survey_questions || [];
+    const roomSurveyQ = surveyQuestions[activeRoomIdx] || surveyQuestions[0];
+    const qOpts = roomSurveyQ?.options || [];
+
     const rawProps = roomObj.props || [];
     if (rawProps.length > 0) {
       rt.props = rawProps.map((p, pIdx) => {
@@ -141,11 +151,13 @@ export default function GameCanvas2D({
         };
       });
     } else {
-      // Fallback zone-themed props
+      // Fallback zone-themed props bound directly to survey options (zero hardcoded Sovereign Tier filler)
+      const opt1 = qOpts[0] || 'Primary Option';
+      const opt2 = qOpts[1] || 'Secondary Option';
       if (activeRoomIdx === 0) {
         rt.props = [
-          { id: 'forge_sovereign_10', name: 'Sovereign Forge ($10)', tag: 'survey_forge', cost_gold: 10, tier_name: 'Sovereign Tier ($10)', x: 300, y: 380, exploded: false, color: '#f59e0b' },
-          { id: 'forge_starter_2', name: 'Starter Forge ($2)', tag: 'survey_forge', cost_gold: 2, tier_name: 'Adventurer Tier ($2)', x: 780, y: 380, exploded: false, color: '#38bdf8' },
+          { id: 'forge_primary', name: `Forge: ${opt1}`, tag: 'survey_forge', cost_gold: 10, tier_name: opt1, x: 300, y: 380, exploded: false, color: '#f59e0b' },
+          { id: 'forge_secondary', name: `Forge: ${opt2}`, tag: 'survey_forge', cost_gold: 2, tier_name: opt2, x: 780, y: 380, exploded: false, color: '#38bdf8' },
           { id: 'barrel_r1', name: 'Alchemical Barrel', tag: 'flammable_barrel', x: 720, y: 260, exploded: false, color: '#ef4444' }
         ];
       } else if (activeRoomIdx === 1) {
@@ -166,12 +178,7 @@ export default function GameCanvas2D({
       }
     }
 
-    // 3. Initialize NPC strictly bound to company's survey intent (NO "uncharted crisis" filler)
-    const companyName = compiledGame?.company_name || 'The Studio';
-    const surveyIntent = compiledGame?.survey_intent || '';
-    const surveyQuestions = compiledGame?.survey_questions || [];
-    const roomSurveyQ = surveyQuestions[activeRoomIdx] || surveyQuestions[0];
-
+    // 3. Initialize NPC strictly bound to company's survey intent (NO placeholder or crisis text)
     let npcName = roomObj.npc?.name || `Envoy of ${companyName}`;
     let npcQuestionText = roomObj.npc?.question_text;
     let npcChoices = roomObj.npc?.choices;
@@ -187,16 +194,16 @@ export default function GameCanvas2D({
           metric_delta: 1.3
         }));
       } else if (surveyIntent) {
-        npcQuestionText = `Regarding ${companyName}'s strategic survey: "${surveyIntent}" — Which tier or feature best reflects your preference?`;
+        npcQuestionText = `Regarding ${companyName}'s strategic survey: "${surveyIntent}" — Which priority best aligns with your needs?`;
         npcChoices = [
-          { choice_text: 'Sovereign Tier ($10/mo - Full Access, Priority & Status)', skill_check: 'Persuasion [DC 12]', dc: 12, skill_name: 'Persuasion', metric_delta: 1.5 },
-          { choice_text: 'Adventurer Tier ($2/mo - Core Functional Utility)', skill_check: 'Arcana [DC 14]', dc: 14, skill_name: 'Arcana', metric_delta: 1.2 },
-          { choice_text: 'Community Tier ($0 - Free Baseline Experience)', skill_check: 'Insight [DC 11]', dc: 11, skill_name: 'Insight', metric_delta: 1.0 }
+          { choice_text: `Direct implementation of ${surveyIntent.slice(0, 40)}`, skill_check: 'Persuasion [DC 12]', dc: 12, skill_name: 'Persuasion', metric_delta: 1.5 },
+          { choice_text: `Cost-effective modular alternative`, skill_check: 'Arcana [DC 14]', dc: 14, skill_name: 'Arcana', metric_delta: 1.2 },
+          { choice_text: `Free community standard edition`, skill_check: 'Insight [DC 11]', dc: 11, skill_name: 'Insight', metric_delta: 1.0 }
         ];
       } else {
         npcQuestionText = `What strategic product capability should ${companyName} prioritize for your cohort?`;
         npcChoices = [
-          { choice_text: 'High-performance automated AI intelligence', skill_check: 'Arcana [DC 14]', dc: 14, skill_name: 'Arcana', metric_delta: 1.3 },
+          { choice_text: 'High-performance automated intelligence', skill_check: 'Arcana [DC 14]', dc: 14, skill_name: 'Arcana', metric_delta: 1.3 },
           { choice_text: 'Modular customizable workflow integration', skill_check: 'Persuasion [DC 12]', dc: 12, skill_name: 'Persuasion', metric_delta: 1.2 },
           { choice_text: 'Zero-latency streamlined user experience', skill_check: 'Intimidation [DC 15]', dc: 15, skill_name: 'Intimidation', metric_delta: 1.1 }
         ];
@@ -223,6 +230,11 @@ export default function GameCanvas2D({
     const ctx = canvas.getContext('2d');
 
     const spritesCfg = compiledGame?.sprites_2d_config || {};
+    const heroCfg = spritesCfg.hero_selected || spritesCfg.hero_knight || {};
+    const enemyCfg = spritesCfg.enemy_selected || spritesCfg.enemy_skeleton || {};
+    const bossCfg = spritesCfg.boss_selected || spritesCfg.enemy_boss_demon || {};
+    const npcCfg = spritesCfg.npc_selected || spritesCfg.npc_envoy || {};
+    const weaponCfg = spritesCfg.weapon_selected || {};
 
     const imgFloor = new Image();
     imgFloor.src = spritesCfg.tileset_ground_url || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/floor_1.png';
@@ -237,23 +249,23 @@ export default function GameCanvas2D({
     imgPotion.src = spritesCfg.potion_url || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/flask_big_red.png';
 
     const imgSword = new Image();
-    imgSword.src = spritesCfg.weapons_2d?.sword || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_knight_sword.png';
+    imgSword.src = weaponCfg.url || spritesCfg.weapons_2d?.sword || spritesCfg.weapons_2d?.selected || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_knight_sword.png';
 
-    // 4-frame Animated Sprite arrays from 0x72_DungeonTileset_II
-    const knightIdleUrls = spritesCfg.hero_knight?.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_idle_anim_f${i}.png`);
-    const knightRunUrls = spritesCfg.hero_knight?.run || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_run_anim_f${i}.png`);
+    // 4-frame Animated Sprite arrays from dynamic selection or fallback
+    const knightIdleUrls = heroCfg.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_idle_anim_f${i}.png`);
+    const knightRunUrls = heroCfg.run || knightIdleUrls;
     const knightIdleImgs = knightIdleUrls.map(url => { const img = new Image(); img.src = url; return img; });
     const knightRunImgs = knightRunUrls.map(url => { const img = new Image(); img.src = url; return img; });
     const knightHitImg = new Image();
-    knightHitImg.src = spritesCfg.hero_knight?.hit || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_hit_anim_f0.png';
+    knightHitImg.src = heroCfg.hit || knightIdleUrls[0];
 
-    const skelIdleUrls = spritesCfg.enemy_skeleton?.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/skelet_idle_anim_f${i}.png`);
+    const skelIdleUrls = enemyCfg.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/skelet_idle_anim_f${i}.png`);
     const skelIdleImgs = skelIdleUrls.map(url => { const img = new Image(); img.src = url; return img; });
 
-    const demonBossUrls = spritesCfg.enemy_boss_demon?.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_demon_idle_anim_f${i}.png`);
+    const demonBossUrls = bossCfg.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_demon_idle_anim_f${i}.png`);
     const demonBossImgs = demonBossUrls.map(url => { const img = new Image(); img.src = url; return img; });
 
-    const npcUrls = spritesCfg.npc_envoy?.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_f_idle_anim_f${i}.png`);
+    const npcUrls = npcCfg.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_f_idle_anim_f${i}.png`);
     const npcImgs = npcUrls.map(url => { const img = new Image(); img.src = url; return img; });
 
     const coinUrls = spritesCfg.coin_frames || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/coin_anim_f${i}.png`);
@@ -440,10 +452,17 @@ export default function GameCanvas2D({
       ctx.clip();
 
       if (imgFloor.complete && imgFloor.naturalWidth > 0) {
+        const isUltima = Boolean(spritesCfg.is_ultima_britannia);
         for (let tx = arenaLeft; tx < arenaLeft + arenaW; tx += 48) {
           for (let ty = arenaTop; ty < arenaTop + arenaH; ty += 48) {
-            ctx.globalAlpha = rt.torchesLit ? 0.72 : 0.32;
-            ctx.drawImage(imgFloor, tx, ty, 48, 48);
+            ctx.globalAlpha = rt.torchesLit ? (isUltima ? 0.95 : 0.72) : (isUltima ? 0.65 : 0.32);
+            if (isUltima) {
+              const tileIdx = (Math.floor(tx / 48) * 3 + Math.floor(ty / 48) * 7) % 16;
+              const sx = (tileIdx * 16) % 2048;
+              ctx.drawImage(imgFloor, sx, 0, 16, 16, tx, ty, 48, 48);
+            } else {
+              ctx.drawImage(imgFloor, tx, ty, 48, 48);
+            }
           }
         }
       }
@@ -500,7 +519,9 @@ export default function GameCanvas2D({
       ctx.fillText(
         gateLocked
           ? '🔒 PORTCULLIS LOCKED (Pull Lever [E])'
-          : (!isBossRoom ? `▲ NORTH PORTAL (Zone ${activeRoomIdx + 2})` : '👑 BOSS SANCTUM ALTAR'),
+          : (!isBossRoom
+            ? (spritesCfg.is_ultima_britannia ? `▲ BRITANNIA ROAD (Zone ${activeRoomIdx + 2})` : `▲ NORTH PORTAL (Zone ${activeRoomIdx + 2})`)
+            : (spritesCfg.is_ultima_britannia ? '👑 LORD BRITISH SANCTUM' : '👑 BOSS SANCTUM ALTAR')),
         gateX,
         gateY + 9
       );
@@ -732,7 +753,8 @@ export default function GameCanvas2D({
       ctx.fillStyle = '#38bdf8';
       ctx.font = 'bold 11px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`YOU (${selectedWeapon?.name?.slice(0, 18) || 'Hero'})`, 0, -56);
+      const heroDisplayName = heroCfg.name || selectedWeapon?.name?.slice(0, 18) || 'Hero';
+      ctx.fillText(`YOU (${heroDisplayName})`, 0, -56);
       ctx.restore();
 
       // Render Active VFX Blasts (Fireballs, Explosions, Level Clears)
