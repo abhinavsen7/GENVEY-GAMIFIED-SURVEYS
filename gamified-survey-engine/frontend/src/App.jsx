@@ -3,7 +3,9 @@ import GameCanvas3D from './GameCanvas3D';
 import GameCanvas2D from './components/GameCanvas2D';
 import AnalyticsDashboard from './AnalyticsDashboard';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = (typeof window !== 'undefined' && (window.location.port === '5173' || window.location.port === '8000'))
+  ? ''
+  : 'http://localhost:8000';
 
 const STYLE_OPTIONS = [
   {
@@ -119,6 +121,7 @@ export default function App() {
   const [amdStatus, setAmdStatus] = useState(null);
   const [isPingingAmd, setIsPingingAmd] = useState(false);
   const [isCompiling, setIsCompiling] = useState(false);
+  const [compileToast, setCompileToast] = useState('');
 
   // Asset Registry & Incremental Scanner State
   const [assetRegistry, setAssetRegistry] = useState(null);
@@ -278,15 +281,25 @@ export default function App() {
 
   const handleCompileCampaign = async () => {
     setIsCompiling(true);
+    setCompileToast('⚙ Contacting AMD Gemma 4 & Synthesizing Game World...');
     try {
+      const sanitizedQuestions = (questions || [])
+        .filter(q => q && q.question_text && q.question_text.trim())
+        .map((q, idx) => ({
+          id: q.id || `q_${idx + 1}`,
+          question_text: q.question_text.trim(),
+          target_metric: q.target_metric || 'decision_preference',
+          options: (q.options || []).filter(opt => opt && typeof opt === 'string' && opt.trim()).map(opt => opt.trim())
+        }));
+
       const payload = {
-        company_name: companyName,
-        campaign_title: campaignTitle,
-        dimension,
-        style_mode: styleMode,
-        custom_genre: styleMode === 'CUSTOM_FREEFORM' ? customGenre : null,
-        target_demographic: targetDemographic,
-        survey_intent: surveyIntent,
+        company_name: companyName?.trim() || 'Obsidian Insights Studio',
+        campaign_title: campaignTitle?.trim() || 'Citadel of the Astral Ledger',
+        dimension: dimension || '3D',
+        style_mode: styleMode || 'DARK_SOULS_ACTION',
+        custom_genre: styleMode === 'CUSTOM_FREEFORM' ? (customGenre?.trim() || 'PSX Survival Horror') : null,
+        target_demographic: targetDemographic?.trim() || 'Gen Z college students & competitive gamers',
+        survey_intent: surveyIntent?.trim() || 'Find out if users will pay $10 for premium tier vs $2 per month',
         cartridge_id: cartridgeId || null,
         genre_mode:
           styleMode === 'BALDURS_GATE_CRPG'
@@ -297,22 +310,37 @@ export default function App() {
             ? 'IMMERSIVE_SIM'
             : 'CUSTOM_FREEFORM',
         length_minutes: Number(lengthMinutes) || 8,
-        theme_prompt: themePrompt,
-        questions
+        theme_prompt: themePrompt?.trim() || '',
+        questions: sanitizedQuestions
       };
+
       const res = await fetch(`${API_BASE}/api/compile-campaign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+
       if (res.ok) {
         const compiled = await res.json();
         setActiveGame(compiled);
         if (compiled.weapons?.length > 0) setSelectedWeapon(compiled.weapons[0]);
         await fetchGamesLibrary();
+        setCompileToast(`🚀 Successfully compiled '${compiled.campaign_title || 'Game'}'! Launching viewport...`);
+        // Immediately navigate into fullscreen play mode so user can play the generated game!
+        setTimeout(() => {
+          navigate(`/play/${compiled.build_id || 'latest'}`);
+          setCompileToast('');
+        }, 600);
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        const errMsg = errJson.detail || errJson.message || `HTTP ${res.status}: Failed to compile campaign`;
+        setCompileToast(`⚠ Compilation Failed: ${errMsg}`);
+        setTimeout(() => setCompileToast(''), 6000);
       }
     } catch (e) {
       console.error('Compile error:', e);
+      setCompileToast(`⚠ Network Error: ${e.message || 'Failed to reach compiler backend'}`);
+      setTimeout(() => setCompileToast(''), 6000);
     } finally {
       setIsCompiling(false);
     }
@@ -1375,6 +1403,7 @@ export default function App() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={handleCompileCampaign}
                   disabled={isCompiling}
                   style={{
@@ -1396,6 +1425,33 @@ export default function App() {
                     ? `⚙ Compiling ${dimension} ${styleMode === 'CUSTOM_FREEFORM' ? customGenre : styleMode} Campaign via AMD Gemma 4...`
                     : `⚡ Compile ${dimension} ${styleMode === 'CUSTOM_FREEFORM' ? customGenre : ''} Game with Gemma 4 + Godot 4`}
                 </button>
+
+                {compileToast && (
+                  <div
+                    style={{
+                      padding: '10px 14px',
+                      borderRadius: '8px',
+                      background: compileToast.includes('⚠') ? 'rgba(239, 68, 68, 0.18)' : 'rgba(16, 185, 129, 0.18)',
+                      border: compileToast.includes('⚠') ? '1px solid #ef4444' : '1px solid #10b981',
+                      color: compileToast.includes('⚠') ? '#fca5a5' : '#6ee7b7',
+                      fontSize: '12px',
+                      fontWeight: 800,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      boxShadow: compileToast.includes('⚠') ? '0 0 15px rgba(239, 68, 68, 0.2)' : '0 0 15px rgba(16, 185, 129, 0.2)'
+                    }}
+                  >
+                    <span>{compileToast}</span>
+                    <button
+                      type="button"
+                      onClick={() => setCompileToast('')}
+                      style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '14px' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
 
                 {/* AMD Token Factory Real-Time Connection Card */}
                 <div

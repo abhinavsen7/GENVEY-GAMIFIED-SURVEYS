@@ -268,5 +268,85 @@
     "metric_delta": 0.45,
     "weapon_equipped": "Obsidian Insights Studio Claymore",
     "timestamp": "2026-10-18T08:43:44.956196+00:00"
+  },
+  {
+    "player_id": "player@guild.gg",
+    "game_id": "bfa6f84c-b19c-46d6-8020-7eac53a3d067",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Sovereign Tier ($10 - Full Access & Exclusive Status)",
+    "metric_delta": 1.4,
+    "weapon_equipped": "Obsidian Insights Sword 2Handed",
+    "timestamp": "2026-10-18T09:01:21.757612+00:00"
+  },
+  {
+    "player_id": "player@guild.gg",
+    "game_id": "bfa6f84c-b19c-46d6-8020-7eac53a3d067",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Sovereign Tier ($10 - Full Access & Exclusive Status)",
+    "metric_delta": 1.4,
+    "weapon_equipped": "Obsidian Insights Sword 2Handed",
+    "timestamp": "2026-10-18T09:01:23.573574+00:00"
+  },
+  {
+    "player_id": "player@guild.gg",
+    "game_id": "bfa6f84c-b19c-46d6-8020-7eac53a3d067",
+    "question_id": "forge_starter_2",
+    "interaction_type": "SURVEY_FORGE_TIER",
+    "selected_option": "Sovereign Tier ($10/mo - Premium Weapon & Exclusive Aura)",
+    "metric_delta": 1.5,
+    "weapon_equipped": "Obsidian Insights Sword 2Handed",
+    "timestamp": "2026-10-18T09:01:28.707627+00:00"
+  },
+  {
+    "player_id": "player@guild.gg",
+    "game_id": "bfa6f84c-b19c-46d6-8020-7eac53a3d067",
+    "question_id": "forge_starter_2",
+    "interaction_type": "SURVEY_FORGE_TIER",
+    "selected_option": "Community Free Tier ($0 - Baseline Weapon)",
+    "metric_delta": 1.2,
+    "weapon_equipped": "Obsidian Insights Sword 2Handed",
+    "timestamp": "2026-10-18T09:01:34.943539+00:00"
+  },
+  {
+    "player_id": "player@guild.gg",
+    "game_id": "bfa6f84c-b19c-46d6-8020-7eac53a3d067",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "D20_DIALOGUE",
+    "selected_option": "Essential Micro-Tier ($2 - Functional Utility)",
+    "metric_delta": 1.15,
+    "weapon_equipped": "Sovereign Claymore",
+    "timestamp": "2026-10-18T09:01:41.814463+00:00"
+  },
+  {
+    "player_id": "player@guild.gg",
+    "game_id": "eeed3964-6190-4cb4-bf87-3b367b89d84a",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Fast, automated high-throughput workflows",
+    "metric_delta": 1.4,
+    "weapon_equipped": "Obsidian Insights Studio Claymore",
+    "timestamp": "2026-10-18T09:05:36.073482+00:00"
+  },
+  {
+    "player_id": "player@guild.gg",
+    "game_id": "eeed3964-6190-4cb4-bf87-3b367b89d84a",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Fast, automated high-throughput workflows",
+    "metric_delta": 1.4,
+    "weapon_equipped": "Obsidian Insights Studio Claymore",
+    "timestamp": "2026-10-18T09:05:38.377654+00:00"
+  },
+  {
+    "player_id": "player@guild.gg",
+    "game_id": "eeed3964-6190-4cb4-bf87-3b367b89d84a",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "D20_DIALOGUE",
+    "selected_option": "Fast, automated high-throughput workflows",
+    "metric_delta": 1.5,
+    "weapon_equipped": "Obsidian Insights Studio Claymore",
+    "timestamp": "2026-10-18T09:05:45.988957+00:00"
   }
 ]

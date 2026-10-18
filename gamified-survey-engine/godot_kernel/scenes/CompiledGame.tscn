@@ -22,9 +22,9 @@ agent_radius = 0.45
 
 [node name="CompiledGameRoot" type="Node3D"]
 script = ExtResource("1_runtime")
-metadata/build_id = "7463d562-1f33-425a-a744-bfa4c36d9233"
-metadata/campaign_title = "Turn Based Tactical Keep"
-metadata/player_asset = "res://assets/custom_asset_packs/characters/Mage.glb"
+metadata/build_id = "3b8554c6-9180-425a-a28c-87ef9ace9842"
+metadata/campaign_title = "Citadel of the Astral Ledger"
+metadata/player_asset = "res://assets/custom_asset_packs/characters/Knight.glb"
 metadata/floor_asset = "res://assets/custom_asset_packs/environments/ModularCastle_AssetPack/Floors&Ramps/Floors/Floor_2x2.glb"
 metadata/fog_hex = "#0b0e17"
 
