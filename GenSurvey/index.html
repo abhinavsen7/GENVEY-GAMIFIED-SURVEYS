@@ -75,12 +75,14 @@
       z-index: 5;
     }
     .crosshair-dot {
-      width: 6px;
-      height: 6px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.8);
+      background: #38bdf8;
       margin: auto;
-      box-shadow: 0 0 8px rgba(6, 182, 212, 0.8);
+      border: 1.5px solid #ffffff;
+      box-shadow: 0 0 10px #06b6d4, 0 0 4px #ffffff;
+      transition: transform 0.1s ease;
     }
     .lock-ring {
       position: absolute;
@@ -1258,22 +1260,22 @@
 
     <!-- WEAPON DOCK (BOTTOM CENTER) -->
     <div id="weapon-dock">
-      <div class="weapon-slot active" id="slot-w0" onclick="selectWeaponSlot(0)">
+      <div class="weapon-slot" id="slot-w0" onclick="selectWeaponSlot(0)">
         <span class="slot-key">1</span>
         <span class="slot-icon">👊</span>
         <span class="slot-name">Gauntlets</span>
       </div>
-      <div class="weapon-slot locked" id="slot-w1" onclick="selectWeaponSlot(1)">
+      <div class="weapon-slot" id="slot-w1" onclick="selectWeaponSlot(1)">
         <span class="slot-key">2</span>
         <span class="slot-icon">⚡</span>
         <span class="slot-name">Katana</span>
       </div>
-      <div class="weapon-slot locked" id="slot-w2" onclick="selectWeaponSlot(2)">
+      <div class="weapon-slot active" id="slot-w2" onclick="selectWeaponSlot(2)">
         <span class="slot-key">3</span>
-        <span class="slot-icon">🔥</span>
-        <span class="slot-name">Carbines</span>
+        <span class="slot-icon">🔫</span>
+        <span class="slot-name">Plasma Gun</span>
       </div>
-      <div class="weapon-slot locked" id="slot-w3" onclick="selectWeaponSlot(3)">
+      <div class="weapon-slot" id="slot-w3" onclick="selectWeaponSlot(3)">
         <span class="slot-key">4</span>
         <span class="slot-icon">🌌</span>
         <span class="slot-name">Vortex</span>
@@ -1830,6 +1832,23 @@
           osc.stop(now + 0.14);
         } catch(e){}
       }
+      playBuzzer() {
+        if (!this.enabled || !this.ctx) return;
+        try {
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(130, now);
+          osc.frequency.setValueAtTime(95, now + 0.12);
+          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } catch(e){}
+      }
     }
     const sound = new SoundEngine();
 
@@ -1837,43 +1856,48 @@
     let currentWorldTheme = localStorage.getItem('surveytopia_world_theme') || 'retro';
 
     const RETRO_COLLIDERS = [
-      // 1. Apex CyberTech Comms Bunker & 40m Tower (West: x: -56 to -21.5, z: -16 to 16)
-      { type: 'box', minX: -56, maxX: -21.5, minZ: -16, maxZ: 16, name: 'Apex CyberTech Relay Station' },
+      // 1. Apex CyberTech Comms Bunker & 40m Tower (West: x: -56 to -22.5, z: -12 to 12)
+      { type: 'box', minX: -56, maxX: -22.5, minZ: -12, maxZ: 12, name: 'Apex CyberTech Relay Station' },
 
-      // 2. Vogue Luxe Retro Mart (East: building from x: 26.8 to 52, z: -14 to 14)
-      { type: 'box', minX: 26.8, maxX: 52, minZ: -14, maxZ: 14, name: 'Vogue Luxe Retro Mart' },
+      // 2. Vogue Luxe Retro Mart (East: building from x: 28 to 52, z: -12 to 12)
+      { type: 'box', minX: 28, maxX: 52, minZ: -12, maxZ: 12, name: 'Vogue Luxe Retro Mart' },
 
-      // 3. Titan Motors Speedway Gas Station (South: canopy pillars, pumps, and garage building)
-      { type: 'box', minX: -10.5, maxX: -7.5, minZ: 25.5, maxZ: 28.5, name: 'Gas Station Pillar NW' },
-      { type: 'box', minX: 7.5, maxX: 10.5, minZ: 25.5, maxZ: 28.5, name: 'Gas Station Pillar NE' },
-      { type: 'box', minX: -10.5, maxX: -7.5, minZ: 37.5, maxZ: 40.5, name: 'Gas Station Pillar SW' },
-      { type: 'box', minX: 7.5, maxX: 10.5, minZ: 37.5, maxZ: 40.5, name: 'Gas Station Pillar SE' },
-      { type: 'box', minX: -6.0, maxX: -3.0, minZ: 31.5, maxZ: 34.5, name: 'Pump Island West' },
-      { type: 'box', minX: 3.0, maxX: 6.0, minZ: 31.5, maxZ: 34.5, name: 'Pump Island East' },
-      { type: 'box', minX: -16, maxX: 16, minZ: 42, maxZ: 60, name: 'Gas Station Garage' },
+      // 3. Titan Motors Speedway Gas Station (South)
+      // Slim column cylinders for canopy pillars (no road blockage!)
+      { type: 'circle', x: -9, z: 27, radius: 0.55 },
+      { type: 'circle', x: 9, z: 27, radius: 0.55 },
+      { type: 'circle', x: -9, z: 39, radius: 0.55 },
+      { type: 'circle', x: 9, z: 39, radius: 0.55 },
+      { type: 'box', minX: -5.2, maxX: -3.8, minZ: 31.8, maxZ: 34.2, name: 'Pump Island West' },
+      { type: 'box', minX: 3.8, maxX: 5.2, minZ: 31.8, maxZ: 34.2, name: 'Pump Island East' },
+      { type: 'box', minX: -14, maxX: 14, minZ: 43, maxZ: 56, name: 'Gas Station Garage' },
 
-      // 4. Federal Highway Cashout Depot & Campsite (North: building from x: -14 to 14, z: -46 to -23.2)
-      { type: 'box', minX: -14, maxX: 14, minZ: -46, maxZ: -23.2, name: 'Federal Cashout Depot' },
-      { type: 'circle', x: 6, z: -18, radius: 1.4 },
-      { type: 'box', minX: 8.5, maxX: 12.5, minZ: -22.5, maxZ: -18.5, name: 'Campsite Tent' },
+      // 4. Federal Highway Cashout Depot & Campsite (North: x = -10 to 10, z = -36 to -24)
+      { type: 'box', minX: -10, maxX: 10, minZ: -36, maxZ: -24.0, name: 'Federal Cashout Depot' },
+      { type: 'circle', x: 6, z: -18, radius: 0.8 },
+      { type: 'box', minX: 9.0, maxX: 12.0, minZ: -22.0, maxZ: -19.0, name: 'Campsite Tent' },
 
-      // 5. Highway Guardrails (North-South shoulders)
-      { type: 'box', minX: -8.0, maxX: -7.0, minZ: -40, maxZ: -10, name: 'Guardrail NW' },
-      { type: 'box', minX: -8.0, maxX: -7.0, minZ: 10, maxZ: 40, name: 'Guardrail SW' },
-      { type: 'box', minX: 7.0, maxX: 8.0, minZ: -40, maxZ: -10, name: 'Guardrail NE' },
-      { type: 'box', minX: 7.0, maxX: 8.0, minZ: 10, maxZ: 40, name: 'Guardrail SE' },
+      // 5. Starlight Route 66 Motel Complex (North-West)
+      { type: 'box', minX: -54, maxX: -30, minZ: -54, maxZ: -34, name: 'Starlight Motel' },
 
-      // 6. Streetlamps
-      { type: 'circle', x: -12, z: -12, radius: 0.7 },
-      { type: 'circle', x: 12, z: -12, radius: 0.7 },
-      { type: 'circle', x: -12, z: 12, radius: 0.7 },
-      { type: 'circle', x: 12, z: 12, radius: 0.7 },
+      // 6. Sunset Highway Diner (North-East)
+      { type: 'box', minX: 30, maxX: 54, minZ: -54, maxZ: -34, name: 'Sunset Diner' },
 
-      // 7. Boulders
-      { type: 'circle', x: -18, z: 16, radius: 2.2 },
-      { type: 'circle', x: 18, z: 16, radius: 2.2 },
-      { type: 'circle', x: -18, z: -14, radius: 2.2 },
-      { type: 'circle', x: 18, z: -14, radius: 2.2 }
+      // 7. Interstate Auto Salvage & Wrecking Yard (South-West)
+      { type: 'box', minX: -54, maxX: -30, minZ: 34, maxZ: 54, name: 'Auto Salvage Workshop' },
+
+      // 8. Route 66 Drive-In Cinema Screen (South-East)
+      { type: 'box', minX: 32, maxX: 52, minZ: 42, maxZ: 46, name: 'Drive-In Cinema Screen' },
+
+      // 9. Streetlamps & Boulders (precise snug radii so no phantom bumps)
+      { type: 'circle', x: -12, z: -12, radius: 0.35 },
+      { type: 'circle', x: 12, z: -12, radius: 0.35 },
+      { type: 'circle', x: -12, z: 12, radius: 0.35 },
+      { type: 'circle', x: 12, z: 12, radius: 0.35 },
+      { type: 'circle', x: -18, z: 16, radius: 0.9 },
+      { type: 'circle', x: 18, z: 16, radius: 0.9 },
+      { type: 'circle', x: -18, z: -14, radius: 0.9 },
+      { type: 'circle', x: 18, z: -14, radius: 0.9 }
     ];
 
     const STREET_COLLIDERS = [
@@ -1890,22 +1914,16 @@
       { type: 'box', minX: -16, maxX: 16, minZ: -50, maxZ: -22.5, name: 'Royal Treasury Vault' },
 
       // 5. Merchant Wagons & Cargo Crate Encampments
-      { type: 'box', minX: -14.5, maxX: -7.5, minZ: 6.5, maxZ: 14.5, name: 'West Merchant Wagon & Crates' },
-      { type: 'box', minX: 11.5, maxX: 18.5, minZ: -11.5, maxZ: -4.5, name: 'East Merchant Wagon & Crates' },
+      { type: 'box', minX: -14.0, maxX: -8.5, minZ: 7.5, maxZ: 13.5, name: 'West Merchant Wagon & Crates' },
+      { type: 'box', minX: 12.0, maxX: 17.5, minZ: -10.5, maxZ: -5.5, name: 'East Merchant Wagon & Crates' },
 
-      // 6. Medieval Perimeter Post Fences
-      { type: 'box', minX: -23.0, maxX: -21.0, minZ: -18, maxZ: -4, name: 'West Fence North' },
-      { type: 'box', minX: -23.0, maxX: -21.0, minZ: 4, maxZ: 18, name: 'West Fence South' },
-      { type: 'box', minX: 21.0, maxX: 23.0, minZ: -18, maxZ: -4, name: 'East Fence North' },
-      { type: 'box', minX: 21.0, maxX: 23.0, minZ: 4, maxZ: 18, name: 'East Fence South' },
-
-      // 7. Wrought-Iron Street Lantern Posts
-      { type: 'circle', x: -14, z: -14, radius: 0.7 },
-      { type: 'circle', x: 14, z: -14, radius: 0.7 },
-      { type: 'circle', x: -14, z: 14, radius: 0.7 },
-      { type: 'circle', x: 14, z: 14, radius: 0.7 },
-      { type: 'circle', x: -26, z: 0, radius: 0.7 },
-      { type: 'circle', x: 26, z: 0, radius: 0.7 }
+      // 6. Wrought-Iron Street Lantern Posts
+      { type: 'circle', x: -14, z: -14, radius: 0.35 },
+      { type: 'circle', x: 14, z: -14, radius: 0.35 },
+      { type: 'circle', x: -14, z: 14, radius: 0.35 },
+      { type: 'circle', x: 14, z: 14, radius: 0.35 },
+      { type: 'circle', x: -26, z: 0, radius: 0.35 },
+      { type: 'circle', x: 26, z: 0, radius: 0.35 }
     ];
 
     const INTERIOR_COLLIDERS = [
@@ -1930,10 +1948,10 @@
       { type: 'box', minX: 16, maxX: 24, minZ: -16, maxZ: -4, isResearchOnly: true }
     ];
 
-    function checkCollision(px, pz, radius = 0.85) {
+    function checkCollision(px, pz, radius = 0.55) {
       if (state.location === 'street') {
         // Outer boundaries of the city plaza
-        if (px < -96 || px > 96 || pz < -96 || pz > 96) return true;
+        if (px < -135 || px > 135 || pz < -135 || pz > 135) return true;
 
         const colliders = (currentWorldTheme === 'retro') ? RETRO_COLLIDERS : STREET_COLLIDERS;
         for (let i = 0; i < colliders.length; i++) {
@@ -2016,12 +2034,12 @@
       },
       2: {
         id: 2,
-        name: '🔥 Dual Plasma Carbines',
-        icon: '🔥',
+        name: '🔫 Twin Plasma Blaster',
+        icon: '🔫',
         type: 'ranged',
         dmg: 135,
-        range: 48,
-        desc: 'Rapid alternating dual-burst lasers with 100% magnetic homing'
+        range: 80,
+        desc: 'Rapid laser gun: High-velocity neon cyan tracer bolts with manual crosshair precision'
       },
       3: {
         id: 3,
@@ -2268,8 +2286,8 @@
         this.hp = 100;
         this.maxHp = 100;
         this.trust = 100;
-        this.unlockedTiers = [0];
-        this.selectedWeaponTier = 0;
+        this.unlockedTiers = [0, 1, 2, 3];
+        this.selectedWeaponTier = 2;
         this.completedSurveys = [];
         this.passedScreeners = [];
         this.passedLobbies = [];
@@ -2301,7 +2319,7 @@
             const d = JSON.parse(raw);
             if (typeof d.wallet === 'number') this.wallet = d.wallet;
             if (typeof d.trust === 'number') this.trust = d.trust;
-            if (Array.isArray(d.unlockedTiers)) this.unlockedTiers = d.unlockedTiers;
+            this.unlockedTiers = [0, 1, 2, 3];
             if (typeof d.selectedWeaponTier === 'number') this.selectedWeaponTier = d.selectedWeaponTier;
             if (Array.isArray(d.completedSurveys)) this.completedSurveys = d.completedSurveys;
             if (Array.isArray(d.passedScreeners)) this.passedScreeners = d.passedScreeners;
@@ -2345,11 +2363,11 @@
 
     // ================= 6. THREE.JS 3D SCENE & LIGHTING =================
     const canvas = document.getElementById('webgl-canvas');
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
 
     const clock = new THREE.Clock();
     const scene = new THREE.Scene();
@@ -2363,16 +2381,17 @@
     scene.add(ambientLight);
 
     const sunLight = new THREE.DirectionalLight(0xffe8cc, 1.35);
-    sunLight.position.set(50, 75, 40);
+    sunLight.position.set(40, 65, 30);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 2048;
-    sunLight.shadow.mapSize.height = 2048;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
     sunLight.shadow.camera.near = 10;
-    sunLight.shadow.camera.far = 250;
-    sunLight.shadow.camera.left = -90;
-    sunLight.shadow.camera.right = 90;
-    sunLight.shadow.camera.top = 90;
-    sunLight.shadow.camera.bottom = -90;
+    sunLight.shadow.camera.far = 180;
+    sunLight.shadow.camera.left = -60;
+    sunLight.shadow.camera.right = 60;
+    sunLight.shadow.camera.top = 60;
+    sunLight.shadow.camera.bottom = -60;
+    sunLight.shadow.bias = -0.0008;
     scene.add(sunLight);
 
     window.addEventListener('resize', () => {
@@ -2428,7 +2447,8 @@
         m.rotation.y = rotY;
         m.traverse(c => {
           if (c.isMesh) {
-            c.castShadow = true;
+            const isGroundProp = name.includes('Road') || name.includes('Pavement') || name.includes('Guardrail');
+            c.castShadow = !isGroundProp;
             c.receiveShadow = true;
           }
         });
@@ -2557,32 +2577,71 @@
       scene.background = new THREE.Color(0x151224);
       scene.fog = new THREE.FogExp2(0x151224, 0.007);
 
-      // 1. Terrain Ground (260x260)
+      // 1. Terrain Ground (320x320 Expanded World)
       const ground = new THREE.Mesh(
-        new THREE.PlaneGeometry(260, 260),
+        new THREE.PlaneGeometry(320, 320),
         new THREE.MeshStandardMaterial({ color: 0x141820, roughness: 0.9 })
       );
       ground.rotation.x = -Math.PI / 2;
       ground.receiveShadow = true;
       worldGroup.add(ground);
 
-      // 2. Highway System
-      // Main Highway (North - South)
-      for (let rz = -80; rz <= 80; rz += 10) {
+      // 2. Interconnected Retro Town Highway Network
+      // A. Central Route 66 Corridor (North-South between Depot at z=-22 and Gas Station at z=24)
+      for (let rz = -18; rz <= 20; rz += 8) {
         await addRetroProp('Roads/Road_01.glb', 0, 0.05, rz, 1.25, 1.0, 1.0);
       }
-      // Cross Highway (East - West)
-      for (let rx = -80; rx <= 80; rx += 10) {
-        if (Math.abs(rx) > 6) {
+
+      // B. Central Crossway (East-West corridor between Apex at x=-22 and Vogue at x=22)
+      for (let rx = -20; rx <= 20; rx += 8) {
+        if (Math.abs(rx) > 4) {
           await addRetroProp('Roads/Road_01.glb', rx, 0.05, 0, 1.25, 1.0, 1.0, Math.PI / 2);
         }
       }
 
-      // Highway Guardrails along North-South shoulders
-      for (let gz = -40; gz <= 40; gz += 4) {
-        if (Math.abs(gz) > 10) {
-          await addRetroProp('Roads/Guardrail.glb', -7.5, 0.1, gz, 1.0, 1.0, 1.0, Math.PI / 2);
-          await addRetroProp('Roads/Guardrail.glb', 7.5, 0.1, gz, 1.0, 1.0, 1.0, -Math.PI / 2);
+      // C. North Connector Avenue (Connecting Central road to Starlight Motel & Sunset Diner at z = -18)
+      for (let rx = -48; rx <= 48; rx += 8) {
+        if (Math.abs(rx) > 6) {
+          await addRetroProp('Roads/Road_01.glb', rx, 0.05, -18, 1.25, 1.0, 1.0, Math.PI / 2);
+        }
+      }
+
+      // D. South Connector Avenue (Connecting Central road to Salvage Yard & Drive-In Cinema at z = 18)
+      for (let rx = -48; rx <= 48; rx += 8) {
+        if (Math.abs(rx) > 6) {
+          await addRetroProp('Roads/Road_01.glb', rx, 0.05, 18, 1.25, 1.0, 1.0, Math.PI / 2);
+        }
+      }
+
+      // E. West Highway Ring (x = -40, connecting Motel, Apex, and Salvage Yard from z = -80 to +80)
+      for (let rz = -80; rz <= 80; rz += 10) {
+        if (Math.abs(rz) > 12) {
+          await addRetroProp('Roads/Road_01.glb', -40, 0.05, rz, 1.25, 1.0, 1.0);
+        }
+      }
+
+      // F. East Highway Ring (x = 40, connecting Diner, Vogue, and Cinema from z = -80 to +80)
+      for (let rz = -80; rz <= 80; rz += 10) {
+        if (Math.abs(rz) > 12) {
+          await addRetroProp('Roads/Road_01.glb', 40, 0.05, rz, 1.25, 1.0, 1.0);
+        }
+      }
+
+      // G. Far North Highway to Scenic Overlook (x = 0, from z = -46 to -85)
+      for (let rz = -46; rz >= -85; rz -= 10) {
+        await addRetroProp('Roads/Road_01.glb', 0, 0.05, rz, 1.25, 1.0, 1.0);
+      }
+
+      // H. Far South Drag Strip (x = 0, from z = 54 to 90)
+      for (let rz = 54; rz <= 90; rz += 10) {
+        await addRetroProp('Roads/Road_01.glb', 0, 0.05, rz, 1.25, 1.0, 1.0);
+      }
+
+      // Highway Guardrails along Central Corridor shoulders
+      for (let gz = -16; gz <= 16; gz += 4) {
+        if (Math.abs(gz) > 4) {
+          await addRetroProp('Roads/Guardrail.glb', -8.2, 0.1, gz, 1.0, 1.0, 1.0, Math.PI / 2);
+          await addRetroProp('Roads/Guardrail.glb', 8.2, 0.1, gz, 1.0, 1.0, 1.0, -Math.PI / 2);
         }
       }
 
@@ -2599,11 +2658,22 @@
       await addRetroProp('Props/Gas_Station/Gas_Pilar.glb', -9, 0, 39, 1.3, 1.1, 1.3);
       await addRetroProp('Props/Gas_Station/Gas_Pilar.glb', 9, 0, 39, 1.3, 1.1, 1.3);
 
-      for (let rx = -11; rx <= 11; rx += 2) {
-        for (let rz = 25; rz <= 41; rz += 2) {
-          await addRetroProp('Props/Gas_Station/GasRoof_0.glb', rx, 6.6, rz, 1.0, 1.0, 1.0);
-        }
-      }
+      // Sleek Modern Gas Station Canopy Roof (Instant render, 0 lag!)
+      const canopy = new THREE.Mesh(
+        new THREE.BoxGeometry(24, 0.7, 18),
+        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5, metalness: 0.8 })
+      );
+      canopy.position.set(0, 6.6, 33);
+      canopy.castShadow = true;
+      canopy.receiveShadow = true;
+      worldGroup.add(canopy);
+
+      const canopyFascia = new THREE.Mesh(
+        new THREE.BoxGeometry(24.4, 0.25, 18.4),
+        new THREE.MeshBasicMaterial({ color: 0xf59e0b })
+      );
+      canopyFascia.position.set(0, 6.6, 33);
+      worldGroup.add(canopyFascia);
 
       // Dual Pump Islands
       await addRetroProp('Props/Gas_Station/Gas_Pump_Base.glb', -4.5, 0.15, 33, 1.3, 1.1, 1.3);
@@ -2698,7 +2768,138 @@
       coinLight.position.set(0, 5.5, -21.5);
       worldGroup.add(coinLight);
 
-      // 7. ROADSIDE PINE FOREST & BOULDERS
+      // ================= 7A. NEW DISTRICT: STARLIGHT ROUTE 66 MOTEL & LODGE (North-West: x = -42, z = -44) =================
+      const motelBase = new THREE.Mesh(new THREE.BoxGeometry(26, 0.4, 22), new THREE.MeshStandardMaterial({ color: 0x1f2430, roughness: 0.85 }));
+      motelBase.position.set(-42, 0.2, -44);
+      worldGroup.add(motelBase);
+
+      const motelBody = new THREE.Mesh(new THREE.BoxGeometry(22, 6.8, 18), new THREE.MeshStandardMaterial({ color: 0x272c3d, roughness: 0.65 }));
+      motelBody.position.set(-42, 3.8, -44);
+      motelBody.castShadow = true;
+      motelBody.receiveShadow = true;
+      worldGroup.add(motelBody);
+
+      const motelRoof = new THREE.Mesh(new THREE.BoxGeometry(22.8, 0.6, 18.8), new THREE.MeshStandardMaterial({ color: 0x06b6d4 }));
+      motelRoof.position.set(-42, 7.3, -44);
+      worldGroup.add(motelRoof);
+
+      await addRetroProp('Props/Gas_Store/Door_A.glb', -33, 0.4, -40, 1.2, 1.2, 1.2, Math.PI / 2);
+      await addRetroProp('Props/Gas_Store/Window_4x3_A.glb', -33, 0.4, -45, 1.1, 1.2, 1.1, Math.PI / 2);
+      await addRetroProp('Props/Gas_Store/Window_4x3_A.glb', -33, 0.4, -49, 1.1, 1.2, 1.1, Math.PI / 2);
+
+      // Glowing Neon "STARLIGHT MOTEL" Tower Sign
+      const motelSignPole = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 8), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+      motelSignPole.position.set(-28, 4.0, -32);
+      worldGroup.add(motelSignPole);
+
+      const motelSignBox = new THREE.Mesh(new THREE.BoxGeometry(7.0, 3.2, 0.6), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+      motelSignBox.position.set(-28, 7.5, -32);
+      worldGroup.add(motelSignBox);
+
+      const motelSignGlow = new THREE.Mesh(new THREE.BoxGeometry(6.6, 2.8, 0.65), new THREE.MeshBasicMaterial({ color: 0x06b6d4 }));
+      motelSignGlow.position.set(-28, 7.5, -32);
+      worldGroup.add(motelSignGlow);
+
+      const motelNeonLight = new THREE.PointLight(0x06b6d4, 3.5, 28);
+      motelNeonLight.position.set(-28, 8.0, -31);
+      worldGroup.add(motelNeonLight);
+
+      await addRetroProp('Props/Gas_Station/Lamp_02.glb', -34, 0.2, -34, 1.6, 1.6, 1.6);
+      await addRetroProp('Props/Gas_Station/Trash_Can.glb', -32, 0.2, -38, 1.2, 1.2, 1.2);
+
+      // ================= 7B. NEW DISTRICT: SUNSET 50s HIGHWAY DINER & PATIO (North-East: x = 42, z = -44) =================
+      const dinerBase = new THREE.Mesh(new THREE.BoxGeometry(26, 0.4, 22), new THREE.MeshStandardMaterial({ color: 0x221f28, roughness: 0.85 }));
+      dinerBase.position.set(42, 0.2, -44);
+      worldGroup.add(dinerBase);
+
+      const dinerBody = new THREE.Mesh(new THREE.BoxGeometry(22, 5.2, 18), new THREE.MeshStandardMaterial({ color: 0x382c3e, roughness: 0.6 }));
+      dinerBody.position.set(42, 3.0, -44);
+      dinerBody.castShadow = true;
+      dinerBody.receiveShadow = true;
+      worldGroup.add(dinerBody);
+
+      const dinerTrim = new THREE.Mesh(new THREE.BoxGeometry(22.6, 0.6, 18.6), new THREE.MeshStandardMaterial({ color: 0xf43f5e, metalness: 0.8, roughness: 0.2 }));
+      dinerTrim.position.set(42, 5.7, -44);
+      worldGroup.add(dinerTrim);
+
+      await addRetroProp('Props/Gas_Store/Door_B.glb', 33, 0.4, -40, 1.2, 1.2, 1.2, -Math.PI / 2);
+      await addRetroProp('Props/Gas_Store/Window_4x3_B.glb', 33, 0.4, -45, 1.1, 1.2, 1.1, -Math.PI / 2);
+      await addRetroProp('Props/Gas_Store/Window_4x3_B.glb', 33, 0.4, -49, 1.1, 1.2, 1.1, -Math.PI / 2);
+
+      await addRetroProp('Props/Camp/Cooker.glb', 30, 0.4, -34, 1.6, 1.6, 1.6);
+      await addRetroProp('Props/Camp/IceBox.glb', 32, 0.4, -34, 1.4, 1.4, 1.4);
+      await addRetroProp('Props/Gas_Station/Trash_Box.glb', 28, 0.2, -38, 1.3, 1.3, 1.3);
+
+      await addRetroProp('Props/Gas_Station/Light_Sign.glb', 35, 6.2, -35, 1.6, 1.6, 1.6, -Math.PI / 4);
+      const dinerNeon = new THREE.PointLight(0xfbbf24, 3.5, 30);
+      dinerNeon.position.set(35, 7.0, -35);
+      worldGroup.add(dinerNeon);
+
+      // ================= 7C. NEW DISTRICT: INTERSTATE AUTO SALVAGE & WORKSHOP (South-West: x = -42, z = 44) =================
+      const salvageBase = new THREE.Mesh(new THREE.BoxGeometry(26, 0.4, 22), new THREE.MeshStandardMaterial({ color: 0x1b1f24, roughness: 0.9 }));
+      salvageBase.position.set(-42, 0.2, 44);
+      worldGroup.add(salvageBase);
+
+      const salvageGarage = new THREE.Mesh(new THREE.BoxGeometry(22, 6.0, 18), new THREE.MeshStandardMaterial({ color: 0x222a36, roughness: 0.8 }));
+      salvageGarage.position.set(-42, 3.4, 44);
+      salvageGarage.castShadow = true;
+      salvageGarage.receiveShadow = true;
+      worldGroup.add(salvageGarage);
+
+      const salvageTrim = new THREE.Mesh(new THREE.BoxGeometry(22.6, 0.6, 18.6), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
+      salvageTrim.position.set(-42, 6.5, 44);
+      worldGroup.add(salvageTrim);
+
+      await addRetroProp('Props/Gas_Station/Flag_Yellow.glb', -28, 0.2, 33, 1.5, 1.5, 1.5);
+      await addRetroProp('Props/Gas_Station/Flag_Red.glb', -30, 0.2, 33, 1.5, 1.5, 1.5);
+      await addRetroProp('Props/Gas_Station/Trash.glb', -34, 0.2, 36, 1.5, 1.5, 1.5);
+      await addRetroProp('Props/Gas_Station/FireExtinguisher.glb', -32, 1.0, 39, 1.4, 1.4, 1.4);
+
+      const salvageBeacon = new THREE.PointLight(0xf59e0b, 3.2, 26);
+      salvageBeacon.position.set(-42, 7.8, 44);
+      worldGroup.add(salvageBeacon);
+
+      // ================= 7D. NEW DISTRICT: STARLIGHT ROUTE 66 DRIVE-IN CINEMA (South-East: x = 42, z = 44) =================
+      const cinemaBase = new THREE.Mesh(new THREE.BoxGeometry(26, 0.4, 22), new THREE.MeshStandardMaterial({ color: 0x181c26, roughness: 0.9 }));
+      cinemaBase.position.set(42, 0.2, 44);
+      worldGroup.add(cinemaBase);
+
+      const screenGantryL = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 14), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+      screenGantryL.position.set(33, 7.0, 44);
+      worldGroup.add(screenGantryL);
+
+      const screenGantryR = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 14), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+      screenGantryR.position.set(51, 7.0, 44);
+      worldGroup.add(screenGantryR);
+
+      const cinemaScreen = new THREE.Mesh(
+        new THREE.BoxGeometry(19, 10, 0.8),
+        new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.4, emissive: 0x38bdf8, emissiveIntensity: 0.25 })
+      );
+      cinemaScreen.position.set(42, 8.5, 44);
+      worldGroup.add(cinemaScreen);
+
+      const cinemaFrame = new THREE.Mesh(new THREE.BoxGeometry(19.6, 10.6, 0.6), new THREE.MeshStandardMaterial({ color: 0xa855f7 }));
+      cinemaFrame.position.set(42, 8.5, 43.8);
+      worldGroup.add(cinemaFrame);
+
+      const cinemaGlow = new THREE.PointLight(0x818cf8, 3.2, 30);
+      cinemaGlow.position.set(42, 8.5, 41);
+      worldGroup.add(cinemaGlow);
+
+      await addRetroProp('Roads/Sign_01.glb', 30, 0.2, 34, 1.4, 1.4, 1.4, -Math.PI / 4);
+      await addRetroProp('Roads/Sign_02.glb', 28, 0.2, 42, 1.4, 1.4, 1.4, -Math.PI / 2);
+
+      // ================= 7E. NEW DISTRICT: ROUTE 66 SCENIC HIGHWAY OVERLOOK (North: x = 0, z = -85) =================
+      await addRetroProp('Props/Gas_Station/Pavement_0.glb', 0, 0.1, -85, 2.2, 1.0, 2.2);
+      await addRetroProp('Roads/Sign_03.glb', -8, 0.1, -85, 1.5, 1.5, 1.5, Math.PI / 2);
+      await addRetroProp('Roads/Sign_04.glb', 8, 0.1, -85, 1.5, 1.5, 1.5, -Math.PI / 2);
+      await addRetroProp('Props/Gas_Station/Lamp_03.glb', 0, 0.1, -88, 1.8, 1.8, 1.8);
+      const overlookLight = new THREE.PointLight(0xffedd5, 2.5, 25);
+      overlookLight.position.set(0, 6.0, -85);
+      worldGroup.add(overlookLight);
+
+      // 8. ROADSIDE PINE FOREST & BOULDERS
       const treeUrls = [
         'Vegetation/Trees/Douglas Fir/Douglas_Fir_A.glb',
         'Vegetation/Trees/Picea Abies/Picea_Abies_A.glb',
@@ -2712,7 +2913,20 @@
         { x: -28, z: 26, u: 1, s: 0.5 },
         { x: -40, z: 32, u: 0, s: 0.6 },
         { x: 30, z: 26, u: 2, s: 0.5 },
-        { x: 42, z: 32, u: 0, s: 0.6 }
+        { x: 42, z: 32, u: 0, s: 0.6 },
+        // Expanded Forest Perimeters
+        { x: -68, z: -46, u: 0, s: 0.65 },
+        { x: -68, z: -24, u: 1, s: 0.7 },
+        { x: -68, z: 24, u: 2, s: 0.6 },
+        { x: -68, z: 48, u: 0, s: 0.75 },
+        { x: 68, z: -46, u: 1, s: 0.65 },
+        { x: 68, z: -24, u: 2, s: 0.7 },
+        { x: 68, z: 24, u: 0, s: 0.6 },
+        { x: 68, z: 48, u: 1, s: 0.75 },
+        { x: -24, z: -75, u: 2, s: 0.65 },
+        { x: 24, z: -75, u: 0, s: 0.65 },
+        { x: -24, z: 75, u: 1, s: 0.65 },
+        { x: 24, z: 75, u: 2, s: 0.65 }
       ];
       for (const tc of treeCoords) {
         await addRetroProp(treeUrls[tc.u], tc.x, 0, tc.z, tc.s, tc.s, tc.s);
@@ -2720,16 +2934,20 @@
 
       const rockCoords = [
         { x: -18, z: 16 }, { x: 18, z: 16 },
-        { x: -18, z: -14 }, { x: 18, z: -14 }
+        { x: -18, z: -14 }, { x: 18, z: -14 },
+        { x: -60, z: -60 }, { x: 60, z: -60 },
+        { x: -60, z: 60 }, { x: 60, z: 60 }
       ];
       for (const rc of rockCoords) {
         await addRetroProp('Rocks/Rock_01.glb', rc.x, 0, rc.z, 1.1, 1.1, 1.1);
       }
 
-      // Highway Streetlamps
+      // Highway Streetlamps along intersection
       const lampCoords = [
         { x: -12, z: -12 }, { x: 12, z: -12 },
-        { x: -12, z: 12 }, { x: 12, z: 12 }
+        { x: -12, z: 12 }, { x: 12, z: 12 },
+        { x: -12, z: -60 }, { x: 12, z: -60 },
+        { x: -12, z: 60 }, { x: 12, z: 60 }
       ];
       for (const lc of lampCoords) {
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 9), new THREE.MeshStandardMaterial({ color: 0x374151 }));
@@ -3505,6 +3723,7 @@
     // ================= 9. 3D PLAYER & VISUAL WEAPON ARSENAL =================
     const playerGroup = new THREE.Group();
     scene.add(playerGroup);
+    sunLight.target = playerGroup;
 
     // Invulnerability Nano-Shield Sphere (Visual protective aura on respawn & dodge)
     const shieldGeo = new THREE.SphereGeometry(2.4, 24, 24);
@@ -3990,7 +4209,7 @@
       const gltfLoader = new THREE.GLTFLoader();
       gltfLoader.load('/UAL1_Standard.glb', (gltf) => {
         playerModel = gltf.scene;
-        playerModel.scale.set(2.6, 2.6, 2.6);
+        playerModel.scale.set(1.45, 1.45, 1.45);
         playerModel.position.set(0, 0, 0);
 
         playerModel.traverse((child) => {
@@ -4068,7 +4287,7 @@
     // ================= 10. MENACING 3D COMBAT MECHS =================
     const enemies = [];
 
-    function createTitanEnforcerMech(x, z) {
+    function createTitanEnforcerMech(x, z, buildingId = null) {
       const mech = new THREE.Group();
       mech.position.set(x, 0, z);
 
@@ -4165,7 +4384,11 @@
 
       const enemyData = {
         type: 'titan',
+        buildingId: buildingId,
         mesh: mech,
+        spawnX: x,
+        spawnZ: z,
+        isAggro: false,
         leftLeg: leftLegGroup,
         rightLeg: rightLegGroup,
         gunArm: gunArm,
@@ -4185,7 +4408,7 @@
       enemies.push(enemyData);
     }
 
-    function createHoverSkimmer(x, z) {
+    function createHoverSkimmer(x, z, buildingId = null) {
       const drone = new THREE.Group();
       drone.position.set(x, 4.0, z);
 
@@ -4225,7 +4448,11 @@
 
       const enemyData = {
         type: 'skimmer',
+        buildingId: buildingId,
         mesh: drone,
+        spawnX: x,
+        spawnZ: z,
+        isAggro: false,
         hpSprite: hpSprite,
         hpCanvas: hpCanvas,
         hpCtx: hpCtx,
@@ -4259,10 +4486,17 @@
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 13px Outfit, sans-serif';
       ctx.textAlign = 'center';
-      const label = enemy.type === 'titan' ? '⚠️ ROGUE TITAN MECH' : '⚡ CORRUPTED SKIMMER';
+      let label = enemy.type === 'titan' ? '⚠️ ROGUE TITAN MECH' : '⚡ CORRUPTED SKIMMER';
+      if (enemy.buildingId) {
+        label = enemy.type === 'titan' ? '🛡️ GATE GUARDIAN TITAN' : '🛡️ GATE GUARDIAN SKIMMER';
+      }
       ctx.fillText(`${label} • ${Math.max(0, Math.floor(enemy.hp))} HP`, 128, 16);
 
       enemy.hpTexture.needsUpdate = true;
+    }
+
+    function getLivingBuildingGuards(buildingId) {
+      return enemies.filter(e => e.buildingId === buildingId && e.hp > 0);
     }
 
     function spawnRogueBots() {
@@ -4270,22 +4504,67 @@
       enemies.length = 0;
 
       const isStreet = state.location === 'street';
-      const count = isStreet ? 6 : 3;
 
-      for (let i = 0; i < count; i++) {
-        let sx, sz;
-        if (isStreet) {
-          const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.4;
-          const dist = 18 + Math.random() * 7;
-          sx = Math.cos(angle) * dist;
-          sz = Math.sin(angle) * dist;
-        } else {
-          sx = (Math.random() - 0.5) * 36;
-          sz = (Math.random() - 0.5) * 36;
+      if (isStreet) {
+        const retroPosts = [
+          // 1. Apex CyberTech Relay Station (West: x = -28, z = 0)
+          { x: -21, z: -2, type: 'titan', buildingId: 'tech' },    // Front Plaza Gate Guardian Titan
+          { x: -23, z: 4, type: 'skimmer', buildingId: 'tech' },   // Relay Perimeter Skimmer Scout
+
+          // 2. Vogue Luxe Retro Mart (East: x = 28, z = 0)
+          { x: 21, z: -2, type: 'titan', buildingId: 'fashion' },     // Boutique Gate Guardian Titan
+          { x: 23, z: 4, type: 'skimmer', buildingId: 'fashion' },    // Luxury Promenade Skimmer Scout
+
+          // 3. Titan Motors Speedway Gas Station (South: x = 0, z = 25)
+          { x: -3, z: 20, type: 'titan', buildingId: 'auto' },     // Speedway Fuel Islands Guardian Titan
+          { x: 4, z: 21, type: 'skimmer', buildingId: 'auto' },    // Showroom Garage Skimmer Scout
+
+          // 4. Federal Cashout Depot & Vault (North: x = 0, z = -28)
+          { x: -4, z: -20, type: 'titan', buildingId: 'cashout' },     // Cashout Vault Guardian Titan
+          { x: 4, z: -20, type: 'skimmer', buildingId: 'cashout' },  // Highway Campsite Perimeter Skimmer
+
+          // 5. Outer Districts Patrols
+          { x: -48, z: -44, type: 'skimmer' }, // Starlight Motel yard
+          { x: 48, z: -44, type: 'titan' },    // Sunset Highway Diner
+          { x: -48, z: 44, type: 'titan' },    // Auto Salvage Yard
+          { x: 48, z: 44, type: 'skimmer' }    // Drive-In Cinema grounds
+        ];
+
+        const citadelPosts = [
+          // 1. Apex Arcane Citadel Gates (West)
+          { x: -21, z: -2, type: 'titan', buildingId: 'tech' },
+          { x: -23, z: 4, type: 'skimmer', buildingId: 'tech' },
+
+          // 2. Vogue Royale Palace Gates (East)
+          { x: 21, z: -2, type: 'titan', buildingId: 'fashion' },
+          { x: 23, z: 4, type: 'skimmer', buildingId: 'fashion' },
+
+          // 3. Titan Ironworks Fortress (South)
+          { x: -3, z: 20, type: 'titan', buildingId: 'auto' },
+          { x: 4, z: 21, type: 'skimmer', buildingId: 'auto' },
+
+          // 4. Royal Treasury Cashout Vault (North)
+          { x: -4, z: -20, type: 'titan', buildingId: 'cashout' },
+          { x: 4, z: -20, type: 'skimmer', buildingId: 'cashout' },
+
+          // 5. Outer Ramparts
+          { x: -48, z: -38, type: 'titan' },
+          { x: 48, z: -38, type: 'skimmer' },
+          { x: -48, z: 38, type: 'skimmer' },
+          { x: 48, z: 38, type: 'titan' }
+        ];
+
+        const posts = (currentWorldTheme === 'retro') ? retroPosts : citadelPosts;
+        for (let i = 0; i < posts.length; i++) {
+          const p = posts[i];
+          if (p.type === 'titan') createTitanEnforcerMech(p.x, p.z, p.buildingId);
+          else createHoverSkimmer(p.x, p.z, p.buildingId);
         }
-
-        if (i % 2 === 0) createTitanEnforcerMech(sx, sz);
-        else createHoverSkimmer(sx, sz);
+      } else {
+        // Interior (Lobby / Research)
+        createTitanEnforcerMech(-20, -18);
+        createHoverSkimmer(20, -18);
+        createHoverSkimmer(0, -28);
       }
     }
 
@@ -4298,24 +4577,24 @@
     }
 
     function spawnHitSparks(pos, colorHex = 0x06b6d4) {
-      const count = 12;
+      const count = 5;
       for (let i = 0; i < count; i++) {
         const sparkMat = new THREE.MeshBasicMaterial({ color: colorHex });
-        const spark = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.15, 0.15), sparkMat);
+        const spark = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.04), sparkMat);
         spark.position.copy(pos);
         scene.add(spark);
 
         const angle = Math.random() * Math.PI * 2;
-        const speed = 0.3 + Math.random() * 0.5;
+        const speed = 0.12 + Math.random() * 0.18;
         hitSparks.push({
           mesh: spark,
           velocity: new THREE.Vector3(
             Math.cos(angle) * speed,
-            0.2 + Math.random() * 0.4,
+            0.08 + Math.random() * 0.12,
             Math.sin(angle) * speed
           ),
           life: 0,
-          maxLife: 15
+          maxLife: 8
         });
       }
     }
@@ -4331,17 +4610,127 @@
     const slashWaves = [];
     const vortexSpheres = [];
 
+    function getCrosshairAimPoint() {
+      // Ray 1: Screen Center Ray (Crosshair Reticle Ray)
+      const centerRay = new THREE.Ray();
+      const centerAimDir = new THREE.Vector3();
+      camera.getWorldDirection(centerAimDir);
+      centerRay.origin.copy(camera.position);
+      centerRay.direction.copy(centerAimDir);
+
+      // Ray 2: If mouse was clicked/moved at a specific screen coordinate (non-pointerlock), cursor ray
+      let cursorRay = null;
+      if (document.pointerLockElement !== canvas && lastMouseX > 0 && lastMouseY > 0) {
+        const mouseNDC = new THREE.Vector2(
+          (lastMouseX / window.innerWidth) * 2 - 1,
+          -(lastMouseY / window.innerHeight) * 2 + 1
+        );
+        cursorRay = new THREE.Ray();
+        cursorRay.origin.copy(camera.position);
+        cursorRay.direction.set(mouseNDC.x, mouseNDC.y, 0.5).unproject(camera).sub(camera.position).normalize();
+      }
+
+      // Check active enemies against aim rays with generous Smart Aim Assist
+      let targetEnemyHit = null;
+      let closestDirectDist = 140;
+      let primaryRay = cursorRay || centerRay;
+      const raysToCheck = cursorRay ? [cursorRay, centerRay] : [centerRay];
+
+      let bestMagneticTarget = null;
+      let bestMagneticScore = Infinity;
+
+      for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        if (e.hp <= 0 || !e.mesh) continue;
+        const eCenter = e.mesh.position.clone().add(new THREE.Vector3(0, e.type === 'titan' ? 3.5 : 1.5, 0));
+
+        // 1. Direct ray-sphere intersection check (generous hit sphere)
+        const directSphere = new THREE.Sphere(eCenter, e.type === 'titan' ? 5.5 : 4.0);
+        for (let rIdx = 0; rIdx < raysToCheck.length; rIdx++) {
+          const ray = raysToCheck[rIdx];
+          const hitPt = new THREE.Vector3();
+          if (ray.intersectSphere(directSphere, hitPt)) {
+            const d = ray.origin.distanceTo(hitPt);
+            if (d < closestDirectDist) {
+              closestDirectDist = d;
+              targetEnemyHit = eCenter;
+            }
+          }
+        }
+
+        // 2. Magnetic Aim Cone (Forgiving aim assist within sightline cone)
+        for (let rIdx = 0; rIdx < raysToCheck.length; rIdx++) {
+          const ray = raysToCheck[rIdx];
+          const toEnemy = eCenter.clone().sub(ray.origin);
+          const forwardDist = toEnemy.dot(ray.direction);
+          if (forwardDist > 1.2 && forwardDist < 90.0) {
+            const closestPtOnRay = ray.origin.clone().addScaledVector(ray.direction, forwardDist);
+            const lateralDist = closestPtOnRay.distanceTo(eCenter);
+            const maxMagneticRadius = (e.type === 'titan' ? 8.5 : 6.5) + (forwardDist * 0.12);
+
+            if (lateralDist <= maxMagneticRadius) {
+              const score = lateralDist * 2.5 + forwardDist * 0.2 + (rIdx === 0 ? 0 : 5);
+              if (score < bestMagneticScore) {
+                bestMagneticScore = score;
+                bestMagneticTarget = eCenter;
+              }
+            }
+          }
+        }
+      }
+
+      if (targetEnemyHit) {
+        return targetEnemyHit;
+      }
+      if (bestMagneticTarget) {
+        return bestMagneticTarget;
+      }
+
+      // If no enemy hit, aim forward down the sightline at 80m range (or building obstacles)
+      let closestHitDist = 80;
+      let targetPoint = primaryRay.origin.clone().addScaledVector(primaryRay.direction, 80);
+
+      // Check collider boxes (buildings/walls)
+      if (state.location === 'street') {
+        const colliders = (currentWorldTheme === 'retro') ? RETRO_COLLIDERS : STREET_COLLIDERS;
+        if (colliders) {
+          for (let i = 0; i < colliders.length; i++) {
+            const col = colliders[i];
+            if (col.type === 'box') {
+              const box = new THREE.Box3(
+                new THREE.Vector3(col.minX, 0, col.minZ),
+                new THREE.Vector3(col.maxX, 25, col.maxZ)
+              );
+              const intersectPt = new THREE.Vector3();
+              if (primaryRay.intersectBox(box, intersectPt)) {
+                const d = primaryRay.origin.distanceTo(intersectPt);
+                if (d > 6.0 && d < closestHitDist) {
+                  closestHitDist = d;
+                  targetPoint = intersectPt;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // CRITICAL GUARANTEE: Bullet target MUST NEVER plunge underground into dirt!
+      // In 3rd-person view, maintain forward chest/shoulder flight height (y >= 1.8m)
+      if (targetPoint.y < 1.8) {
+        targetPoint.y = 1.8;
+      }
+
+      return targetPoint;
+    }
+
     function getLockedEnemy() {
+      const tier = state.selectedWeaponTier;
       let closest = null;
       let minScore = Infinity;
 
       const pPos = playerGroup.position;
       const camForward = new THREE.Vector3(-Math.sin(cameraYaw), 0, -Math.cos(cameraYaw)).normalize();
-      const tier = state.selectedWeaponTier;
-
-      // STRICT CLOSE RANGE: Fists and Katana only lock onto enemies right next to the player!
-      // Only ranged weapons (Tier 2 Carbines & Tier 3 Cannon) lock onto distant targets.
-      const maxLockDist = tier === 0 ? 3.0 : (tier === 1 ? 4.0 : 55);
+      const maxLockDist = tier === 0 ? 2.8 : (tier === 1 ? 3.8 : 65.0);
 
       enemies.forEach(e => {
         if (e.hp <= 0) return;
@@ -4351,9 +4740,10 @@
         if (dist <= maxLockDist) {
           toEnemy.normalize();
           const angle = camForward.angleTo(toEnemy);
-          if (tier <= 1 && angle > Math.PI / 2.5) return;
+          const maxAngle = tier >= 2 ? Math.PI / 2.8 : Math.PI / 2.5;
+          if (angle > maxAngle) return;
 
-          const score = dist + angle * 8;
+          const score = dist + angle * 10;
           if (score < minScore) {
             minScore = score;
             closest = e;
@@ -4520,63 +4910,112 @@
           if (didHit) sound.playFanfare();
         }
       } else if (tier === 2) {
-        // TIER 2: DUAL HYPER PLASMA CARBINES (LONG RANGE PROJECTILES)
-        sound.playLaser(1.0 + (comboStep % 2) * 0.25);
-        playPlayerAnimation('Pistol_Shoot', 0.04, false, 2.2, resumeMovementOrIdle);
-        attackCooldown = 7;
+        // TIER 2: DUAL HYPER PLASMA CARBINES (PRECISION MANUAL CROSSHAIR SHOOTING)
+        sound.playLaser(1.1 + (comboStep % 2) * 0.2);
+        playPlayerAnimation('Pistol_Shoot', 0.04, false, 2.5, resumeMovementOrIdle);
+        attackCooldown = 8;
         triggerScreenShake(0.12);
 
-        let shootDir = aimForward.clone();
-        if (lockedEnemy) {
-          shootDir = lockedEnemy.mesh.position.clone().add(new THREE.Vector3(0, 3.2, 0)).sub(playerGroup.position).normalize();
-        }
+        const targetPoint = getCrosshairAimPoint();
 
-        const isLeft = comboStep % 2 === 0;
-        const sideOffset = isLeft ? -0.85 : 0.85;
-        const rightVec = new THREE.Vector3(aimForward.z, 0, -aimForward.x);
+        // Orient player towards aim point horizontally
+        const toTargetHoriz = new THREE.Vector3(targetPoint.x - playerGroup.position.x, 0, targetPoint.z - playerGroup.position.z);
+        const aimDirHoriz = toTargetHoriz.lengthSq() > 0.01 ? toTargetHoriz.normalize() : aimForward;
+        playerGroup.rotation.y = Math.atan2(aimDirHoriz.x, aimDirHoriz.z);
+
+        // Muzzle position directly aligned with gun barrel along aim direction (exact chest height)
         const spawnPos = playerGroup.position.clone()
-          .add(new THREE.Vector3(0, 2.2, 0))
-          .addScaledVector(rightVec, sideOffset)
-          .addScaledVector(shootDir, 1.8);
+          .add(new THREE.Vector3(0, 1.15, 0))
+          .addScaledVector(aimDirHoriz, 0.75);
 
-        // High-velocity glowing plasma bolt
-        const pGeo = new THREE.SphereGeometry(0.42, 8, 8);
-        const pMat = new THREE.MeshBasicMaterial({ color: isLeft ? 0x06b6d4 : 0xec4899 });
-        const pMesh = new THREE.Mesh(pGeo, pMat);
-        pMesh.position.copy(spawnPos);
-        scene.add(pMesh);
+        // Direct straight bullet trajectory to crosshair aim point
+        const shootDir = targetPoint.clone().sub(spawnPos).normalize();
 
-        // Muzzle flash particle burst
-        spawnHitSparks(spawnPos, isLeft ? 0x06b6d4 : 0xec4899);
+        // ================= HIGH-VISIBILITY NEON PLASMA TRACER BOLT =================
+        const projGroup = new THREE.Group();
+        projGroup.position.copy(spawnPos);
+        projGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), shootDir);
+
+        // 1. Hot white luminous inner core (super bright and sharp)
+        const coreGeo = new THREE.CylinderGeometry(0.14, 0.14, 3.4, 8);
+        coreGeo.rotateX(Math.PI / 2);
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+        projGroup.add(coreMesh);
+
+        // 2. Vibrant neon cyan energy sheath (thick, glowing aura visible from any angle)
+        const haloGeo = new THREE.CylinderGeometry(0.36, 0.36, 4.0, 8);
+        haloGeo.rotateX(Math.PI / 2);
+        const haloMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.88 });
+        const haloMesh = new THREE.Mesh(haloGeo, haloMat);
+        projGroup.add(haloMesh);
+
+        // 3. Leading plasma energy sphere head (large glowing orb visible from behind/sides)
+        const headGeo = new THREE.SphereGeometry(0.44, 12, 12);
+        const headMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+        const headMesh = new THREE.Mesh(headGeo, headMat);
+        headMesh.position.set(0, 0, 1.8);
+        projGroup.add(headMesh);
+
+        // 4. Trailing tail energy orb
+        const tailGeo = new THREE.SphereGeometry(0.28, 8, 8);
+        const tailMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.75 });
+        const tailMesh = new THREE.Mesh(tailGeo, tailMat);
+        tailMesh.position.set(0, 0, -1.8);
+        projGroup.add(tailMesh);
+
+        // 5. Dynamic PointLight illuminating surroundings as the bolt travels
+        const pLight = new THREE.PointLight(0x00f0ff, 2.8, 14);
+        projGroup.add(pLight);
+
+        scene.add(projGroup);
+
+        // Punchy muzzle energy burst at barrel tip
+        const flashMesh = new THREE.Mesh(
+          new THREE.SphereGeometry(0.55, 8, 8),
+          new THREE.MeshBasicMaterial({ color: 0x67e8f9, transparent: true, opacity: 0.95 })
+        );
+        flashMesh.position.copy(spawnPos);
+        scene.add(flashMesh);
+        setTimeout(() => scene.remove(flashMesh), 70);
 
         projectiles.push({
-          mesh: pMesh,
-          velocity: shootDir.multiplyScalar(2.6),
+          mesh: projGroup,
+          velocity: shootDir.multiplyScalar(2.6), // Fast, laser-straight, level, clearly visible neon streak!
           life: 0,
-          maxLife: 45,
-          dmg: weapon.dmg,
-          targetEnemy: lockedEnemy
+          maxLife: 55,
+          dmg: weapon.dmg
         });
       } else if (tier === 3) {
-        // TIER 3: SINGULARITY VORTEX CANNON (LONG RANGE GRAVITATIONAL ORB)
+        // TIER 3: SINGULARITY VORTEX CANNON (PRECISION AIM GRAVITATIONAL ORB)
         sound.playVortex();
         playPlayerAnimation('Spell_Simple_Shoot', 0.05, false, 1.6, resumeMovementOrIdle);
         attackCooldown = 26;
         triggerScreenShake(0.65);
 
-        let shootDir = aimForward.clone();
-        if (lockedEnemy) {
-          shootDir = lockedEnemy.mesh.position.clone().add(new THREE.Vector3(0, 3.0, 0)).sub(playerGroup.position).normalize();
-        }
+        const targetPoint = getCrosshairAimPoint();
+        const toTargetHoriz = new THREE.Vector3(targetPoint.x - playerGroup.position.x, 0, targetPoint.z - playerGroup.position.z);
+        const aimDirHoriz = toTargetHoriz.lengthSq() > 0.01 ? toTargetHoriz.normalize() : aimForward;
+        playerGroup.rotation.y = Math.atan2(aimDirHoriz.x, aimDirHoriz.z);
 
-        const spawnPos = playerGroup.position.clone().add(new THREE.Vector3(0, 2.4, 0)).addScaledVector(shootDir, 2.4);
+        const spawnPos = playerGroup.position.clone().add(new THREE.Vector3(0, 1.5, 0)).addScaledVector(aimDirHoriz, 1.2);
+        const shootDir = targetPoint.clone().sub(spawnPos).normalize();
+
+        const vGroup = new THREE.Group();
+        vGroup.position.copy(spawnPos);
+
         const vMesh = new THREE.Mesh(new THREE.SphereGeometry(1.6, 16, 16), new THREE.MeshBasicMaterial({ color: 0x8b5cf6, wireframe: true }));
-        vMesh.position.copy(spawnPos);
-        scene.add(vMesh);
+        vGroup.add(vMesh);
+        const vCore = new THREE.Mesh(new THREE.SphereGeometry(0.9, 12, 12), new THREE.MeshBasicMaterial({ color: 0xc084fc }));
+        vGroup.add(vCore);
+        const vLight = new THREE.PointLight(0xa855f7, 3.2, 16);
+        vGroup.add(vLight);
+        scene.add(vGroup);
 
         vortexSpheres.push({
-          mesh: vMesh,
-          velocity: shootDir.multiplyScalar(0.95),
+          mesh: vGroup,
+          core: vMesh,
+          velocity: shootDir.multiplyScalar(1.2),
           life: 0,
           maxLife: 55,
           dmg: weapon.dmg
@@ -4647,19 +5086,33 @@
 
         const loot = enemy.type === 'titan' ? 0.60 : 0.40;
         state.addMoney(loot);
-        showFloatingText(`+$${loot.toFixed(2)} Bounty Claimed!`, '#fbbf24');
 
-        // Respawn replacement mech after 6 seconds
+        if (enemy.buildingId) {
+          const remaining = getLivingBuildingGuards(enemy.buildingId).length;
+          if (remaining === 0) {
+            const bldgName = enemy.buildingId === 'cashout' ? 'Federal Cashout Depot' : (TOWERS[enemy.buildingId]?.name || 'Building');
+            showFloatingText(`🔓 PERIMETER SECURED! ${bldgName} Entrance Unlocked!`, '#10b981');
+            sound.playFanfare();
+          } else {
+            showFloatingText(`💥 Guardian Down! ${remaining} remaining to unlock entrance`, '#fbbf24');
+          }
+        } else {
+          showFloatingText(`+$${loot.toFixed(2)} Bounty Claimed!`, '#fbbf24');
+        }
+
+        // Respawn replacement mech after 8 seconds at an outpost far from the player
         setTimeout(() => {
-          if (state.location === 'street' && enemies.length < 6) {
-            const sx = (Math.random() - 0.5) * 80;
-            const sz = (Math.random() - 0.5) * 80;
-            if (Math.hypot(sx, sz) > 16 && !checkCollision(sx, sz, 2.0)) {
+          if (state.location === 'street' && enemies.length < 7) {
+            const angle = Math.random() * Math.PI * 2;
+            const dist = 48 + Math.random() * 25;
+            const sx = Math.cos(angle) * dist;
+            const sz = Math.sin(angle) * dist;
+            if (Math.hypot(sx, sz) > 25 && !checkCollision(sx, sz, 1.5)) {
               if (Math.random() < 0.5) createTitanEnforcerMech(sx, sz);
               else createHoverSkimmer(sx, sz);
             }
           }
-        }, 6000);
+        }, 8000);
       }
     }
 
@@ -4669,8 +5122,8 @@
     let cameraDistance = 11.5;
     let isDraggingMouse = false;
     let lastUserCameraDragTime = 0;
-    let lastMouseX = 0;
-    let lastMouseY = 0;
+    let lastMouseX = typeof window !== 'undefined' ? window.innerWidth / 2 : 0;
+    let lastMouseY = typeof window !== 'undefined' ? window.innerHeight / 2 : 0;
     let inputRefCamYaw = 0;
     let lastKeyString = '';
 
@@ -4686,7 +5139,7 @@
     }
 
     window.addEventListener('contextmenu', (e) => {
-      if (e.target === canvas) e.preventDefault();
+      e.preventDefault();
     });
 
     let isDashing = false;
@@ -4791,7 +5244,9 @@
       playerGroup.rotation.y = Math.atan2(dashDir.x, dashDir.z);
     }
 
-    canvas.addEventListener('mousedown', (e) => {
+    window.addEventListener('mousedown', (e) => {
+      // Don't trigger attack if clicking UI interactive controls (buttons, inputs, modals, cards)
+      if (e.target && e.target.closest && e.target.closest('button, input, select, textarea, a, .modal, .weapon-card, #bottom-hud, #top-bar')) return;
       sound.init();
       if (isModalOpen()) return;
       lastMouseX = e.clientX;
@@ -4836,18 +5291,19 @@
         lastUserCameraDragTime = Date.now();
         const sensitivity = 0.0035;
         cameraYaw -= e.movementX * sensitivity;
-        cameraPitch = Math.max(0.12, Math.min(1.35, cameraPitch + e.movementY * sensitivity));
-      } else if (isDraggingMouse || e.buttons === 2) {
+        cameraPitch = Math.max(0.04, Math.min(1.35, cameraPitch + e.movementY * sensitivity));
+      } else if (isDraggingMouse || e.buttons === 1 || e.buttons === 2) {
         lastUserCameraDragTime = Date.now();
         const dx = e.clientX - lastMouseX;
         const dy = e.clientY - lastMouseY;
-        lastMouseX = e.clientX;
-        lastMouseY = e.clientY;
 
         const sensitivity = 0.0055;
         cameraYaw -= dx * sensitivity;
-        cameraPitch = Math.max(0.12, Math.min(1.35, cameraPitch + dy * sensitivity));
+        cameraPitch = Math.max(0.04, Math.min(1.35, cameraPitch + dy * sensitivity));
       }
+
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
     });
 
     window.addEventListener('wheel', (e) => {
@@ -4858,9 +5314,18 @@
       cameraDistance = THREE.MathUtils.clamp(cameraDistance + e.deltaY * 0.02, minD, maxD);
     }, { passive: true });
 
+    canvas.addEventListener('click', () => {
+      if (!document.pointerLockElement && !isModalOpen()) {
+        try { canvas.requestPointerLock(); } catch(err) {}
+      }
+    });
+
     canvas.addEventListener('dblclick', () => {
-      if (!document.pointerLockElement) canvas.requestPointerLock();
-      else document.exitPointerLock();
+      if (!document.pointerLockElement) {
+        try { canvas.requestPointerLock(); } catch(err) {}
+      } else {
+        document.exitPointerLock();
+      }
     });
 
     const btnAtkHud = document.getElementById('btn-attack-hud');
@@ -4946,6 +5411,8 @@
     window.selectWeaponSlot = function(tier) {
       if (state.unlockedTiers.includes(tier)) {
         state.selectWeapon(tier);
+        const w = WEAPON_TIERS[tier];
+        if (w) showFloatingText(`${w.icon} Equipped: ${w.name}!`, '#38bdf8');
         if (playerMixer && !isPlayingActionAnim) {
           playPlayerAnimation(getIdleAnimName(), 0.2, true);
         }
@@ -5034,8 +5501,8 @@
 
       if (isMoving && !isDashing) {
         moveVec.normalize();
-        const speed = 0.38;
-        const radius = 1.15;
+        const speed = 0.58;
+        const radius = 0.55;
 
         // SOLID COLLISION DETECTION WITH SMOOTH WALL-SLIDING
         const newX = playerGroup.position.x + moveVec.x * speed;
@@ -5049,11 +5516,11 @@
         }
 
         const targetAngle = Math.atan2(moveVec.x, moveVec.z);
-        if (!activeAttackAnim || state.selectedWeaponTier >= 2) {
+        if (!activeAttackAnim) {
           playerGroup.rotation.y = lerpAngle(playerGroup.rotation.y, targetAngle, 0.35);
         }
 
-        walkCycle += 0.22;
+        walkCycle += 0.30;
         leftLeg.rotation.x = Math.sin(walkCycle) * 0.65;
         rightLeg.rotation.x = -Math.sin(walkCycle) * 0.65;
 
@@ -5082,7 +5549,7 @@
         } else if (isDashing) {
           playPlayerAnimation('Roll', 0.08, false, 1.4);
         } else if (isMoving) {
-          playPlayerAnimation('Jog_Fwd_Loop', 0.18, true, 1.15);
+          playPlayerAnimation('Jog_Fwd_Loop', 0.18, true, 1.45);
         } else {
           playPlayerAnimation(getIdleAnimName(), 0.22, true);
         }
@@ -5138,7 +5605,8 @@
       if (isHoldingAttack && attackCooldown === 0) executeAttack();
 
       // ================= SMART AUTO-ADJUST CAMERA BEHIND CHARACTER =================
-      const isManualOrbit = isDraggingMouse || (Date.now() - lastUserCameraDragTime < 650);
+      const isRangedWeapon = state.selectedWeaponTier >= 2;
+      const isManualOrbit = isDraggingMouse || (Date.now() - lastUserCameraDragTime < 650) || isRangedWeapon;
       if (!isManualOrbit && (isMoving || activeAttackAnim || isDashing)) {
         const targetCamYaw = playerGroup.rotation.y - Math.PI;
         const yawDiff = shortestAngleDiff(targetCamYaw, cameraYaw);
@@ -5147,35 +5615,42 @@
       }
 
       // ================= SMART CAMERA BOOM COLLISION & WALL OCCLUSION =================
-      const focusPoint = playerGroup.position.clone().add(new THREE.Vector3(0, 2.6, 0));
-      const MIN_CAM_DIST = state.location === 'street' ? 4.5 : 3.5;
+      const rightDir = new THREE.Vector3(Math.cos(cameraYaw), 0, -Math.sin(cameraYaw));
+      const shoulderOffset = isRangedWeapon ? rightDir.clone().multiplyScalar(0.95) : new THREE.Vector3(0, 0, 0);
+      const shoulderHeight = isRangedWeapon ? 1.35 : 1.65;
+      const focusPoint = playerGroup.position.clone().add(new THREE.Vector3(0, shoulderHeight, 0)).add(shoulderOffset);
+      const MIN_CAM_DIST = state.location === 'street' ? (isRangedWeapon ? 2.8 : 3.8) : 2.8;
 
       // Desired spherical orbit offset
-      const camOffsetX = cameraDistance * Math.sin(cameraYaw) * Math.cos(cameraPitch);
-      const camOffsetY = cameraDistance * Math.sin(cameraPitch);
-      const camOffsetZ = cameraDistance * Math.cos(cameraYaw) * Math.cos(cameraPitch);
+      const effectiveCamDist = isRangedWeapon ? Math.min(cameraDistance, 6.8) : cameraDistance;
+      const camOffsetX = effectiveCamDist * Math.sin(cameraYaw) * Math.cos(cameraPitch);
+      const camOffsetY = effectiveCamDist * Math.sin(cameraPitch);
+      const camOffsetZ = effectiveCamDist * Math.cos(cameraYaw) * Math.cos(cameraPitch);
       const camOffset = new THREE.Vector3(camOffsetX, camOffsetY + 0.15, camOffsetZ);
       const desiredDist = Math.max(MIN_CAM_DIST, camOffset.length());
       const camDir = camOffset.clone().normalize();
 
-      // 1. BOOM-ARM RAYCAST COLLISION: If camera boom intersects a wall/corner, pull camera in front of it!
+      // 1. FAST BOOM-ARM COLLISION (Instant Ray-Box Check - ZERO lag!)
       let allowedDist = desiredDist;
       if (desiredDist > MIN_CAM_DIST) {
-        const boomRay = new THREE.Raycaster(focusPoint, camDir, 0.8, desiredDist);
-        const hits = boomRay.intersectObjects(worldGroup.children, true);
-        for (let i = 0; i < hits.length; i++) {
-          const h = hits[i];
-          if (h.point.y < 0.6) continue;
-          let p = h.object;
-          let isIgnored = false;
-          while (p) {
-            if (p === playerGroup) { isIgnored = true; break; }
-            p = p.parent;
-          }
-          if (isIgnored) continue;
-
-          if (h.distance < allowedDist) {
-            allowedDist = Math.max(MIN_CAM_DIST, h.distance - 0.5);
+        const colliders = (currentWorldTheme === 'retro') ? RETRO_COLLIDERS : STREET_COLLIDERS;
+        if (state.location === 'street' && colliders) {
+          const bRay = new THREE.Ray(focusPoint, camDir);
+          const hitPt = new THREE.Vector3();
+          for (let i = 0; i < colliders.length; i++) {
+            const col = colliders[i];
+            if (col.type === 'box') {
+              const box = new THREE.Box3(
+                new THREE.Vector3(col.minX, 0, col.minZ),
+                new THREE.Vector3(col.maxX, 25, col.maxZ)
+              );
+              if (bRay.intersectBox(box, hitPt)) {
+                const d = focusPoint.distanceTo(hitPt);
+                if (d < allowedDist) {
+                  allowedDist = Math.max(MIN_CAM_DIST, d - 0.5);
+                }
+              }
+            }
           }
         }
       }
@@ -5219,64 +5694,108 @@
       }
       camera.position.y = Math.max(1.6, camera.position.y);
 
-      camera.lookAt(focusPoint.clone().add(shakeOffset));
-
-      // 3. WALL OCCLUSION FADE: If any wall remains between camera & player, turn it semi-transparent!
-      updateWallOcclusion(focusPoint);
+      if (isRangedWeapon) {
+        // Third-Person Shooter: Camera looks forward along sightline into crosshair target
+        const aimDirVec = new THREE.Vector3(
+          -Math.sin(cameraYaw) * Math.cos(cameraPitch * 0.65),
+          -Math.sin(cameraPitch * 0.65),
+          -Math.cos(cameraYaw) * Math.cos(cameraPitch * 0.65)
+        );
+        const lookTarget = camera.position.clone().addScaledVector(aimDirVec, 60.0).add(shakeOffset);
+        camera.lookAt(lookTarget);
+      } else {
+        camera.lookAt(focusPoint.clone().add(shakeOffset));
+      }
 
       checkTriggers();
       checkNearbyInteractables();
 
-      // Target Lock Reticle HUD
-      const lockedEnemy = getLockedEnemy();
-      const lockRing = document.getElementById('lock-ring');
-      const lockTag = document.getElementById('lock-target-tag');
+      // Tactical Crosshair HUD Feedback & Target Lock (Cached DOM references)
+      if (!window._cachedHUD) {
+        window._cachedHUD = {
+          crosshairContainer: document.getElementById('crosshair-container'),
+          crosshairDot: document.querySelector('.crosshair-dot'),
+          lockRing: document.getElementById('lock-ring'),
+          lockTag: document.getElementById('lock-target-tag')
+        };
+      }
+      const { crosshairContainer, crosshairDot, lockRing, lockTag } = window._cachedHUD;
+
+      if (crosshairContainer) {
+        if (document.pointerLockElement !== canvas && lastMouseX > 0 && lastMouseY > 0) {
+          crosshairContainer.style.left = `${lastMouseX}px`;
+          crosshairContainer.style.top = `${lastMouseY}px`;
+        } else {
+          crosshairContainer.style.left = '50%';
+          crosshairContainer.style.top = '50%';
+        }
+      }
+
+      let targetedEnemy = getLockedEnemy();
+      let onEnemy = false;
+      let aimRay = null;
+
+      if (document.pointerLockElement !== canvas && lastMouseX > 0 && lastMouseY > 0) {
+        const mouseNDC = new THREE.Vector2(
+          (lastMouseX / window.innerWidth) * 2 - 1,
+          -(lastMouseY / window.innerHeight) * 2 + 1
+        );
+        aimRay = new THREE.Ray();
+        aimRay.origin.copy(camera.position);
+        aimRay.direction.set(mouseNDC.x, mouseNDC.y, 0.5).unproject(camera).sub(camera.position).normalize();
+      } else {
+        const aimDir = new THREE.Vector3();
+        camera.getWorldDirection(aimDir);
+        aimRay = new THREE.Ray(camera.position, aimDir);
+      }
+
+      for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        if (e.hp <= 0 || !e.mesh) continue;
+        const eCenter = e.mesh.position.clone().add(new THREE.Vector3(0, e.type === 'titan' ? 3.5 : 1.5, 0));
+        const toEnemy = eCenter.clone().sub(aimRay.origin);
+        const forwardDist = toEnemy.dot(aimRay.direction);
+
+        if (forwardDist > 1.2 && forwardDist < 90.0) {
+          const closestRayPt = aimRay.origin.clone().addScaledVector(aimRay.direction, forwardDist);
+          const lateralOffset = closestRayPt.distanceTo(eCenter);
+          const maxMagnetRadius = (e.type === 'titan' ? 8.5 : 6.5) + (forwardDist * 0.12);
+
+          if (lateralOffset <= maxMagnetRadius) {
+            onEnemy = true;
+            if (!targetedEnemy) targetedEnemy = e;
+            break;
+          }
+        }
+      }
+
       if (lockRing && lockTag) {
-        if (lockedEnemy) {
+        if (targetedEnemy) {
           lockRing.classList.add('active');
-          const dist = Math.round(playerGroup.position.distanceTo(lockedEnemy.mesh.position));
-          lockTag.textContent = `LOCKED: ${dist}m`;
+          const dist = Math.round(playerGroup.position.distanceTo(targetedEnemy.mesh.position));
+          const name = targetedEnemy.buildingId ? 'GUARDIAN' : (targetedEnemy.type === 'titan' ? 'TITAN' : 'SKIMMER');
+          lockTag.textContent = `🎯 ${name}: ${dist}m`;
         } else {
           lockRing.classList.remove('active');
         }
       }
+
+      if (crosshairDot) {
+        if (onEnemy || targetedEnemy) {
+          crosshairDot.style.background = '#ef4444';
+          crosshairDot.style.boxShadow = '0 0 16px #ef4444, 0 0 6px #ffffff';
+          crosshairDot.style.transform = 'scale(1.5)';
+        } else {
+          crosshairDot.style.background = '#38bdf8';
+          crosshairDot.style.boxShadow = '0 0 10px #06b6d4, 0 0 4px #ffffff';
+          crosshairDot.style.transform = 'scale(1.0)';
+        }
+      }
     }
 
-    // Dynamic see-through ghost wall occlusion system
-    const fadedWallMeshes = [];
+    // Dynamic see-through ghost wall occlusion system (Disabled: Boom collision prevents occlusion with zero lag)
     function updateWallOcclusion(focusPoint) {
-      // Restore previously faded walls
-      for (let i = 0; i < fadedWallMeshes.length; i++) {
-        const m = fadedWallMeshes[i];
-        if (m && m.material) {
-          m.material.opacity = 1.0;
-        }
-      }
-      fadedWallMeshes.length = 0;
-
-      const toPlayer = focusPoint.clone().sub(camera.position);
-      const distToPlayer = toPlayer.length();
-      if (distToPlayer <= 0.8) return;
-
-      const occRay = new THREE.Raycaster(camera.position, toPlayer.clone().normalize(), 0.1, distToPlayer - 0.35);
-      const occHits = occRay.intersectObjects(worldGroup.children, true);
-
-      for (let i = 0; i < occHits.length; i++) {
-        const hit = occHits[i];
-        if (hit.object && hit.object.material && hit.point.y > 0.6) {
-          let isPlayerPart = false;
-          let p = hit.object;
-          while (p) {
-            if (p === playerGroup) { isPlayerPart = true; break; }
-            p = p.parent;
-          }
-          if (!isPlayerPart) {
-            hit.object.material.transparent = true;
-            hit.object.material.opacity = 0.22; // 78% see-through glass!
-            fadedWallMeshes.push(hit.object);
-          }
-        }
-      }
+      // No-op for optimal 60 FPS performance
     }
 
     // ================= 14. SCENE TRANSITIONS & TRIGGERS =================
@@ -5368,11 +5887,23 @@
       const pz = playerGroup.position.z;
 
       if (state.location === 'street') {
-        if (playerGroup.position.distanceTo(new THREE.Vector3(0, 0, -22)) < 6.5) {
-          const cashTitle = (currentWorldTheme === 'retro') 
-            ? '💰 [E] Access Federal Cashout Terminal & Depot' 
-            : '🏛️ [E] Access Royal Treasury Cashout Vault';
-          found = { text: cashTitle, action: () => openCashoutModal() };
+        const cashGuards = getLivingBuildingGuards('cashout');
+        if (playerGroup.position.distanceTo(new THREE.Vector3(0, 0, -22)) < 8.0) {
+          if (cashGuards.length > 0) {
+            found = {
+              text: `⚔️ [LOCKED] Eliminate ${cashGuards.length} Vault Guardian${cashGuards.length > 1 ? 's' : ''} to Access!`,
+              action: () => {
+                sound.playBuzzer();
+                showFloatingText(`🛡️ VAULT LOCKDOWN: Destroy the ${cashGuards.length} Guardian Mechs first!`, '#f43f5e');
+                triggerScreenShake(0.2);
+              }
+            };
+          } else {
+            const cashTitle = (currentWorldTheme === 'retro') 
+              ? '💰 [E] Access Federal Cashout Terminal & Depot' 
+              : '🏛️ [E] Access Royal Treasury Cashout Vault';
+            found = { text: cashTitle, action: () => openCashoutModal() };
+          }
         }
 
         for (const tid in TOWERS) {
@@ -5380,18 +5911,34 @@
           const b = t.bouncer;
           const distBouncer = playerGroup.position.distanceTo(new THREE.Vector3(b.pos.x, 0, b.pos.z));
           const distDoor = playerGroup.position.distanceTo(new THREE.Vector3(t.doorPos.x, 0, t.doorPos.z));
+          const guards = getLivingBuildingGuards(tid);
 
-          if (distBouncer < 5.5) {
-            found = { text: `[E] Talk to ${b.name}`, action: () => openBouncerModal(t) };
-            break;
-          } else if (distDoor < 5.5) {
-            const hubName = (currentWorldTheme === 'retro') ? (t.retroName || t.name) : t.name;
-            if (state.passedScreeners.includes(tid)) {
-              found = { text: `[E] Enter ${hubName} Executive Lobby`, action: () => switchScene('lobby', tid, 0, 24) };
+          if (distBouncer < 8.0 || distDoor < 8.0) {
+            if (guards.length > 0) {
+              const hubName = (currentWorldTheme === 'retro') ? (t.retroName || t.name) : t.name;
+              found = {
+                text: `⚔️ [LOCKED] Eliminate ${guards.length} Gate Guardian${guards.length > 1 ? 's' : ''} to Enter!`,
+                action: () => {
+                  sound.playBuzzer();
+                  showFloatingText(`🛡️ PERIMETER LOCKDOWN: Defeat the ${guards.length} Guardian Mechs guarding ${hubName}!`, '#f43f5e');
+                  triggerScreenShake(0.2);
+                }
+              };
+              break;
             } else {
-              found = { text: `[E] Speak to ${b.name} for Access`, action: () => openBouncerModal(t) };
+              const hubName = (currentWorldTheme === 'retro') ? (t.retroName || t.name) : t.name;
+              if (distBouncer < 7.0) {
+                found = { text: `[E] Talk to ${b.name}`, action: () => openBouncerModal(t) };
+                break;
+              } else if (distDoor < 7.0) {
+                if (state.passedScreeners.includes(tid)) {
+                  found = { text: `[E] Enter ${hubName} Executive Lobby`, action: () => switchScene('lobby', tid, 0, 24) };
+                } else {
+                  found = { text: `[E] Speak to ${b.name} for Access`, action: () => openBouncerModal(t) };
+                }
+                break;
+              }
             }
-            break;
           }
         }
       } else if (state.location === 'lobby') {
@@ -6040,24 +6587,67 @@
         }
       }
 
-      // Update Plasma Carbine Projectiles (100% Magnetic Homing)
+      // Update Plasma Carbine Projectiles (Generous Smart Magnetism & Swept Hit Detection)
       for (let i = projectiles.length - 1; i >= 0; i--) {
         const p = projectiles[i];
+        const oldPos = p.mesh.position.clone();
 
-        if (p.targetEnemy && p.targetEnemy.hp > 0) {
-          const toTarget = p.targetEnemy.mesh.position.clone().add(new THREE.Vector3(0, 3.5, 0)).sub(p.mesh.position).normalize();
-          p.velocity.lerp(toTarget.multiplyScalar(2.4), 0.22);
+        // Soft in-flight magnetism to guarantee crisp, satisfying hits
+        for (let eIdx = 0; eIdx < enemies.length; eIdx++) {
+          const enemy = enemies[eIdx];
+          if (enemy.hp <= 0 || !enemy.mesh) continue;
+          const enemyCenter = enemy.mesh.position.clone().add(new THREE.Vector3(0, enemy.type === 'titan' ? 3.5 : 1.5, 0));
+          const toEnemyVec = enemyCenter.clone().sub(p.mesh.position);
+          const distToEnemy = toEnemyVec.length();
+          if (distToEnemy < 8.5 && distToEnemy > 0.5) {
+            const desiredDir = toEnemyVec.normalize();
+            if (p.velocity.clone().normalize().dot(desiredDir) > 0.45) {
+              const curSpeed = p.velocity.length();
+              p.velocity.lerp(desiredDir.multiplyScalar(curSpeed), 0.18);
+              p.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), p.velocity.clone().normalize());
+              break;
+            }
+          }
         }
 
         p.mesh.position.add(p.velocity);
         p.life++;
 
-        enemies.forEach((enemy) => {
-          if (p.mesh.position.distanceTo(enemy.mesh.position) < 3.2) {
-            damageEnemy(enemy, p.dmg, false);
-            p.life = p.maxLife;
+        let hitEnemy = null;
+        for (let eIdx = 0; eIdx < enemies.length; eIdx++) {
+          const enemy = enemies[eIdx];
+          if (enemy.hp <= 0) continue;
+
+          // Swept-segment collision check to guarantee 100% reliable hit detection at high speed
+          const enemyCenter = enemy.mesh.position.clone().add(new THREE.Vector3(0, enemy.type === 'titan' ? 3.5 : 1.5, 0));
+          const toEnemy = enemyCenter.clone().sub(oldPos);
+          const seg = p.velocity;
+          const segLenSq = seg.lengthSq();
+          const t = Math.max(0, Math.min(1, toEnemy.dot(seg) / segLenSq));
+          const closestPoint = oldPos.clone().addScaledVector(seg, t);
+          const dist = closestPoint.distanceTo(enemyCenter);
+
+          const hitRadius = enemy.type === 'titan' ? 6.0 : 4.4;
+          if (dist < hitRadius) {
+            hitEnemy = enemy;
+            break;
           }
-        });
+        }
+
+        if (hitEnemy) {
+          damageEnemy(hitEnemy, p.dmg, false);
+          spawnHitSparks(p.mesh.position, 0x06b6d4);
+          scene.remove(p.mesh);
+          projectiles.splice(i, 1);
+          continue;
+        }
+
+        if (p.mesh.position.y <= 0.1) {
+          spawnHitSparks(p.mesh.position, 0x38bdf8);
+          scene.remove(p.mesh);
+          projectiles.splice(i, 1);
+          continue;
+        }
 
         if (p.life >= p.maxLife) {
           scene.remove(p.mesh);
@@ -6096,21 +6686,8 @@
         }
       }
 
-      // Check if player is within Citadel Guild Sanctuary (near guards or treasury)
-      let inSanctuary = false;
-      if (state.location === 'street') {
-        for (const tid in TOWERS) {
-          const bp = TOWERS[tid].bouncer.pos;
-          if (Math.hypot(playerGroup.position.x - bp.x, playerGroup.position.z - bp.z) < 14) {
-            inSanctuary = true;
-            break;
-          }
-        }
-        // Sanctuary near campsite depot & bonfire
-        if (Math.hypot(playerGroup.position.x, playerGroup.position.z - (-20)) < 16) {
-          inSanctuary = true;
-        }
-      }
+      // Sanctuary protection: Active only during initial spawn/respawn shield, NOT around buildings!
+      let inSanctuary = respawnShieldTimer > 0;
 
       // Update Nano-Shield Invulnerability Sphere
       if (respawnShieldTimer > 0) {
@@ -6136,6 +6713,7 @@
       // Update Enemy Mechs AI & Walking Animations
       enemies.forEach((enemy) => {
         const dist = enemy.mesh.position.distanceTo(playerGroup.position);
+        const distToSpawn = Math.hypot(enemy.mesh.position.x - (enemy.spawnX || 0), enemy.mesh.position.z - (enemy.spawnZ || 0));
 
         if (enemy.hitFlashTime > 0) enemy.hitFlashTime--;
         if (enemy.stunTimer > 0) {
@@ -6143,63 +6721,104 @@
           return; // Flinch / stunned on hit!
         }
 
-        if (enemy.type === 'titan') {
-          if (dist < 26 && dist > 3.5 && !isModalOpen() && !inSanctuary && !isDead) {
-            enemy.walkCycle += 0.16;
-            enemy.leftLeg.rotation.x = Math.sin(enemy.walkCycle) * 0.7;
-            enemy.rightLeg.rotation.x = -Math.sin(enemy.walkCycle) * 0.7;
+        // AGGRO & RANGE SYSTEM:
+        // Building guardians have 18m detection to aggressively protect their entrance!
+        const isGuardian = !!enemy.buildingId;
+        const aggroDist = isGuardian ? 18.0 : (enemy.type === 'titan' ? 14.0 : 16.0);
+        const leashDist = isGuardian ? 28.0 : 26.0;
 
-            const dir = playerGroup.position.clone().sub(enemy.mesh.position).normalize();
-            enemy.mesh.position.add(dir.multiplyScalar(enemy.speed));
-            enemy.mesh.lookAt(playerGroup.position.clone().setY(enemy.mesh.position.y));
-
-            enemy.gunArm.rotation.z += 0.25;
-          } else {
-            enemy.leftLeg.rotation.x = 0;
-            enemy.rightLeg.rotation.x = 0;
+        if (!enemy.isAggro) {
+          if (dist <= aggroDist && !isModalOpen() && !inSanctuary && !isDead) {
+            enemy.isAggro = true;
           }
+        } else {
+          if (dist > leashDist || isDead || inSanctuary || isModalOpen()) {
+            enemy.isAggro = false;
+          }
+        }
 
-          if (dist <= 3.8 && !isModalOpen() && !inSanctuary && !isDashing && !isDead && respawnShieldTimer <= 0 && playerGroup.position.y < 2.0) {
-            enemy.attackTimer++;
-            if (enemy.attackTimer > 50) {
-              enemy.attackTimer = 0;
-              sound.playPunch(0.9);
-              state.hp = Math.max(0, state.hp - 16);
-              updateHUD();
+        if (enemy.isAggro) {
+          // COMBAT CHASE & ATTACK
+          if (enemy.type === 'titan') {
+            if (dist > 3.5) {
+              enemy.walkCycle += 0.16;
+              enemy.leftLeg.rotation.x = Math.sin(enemy.walkCycle) * 0.7;
+              enemy.rightLeg.rotation.x = -Math.sin(enemy.walkCycle) * 0.7;
 
-              const flash = document.getElementById('damage-flash');
-              flash.style.opacity = '1';
-              setTimeout(() => flash.style.opacity = '0', 120);
+              const dir = playerGroup.position.clone().sub(enemy.mesh.position).normalize();
+              enemy.mesh.position.add(dir.multiplyScalar(enemy.speed));
+              enemy.mesh.lookAt(playerGroup.position.clone().setY(enemy.mesh.position.y));
+              enemy.gunArm.rotation.z += 0.25;
+            } else {
+              enemy.leftLeg.rotation.x = 0;
+              enemy.rightLeg.rotation.x = 0;
+            }
 
-              if (state.hp <= 0) {
-                triggerPlayerDeath();
+            if (dist <= 3.8 && !isDashing && respawnShieldTimer <= 0 && playerGroup.position.y < 2.0) {
+              enemy.attackTimer++;
+              if (enemy.attackTimer > 50) {
+                enemy.attackTimer = 0;
+                sound.playPunch(0.9);
+                state.hp = Math.max(0, state.hp - 16);
+                updateHUD();
+
+                const flash = document.getElementById('damage-flash');
+                flash.style.opacity = '1';
+                setTimeout(() => flash.style.opacity = '0', 120);
+
+                if (state.hp <= 0) {
+                  triggerPlayerDeath();
+                }
+              }
+            }
+          } else if (enemy.type === 'skimmer') {
+            enemy.mesh.position.y = 4.0 + Math.sin(Date.now() * 0.005 + enemy.mesh.position.x) * 0.4;
+
+            if (dist > 4.5) {
+              const dir = playerGroup.position.clone().sub(enemy.mesh.position).normalize();
+              enemy.mesh.position.add(dir.multiplyScalar(enemy.speed));
+              enemy.mesh.lookAt(playerGroup.position.clone().setY(enemy.mesh.position.y));
+            }
+
+            if (dist <= 16 && !isDashing && respawnShieldTimer <= 0) {
+              enemy.attackTimer++;
+              if (enemy.attackTimer > 65) {
+                enemy.attackTimer = 0;
+                sound.playLaser(0.85);
+                state.hp = Math.max(0, state.hp - 12);
+                updateHUD();
+
+                const flash = document.getElementById('damage-flash');
+                flash.style.opacity = '1';
+                setTimeout(() => flash.style.opacity = '0', 120);
+
+                if (state.hp <= 0) {
+                  triggerPlayerDeath();
+                }
               }
             }
           }
-        } else if (enemy.type === 'skimmer') {
-          enemy.mesh.position.y = 4.0 + Math.sin(Date.now() * 0.005 + enemy.mesh.position.x) * 0.4;
-
-          if (dist < 28 && dist > 4.5 && !isModalOpen() && !inSanctuary && !isDead) {
-            const dir = playerGroup.position.clone().sub(enemy.mesh.position).normalize();
-            enemy.mesh.position.add(dir.multiplyScalar(enemy.speed));
-            enemy.mesh.lookAt(playerGroup.position.clone().setY(enemy.mesh.position.y));
-          }
-
-          if (dist <= 18 && !isModalOpen() && !inSanctuary && !isDashing && !isDead && respawnShieldTimer <= 0) {
-            enemy.attackTimer++;
-            if (enemy.attackTimer > 65) {
-              enemy.attackTimer = 0;
-              sound.playLaser(0.85);
-              state.hp = Math.max(0, state.hp - 12);
-              updateHUD();
-
-              const flash = document.getElementById('damage-flash');
-              flash.style.opacity = '1';
-              setTimeout(() => flash.style.opacity = '0', 120);
-
-              if (state.hp <= 0) {
-                triggerPlayerDeath();
-              }
+        } else {
+          // IDLE / PATROL RETREAT MODE
+          // If drawn away from home post, return home; otherwise gentle scanning idle
+          if (distToSpawn > 2.0 && enemy.spawnX !== undefined) {
+            const homeTarget = new THREE.Vector3(enemy.spawnX, enemy.mesh.position.y, enemy.spawnZ);
+            const dir = homeTarget.clone().sub(enemy.mesh.position).normalize();
+            enemy.mesh.position.add(dir.multiplyScalar(enemy.speed * 0.65));
+            enemy.mesh.lookAt(homeTarget);
+            if (enemy.type === 'titan') {
+              enemy.walkCycle += 0.10;
+              enemy.leftLeg.rotation.x = Math.sin(enemy.walkCycle) * 0.45;
+              enemy.rightLeg.rotation.x = -Math.sin(enemy.walkCycle) * 0.45;
+            }
+          } else {
+            if (enemy.type === 'titan') {
+              enemy.leftLeg.rotation.x = 0;
+              enemy.rightLeg.rotation.x = 0;
+              enemy.mesh.rotation.y += 0.008;
+            } else if (enemy.type === 'skimmer') {
+              enemy.mesh.position.y = 4.0 + Math.sin(Date.now() * 0.003 + (enemy.spawnX || 0)) * 0.3;
+              enemy.mesh.rotation.y += 0.012;
             }
           }
         }
@@ -6209,6 +6828,11 @@
       if (state.hp < state.maxHp && !isDead && Math.random() < 0.015) {
         state.hp = Math.min(state.maxHp, state.hp + 1);
         updateHUD();
+      }
+
+      // Keep sunLight centered near player
+      if (sunLight && playerGroup) {
+        sunLight.position.set(playerGroup.position.x + 35, 60, playerGroup.position.z + 25);
       }
 
       renderer.render(scene, camera);
