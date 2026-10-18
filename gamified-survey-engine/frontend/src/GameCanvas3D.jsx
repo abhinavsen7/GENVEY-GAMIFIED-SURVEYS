@@ -2081,6 +2081,8 @@ const GameCanvas3D = forwardRef(({
         camOffset.set(0, 14.5, 11.5);
       } else if (s.gameMode === 'IMMERSIVE_SIM') {
         camOffset.set(0, 4.8, 6.4);
+      } else if (camMode === 'THIRD_PERSON_SHOULDER' || s.gameMode === 'SOULSLIKE_ACTION' || s.gameMode === 'DARK_SOULS_ACTION') {
+        camOffset.set(0.4, 2.3, 4.5);
       }
       const desiredCamPos = s.playerPos.clone().add(camOffset);
       if (s.shakeIntensity > 0.01) {
@@ -2089,7 +2091,11 @@ const GameCanvas3D = forwardRef(({
         s.shakeIntensity *= 0.85;
       }
       camera.position.lerp(desiredCamPos, 0.12);
-      camera.lookAt(s.playerPos.x, s.playerPos.y + 1.4, s.playerPos.z - 1.2);
+      if (camMode === 'THIRD_PERSON_SHOULDER' || s.gameMode === 'SOULSLIKE_ACTION' || s.gameMode === 'DARK_SOULS_ACTION') {
+        camera.lookAt(s.playerPos.x, s.playerPos.y + 1.25, s.playerPos.z - 3.2);
+      } else {
+        camera.lookAt(s.playerPos.x, s.playerPos.y + 1.4, s.playerPos.z - 1.2);
+      }
 
       composer.render();
     };
