@@ -413,6 +413,13 @@ async def health_check():
     }
 
 
+@app.get("/api/amd/status")
+@app.post("/api/amd/ping")
+async def get_amd_status():
+    status = await amd_client.check_health()
+    return status
+
+
 # Mount built React single-page application for production / container deployment
 FRONTEND_DIST = REPO_ROOT / "frontend" / "dist"
 if FRONTEND_DIST.exists():

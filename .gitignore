@@ -33,6 +33,9 @@ __pycache__/
 backend/storage/trend_vectordb/
 **/.glb_inspection_cache.json
 .glb_inspection_cache.json
+**/backend/storage/configs/*.json
+!**/backend/storage/configs/.gitkeep
+**/godot_kernel/scenes/compiled_config.json
 
 # Environment variables & secrets
 .env

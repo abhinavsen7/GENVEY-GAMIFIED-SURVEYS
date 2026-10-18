@@ -52,6 +52,65 @@ class AMDTokenFactoryClient:
             "has_key": bool(self.api_key)
         }
 
+    async def check_health(self) -> dict:
+        import time
+        if not self.api_key:
+            return {
+                "connected": False,
+                "status": "missing_api_key",
+                "error": "No AMD_API_KEY set in environment",
+                "base_url": self.base_url,
+                "model": self.text_model,
+                "latency_ms": 0.0,
+                "zero_local_vram": True
+            }
+
+        t0 = time.perf_counter()
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+        try:
+            timeout = httpx.Timeout(connect=6.0, read=10.0, write=6.0, pool=6.0)
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                resp = await client.get(f"{self.base_url}/models", headers=headers)
+                latency = round((time.perf_counter() - t0) * 1000, 1)
+                if resp.status_code == 200:
+                    data = resp.json().get("data", [])
+                    model_ids = [m.get("id", "") for m in data if m.get("id")]
+                    if model_ids:
+                        gemma_models = [m for m in model_ids if "gemma" in m.lower()]
+                        if gemma_models:
+                            self.text_model = gemma_models[0]
+                    return {
+                        "connected": True,
+                        "status": "online",
+                        "base_url": self.base_url,
+                        "model": self.text_model,
+                        "vision_model": self.vision_model,
+                        "latency_ms": latency,
+                        "models_available": model_ids[:10],
+                        "zero_local_vram": True
+                    }
+                else:
+                    return {
+                        "connected": False,
+                        "status": f"http_{resp.status_code}",
+                        "error": resp.text[:200],
+                        "base_url": self.base_url,
+                        "model": self.text_model,
+                        "latency_ms": latency,
+                        "zero_local_vram": True
+                    }
+        except Exception as e:
+            latency = round((time.perf_counter() - t0) * 1000, 1)
+            return {
+                "connected": False,
+                "status": "unreachable",
+                "error": str(e),
+                "base_url": self.base_url,
+                "model": self.text_model,
+                "latency_ms": latency,
+                "zero_local_vram": True
+            }
+
     async def discover_models(self):
         """Auto-detects available Gemma 4 or fallback models on the user's AMD Token Factory endpoint."""
         if self._models_discovered or not self.api_key:

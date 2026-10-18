@@ -113,20 +113,41 @@ export default function GameCanvas2D({
     const ctx = canvas.getContext('2d');
 
     const spritesCfg = compiledGame?.sprites_2d_config || {};
-    const imgTile = new Image();
-    imgTile.src = spritesCfg.tileset_ground_url || '/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/environment/ground_stone1.png';
 
-    const imgWarriorIdle = new Image();
-    imgWarriorIdle.src = spritesCfg.isometric_warrior?.idle || '/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/playable character/warrior/warrior_armed_idle/S/warrior_armed_idle_S_180.0_0.png';
+    const imgFloor = new Image();
+    imgFloor.src = spritesCfg.tileset_ground_url || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/floor_1.png';
 
-    const imgWarriorAttack = new Image();
-    imgWarriorAttack.src = spritesCfg.isometric_warrior?.attack1 || '/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/playable character/warrior/warrior_armed_attack1/S/warrior_armed_attack1_S_180.0_0.png';
+    const imgWall = new Image();
+    imgWall.src = spritesCfg.tileset_wall_url || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wall_mid.png';
 
-    const imgSkelIdle = new Image();
-    imgSkelIdle.src = spritesCfg.isometric_skeleton?.idle || '/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/enemy/skeleton/skeleton_default_idle/S/skeleton_default_idle_S_180.0_0.png';
+    const imgChest = new Image();
+    imgChest.src = spritesCfg.chest_url || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/chest_full_open_anim_f0.png';
 
-    const imgGold = new Image();
-    imgGold.src = spritesCfg.gold_prop_url || '/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/prop/gold_drop/gold_drop_0.png';
+    const imgPotion = new Image();
+    imgPotion.src = spritesCfg.potion_url || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/flask_big_red.png';
+
+    const imgSword = new Image();
+    imgSword.src = spritesCfg.weapons_2d?.sword || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_knight_sword.png';
+
+    // 4-frame Animated Sprite arrays from 0x72_DungeonTileset_II
+    const knightIdleUrls = spritesCfg.hero_knight?.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_idle_anim_f${i}.png`);
+    const knightRunUrls = spritesCfg.hero_knight?.run || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_run_anim_f${i}.png`);
+    const knightIdleImgs = knightIdleUrls.map(url => { const img = new Image(); img.src = url; return img; });
+    const knightRunImgs = knightRunUrls.map(url => { const img = new Image(); img.src = url; return img; });
+    const knightHitImg = new Image();
+    knightHitImg.src = spritesCfg.hero_knight?.hit || '/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_hit_anim_f0.png';
+
+    const skelIdleUrls = spritesCfg.enemy_skeleton?.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/skelet_idle_anim_f${i}.png`);
+    const skelIdleImgs = skelIdleUrls.map(url => { const img = new Image(); img.src = url; return img; });
+
+    const demonBossUrls = spritesCfg.enemy_boss_demon?.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_demon_idle_anim_f${i}.png`);
+    const demonBossImgs = demonBossUrls.map(url => { const img = new Image(); img.src = url; return img; });
+
+    const npcUrls = spritesCfg.npc_envoy?.idle || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_f_idle_anim_f${i}.png`);
+    const npcImgs = npcUrls.map(url => { const img = new Image(); img.src = url; return img; });
+
+    const coinUrls = spritesCfg.coin_frames || [0, 1, 2, 3].map(i => `/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/coin_anim_f${i}.png`);
+    const coinImgs = coinUrls.map(url => { const img = new Image(); img.src = url; return img; });
 
     const onKeyDown = (e) => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
@@ -250,47 +271,55 @@ export default function GameCanvas2D({
         rt.props[rt.grabbedPropIdx].y = rt.py + 12;
       }
 
-      // Draw 2D Isometric / Top-Down Floor Arena
+      // Draw 2D Retro Dungeon Floor Arena (0x72 DungeonTileset II)
+      ctx.imageSmoothingEnabled = false;
       ctx.fillStyle = rt.torchesLit ? '#090d16' : '#04060b';
       ctx.fillRect(0, 0, w, h);
 
-      // Draw tiled stone floor using Lords Of Pain 2D tile texture
       const arenaLeft = 90;
       const arenaTop = 80;
       const arenaW = w - 180;
       const arenaH = h - 160;
+      const frame = Math.floor((now / 150) % 4);
 
       ctx.save();
       ctx.beginPath();
-      ctx.roundRect(arenaLeft, arenaTop, arenaW, arenaH, 16);
+      ctx.roundRect(arenaLeft, arenaTop, arenaW, arenaH, 12);
       ctx.clip();
 
-      if (imgTile.complete && imgTile.naturalWidth > 0) {
-        for (let tx = arenaLeft; tx < arenaLeft + arenaW; tx += 128) {
-          for (let ty = arenaTop; ty < arenaTop + arenaH; ty += 128) {
-            ctx.globalAlpha = rt.torchesLit ? 0.55 : 0.22;
-            ctx.drawImage(imgTile, tx, ty, 128, 128);
+      if (imgFloor.complete && imgFloor.naturalWidth > 0) {
+        for (let tx = arenaLeft; tx < arenaLeft + arenaW; tx += 48) {
+          for (let ty = arenaTop; ty < arenaTop + arenaH; ty += 48) {
+            ctx.globalAlpha = rt.torchesLit ? 0.72 : 0.32;
+            ctx.drawImage(imgFloor, tx, ty, 48, 48);
           }
         }
       }
       ctx.globalAlpha = 1.0;
 
-      // Subtle isometric tactical grid
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.10)';
+      // Subtle dungeon tactical grid
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
       ctx.lineWidth = 1;
-      for (let gx = arenaLeft; gx < arenaLeft + arenaW; gx += 64) {
+      for (let gx = arenaLeft; gx < arenaLeft + arenaW; gx += 48) {
         ctx.beginPath();
         ctx.moveTo(gx, arenaTop);
         ctx.lineTo(gx, arenaTop + arenaH);
         ctx.stroke();
       }
-      for (let gy = arenaTop; gy < arenaTop + arenaH; gy += 64) {
+      for (let gy = arenaTop; gy < arenaTop + arenaH; gy += 48) {
         ctx.beginPath();
         ctx.moveTo(arenaLeft, gy);
         ctx.lineTo(arenaLeft + arenaW, gy);
         ctx.stroke();
       }
       ctx.restore();
+
+      // Top Wall Trim from 0x72
+      if (imgWall.complete && imgWall.naturalWidth > 0) {
+        for (let wx = arenaLeft; wx < arenaLeft + arenaW; wx += 48) {
+          ctx.drawImage(imgWall, wx, arenaTop - 28, 48, 48);
+        }
+      }
 
       // Arena Border & North Gate Portal
       ctx.strokeStyle = '#334155';
@@ -320,7 +349,7 @@ export default function GameCanvas2D({
         setActiveRoomIdx(prev => Math.min(rooms.length - 1, prev + 1));
       }
 
-      // Draw Interactive 2D Props
+      // Draw Interactive 2D Props (Chests, Coins, Potions)
       rt.props.forEach((p) => {
         if (p.exploded) return;
         ctx.save();
@@ -332,9 +361,22 @@ export default function GameCanvas2D({
         ctx.arc(0, 0, 24, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
-        if (imgGold.complete && imgGold.naturalWidth > 0) {
-          ctx.drawImage(imgGold, -24, -24, 48, 48);
+
+        if (p.tag === 'loot_shrine') {
+          if (imgChest.complete && imgChest.naturalWidth > 0) {
+            ctx.drawImage(imgChest, -24, -24, 48, 48);
+          }
+        } else if (p.tag === 'flammable_barrel') {
+          if (imgPotion.complete && imgPotion.naturalWidth > 0) {
+            ctx.drawImage(imgPotion, -20, -24, 40, 48);
+          }
+        } else {
+          const coinImg = coinImgs[frame];
+          if (coinImg && coinImg.complete && coinImg.naturalWidth > 0) {
+            ctx.drawImage(coinImg, -20, -20, 40, 40);
+          }
         }
+
         ctx.fillStyle = '#f8fafc';
         ctx.font = 'bold 11px Inter, sans-serif';
         ctx.textAlign = 'center';
@@ -342,15 +384,17 @@ export default function GameCanvas2D({
         ctx.restore();
       });
 
-      // Draw Survey NPC with 2D Isometric Sprite
+      // Draw Survey NPC with 0x72 Wizard Sprite
       ctx.save();
       ctx.translate(rt.npc.x, rt.npc.y);
       ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
       ctx.beginPath();
-      ctx.ellipse(0, 22, 26, 12, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 20, 24, 10, 0, 0, Math.PI * 2);
       ctx.fill();
-      if (imgWarriorIdle.complete && imgWarriorIdle.naturalWidth > 0) {
-        ctx.drawImage(imgWarriorIdle, -48, -56, 96, 96);
+
+      const activeNpc = npcImgs[frame];
+      if (activeNpc && activeNpc.complete && activeNpc.naturalWidth > 0) {
+        ctx.drawImage(activeNpc, -32, -48, 64, 64);
       }
       ctx.fillStyle = '#38bdf8';
       ctx.font = 'bold 12px Inter, sans-serif';
@@ -358,7 +402,7 @@ export default function GameCanvas2D({
       ctx.fillText(`💬 ${rt.npc.data.name} [Press E]`, 0, -48);
       ctx.restore();
 
-      // Update & Draw 2D Enemies (Lords Of Pain Isometric Skeletons)
+      // Update & Draw 2D Enemies (0x72 Skeletons & Boss Demon)
       rt.enemies.forEach((en, idx) => {
         if (en.hp <= 0) return;
 
@@ -392,12 +436,13 @@ export default function GameCanvas2D({
         ctx.translate(en.x, en.y);
         ctx.fillStyle = en.isBoss ? 'rgba(168, 85, 247, 0.32)' : 'rgba(239, 68, 68, 0.25)';
         ctx.beginPath();
-        ctx.ellipse(0, 24, en.isBoss ? 36 : 26, 14, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 20, en.isBoss ? 32 : 22, 12, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        const scale = en.isBoss ? 128 : 96;
-        if (imgSkelIdle.complete && imgSkelIdle.naturalWidth > 0) {
-          ctx.drawImage(imgSkelIdle, -scale / 2, -scale / 2 - 10, scale, scale);
+        const activeEnImg = en.isBoss ? demonBossImgs[frame] : skelIdleImgs[frame];
+        const scale = en.isBoss ? 104 : 64;
+        if (activeEnImg && activeEnImg.complete && activeEnImg.naturalWidth > 0) {
+          ctx.drawImage(activeEnImg, -scale / 2, -scale / 2 - 10, scale, scale);
         }
 
         // Lock-On Reticle
@@ -411,18 +456,18 @@ export default function GameCanvas2D({
 
         // Enemy HP Bar
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-36, -54, 72, 7);
+        ctx.fillRect(-36, -50, 72, 7);
         ctx.fillStyle = en.staggerTimer > 0 ? '#facc15' : '#ef4444';
-        ctx.fillRect(-36, -54, 72 * Math.max(0, en.hp / en.maxHp), 7);
+        ctx.fillRect(-36, -50, 72 * Math.max(0, en.hp / en.maxHp), 7);
 
         ctx.fillStyle = '#f8fafc';
         ctx.font = 'bold 11px Inter, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(`${en.isBoss ? '💀 ' : ''}${en.name}`, 0, -60);
+        ctx.fillText(`${en.isBoss ? '💀 ' : ''}${en.name}`, 0, -56);
         ctx.restore();
       });
 
-      // Draw Player 2D Hero Sprite (Lords Of Pain Isometric Warrior + Weapon Aura)
+      // Draw Player 2D Hero Sprite (0x72 Animated Knight + Weapon Aura)
       ctx.save();
       ctx.translate(rt.px, rt.py);
       const auraColor = selectedWeapon?.shader_color_hex || '#f97316';
@@ -430,7 +475,7 @@ export default function GameCanvas2D({
       ctx.strokeStyle = auraColor;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.ellipse(0, 24, 28, 13, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 20, 24, 11, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
@@ -442,11 +487,21 @@ export default function GameCanvas2D({
         ctx.stroke();
       }
 
-      const activeHeroImg = rt.attackTimer > 0 && imgWarriorAttack.complete ? imgWarriorAttack : imgWarriorIdle;
-      if (activeHeroImg.complete && activeHeroImg.naturalWidth > 0) {
+      const isMoving = (rt.keys.w || rt.keys.a || rt.keys.s || rt.keys.d || rt.targetX !== null);
+      let activeHeroImg = knightIdleImgs[frame];
+      if (rt.attackTimer > 0 && knightHitImg.complete) {
+        activeHeroImg = knightHitImg;
+      } else if (isMoving) {
+        activeHeroImg = knightRunImgs[frame];
+      }
+
+      if (activeHeroImg && activeHeroImg.complete && activeHeroImg.naturalWidth > 0) {
         ctx.save();
         ctx.scale(rt.facing, 1);
-        ctx.drawImage(activeHeroImg, -56, -64, 112, 112);
+        ctx.drawImage(activeHeroImg, -36, -50, 72, 72);
+        if (imgSword.complete && imgSword.naturalWidth > 0) {
+          ctx.drawImage(imgSword, 6, -26, 32, 32);
+        }
         ctx.restore();
       }
 

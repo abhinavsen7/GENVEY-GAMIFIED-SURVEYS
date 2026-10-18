@@ -22,9 +22,9 @@ agent_radius = 0.45
 
 [node name="CompiledGameRoot" type="Node3D"]
 script = ExtResource("1_runtime")
-metadata/build_id = "27fcaa08-bbd4-48b1-a611-c1f6cc432f05"
-metadata/campaign_title = "Ashen Covenant of Aetherium Systems"
-metadata/player_asset = "res://assets/custom_asset_packs/characters/Knight.glb"
+metadata/build_id = "222e9f1b-a05b-4a7d-9e53-51bc24a85285"
+metadata/campaign_title = "Enterprise Cloud Migration Survey"
+metadata/player_asset = "res://assets/custom_asset_packs/characters/Rogue.glb"
 metadata/floor_asset = "res://assets/custom_asset_packs/environments/ModularCastle_AssetPack/Floors&Ramps/Floors/Floor_2x2.glb"
 metadata/fog_hex = "#0b0e17"
 

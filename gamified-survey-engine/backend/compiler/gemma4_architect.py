@@ -348,41 +348,70 @@ async def compile_survey_to_game(campaign: SurveyCampaignInput) -> Dict[str, Any
     # 2. Survey Intent Deconstruction & Questions
     survey_questions: List[SurveyQuestion] = []
     if campaign.questions:
-        survey_questions = list(campaign.questions)
+        # Filter out empty or whitespace-only questions
+        survey_questions = [
+            q for q in campaign.questions
+            if q.question_text and q.question_text.strip()
+        ]
 
     if not survey_questions and campaign.survey_intent and campaign.survey_intent.strip():
         s_intent = campaign.survey_intent.strip()
+        intent_lower = s_intent.lower()
+        pricing_matches = re.findall(r"\$(\d+)", s_intent)
+        price_tier_1 = f"${pricing_matches[0]}" if pricing_matches else "$10"
+        price_tier_2 = f"${pricing_matches[1]}" if len(pricing_matches) > 1 else "$2"
+
+        is_pricing_intent = any(k in intent_lower for k in ["$", "dollar", "pay", "price", "tier", "subscription", "pricing", "cost", "free", "upgrade"])
+        is_feature_intent = any(k in intent_lower for k in ["feature", "cosmetic", "status", "utility", "tool", "privacy", "cloud", "local", "speed", "latency"])
+
+        options_q1 = [
+            f"Sovereign Tier ({price_tier_1} - Full Access & Exclusive Status)",
+            f"Essential Micro-Tier ({price_tier_2} - Functional Utility)",
+            f"Free Community Tier ($0 - Baseline Experience)",
+            f"Custom Enterprise Accord (Direct High-Volume Support)"
+        ] if is_pricing_intent else [
+            f"Fast, automated high-throughput workflows",
+            f"Granular manual controls and modularity",
+            f"Zero-latency real-time response",
+            f"Secure self-hosted data isolation"
+        ]
+
         survey_questions = [
             SurveyQuestion(
-                id="q_intent_pricing_choice",
-                question_text=f"Regarding {campaign.company_name}'s proposition ('{s_intent[:70]}'): Which investment tier matches your team?",
-                target_metric="price_sensitivity",
-                options=[
-                    "Sovereign Relic Tier ($10 / mo - Full Feature Access)",
-                    "Adventurer Starter Tier ($2 / mo - Essential Access)",
-                    "Free-to-Play Community Tier ($0 - Basic)",
-                    "Custom Enterprise Accord (Negotiated High-Volume)"
-                ]
+                id="q_intent_primary_tradeoff",
+                question_text=f"Regarding {campaign.company_name}'s proposition ('{s_intent[:85]}'): Which choice best reflects your preference?",
+                target_metric="intent_primary_preference",
+                options=options_q1
             ),
             SurveyQuestion(
-                id="q_intent_critical_feature",
-                question_text=f"When choosing {campaign.company_name}, which primary capability is most crucial?",
-                target_metric="feature_priority",
+                id="q_intent_value_dimension",
+                question_text=f"When evaluating {campaign.company_name}, what factor weighs most in your decision?",
+                target_metric="value_dimension",
                 options=[
-                    "Zero-Latency Accelerated AMD Performance",
-                    "Deep Systemic Customization & Modularity",
-                    "Instant One-Click Deployment",
-                    "Enterprise Security & Data Sovereignty"
+                    "Immediate Utility & Practical Functionality",
+                    "Aesthetic Polish, Exclusivity & Status",
+                    "Predictable Cost & Scalable ROI",
+                    "Reliability & Community Trust"
+                ] if is_feature_intent else [
+                    "Ease of Integration & Time to Value",
+                    "Feature Completeness & Depth",
+                    "Cost vs Output Ratio",
+                    "Security, Compliance & Sovereignty"
                 ]
             )
         ]
     elif not survey_questions:
         survey_questions = [
             SurveyQuestion(
-                id="q_default_1",
-                question_text="When confronted with an uncharted crisis, how do you lead your expedition?",
-                target_metric="strategic_decisiveness",
-                options=["Decisive Vanguard Assault", "Calculated Tactical Overwatch", "Diplomatic Coalition Pact", "Stealth Infiltration & Recon"]
+                id="q_company_strategic_focus",
+                question_text=f"What capability should {campaign.company_name} prioritize to deliver maximum value?",
+                target_metric="strategic_priority",
+                options=[
+                    "High-performance automated intelligence",
+                    "Extensible modular workflows",
+                    "Streamlined friction-free onboarding",
+                    "Enterprise governance and dedicated support"
+                ]
             )
         ]
 
@@ -505,32 +534,51 @@ async def compile_survey_to_game(campaign: SurveyCampaignInput) -> Dict[str, Any
 
     # 2D Sprite & Tileset Bindings from custom_asset_packs/sprites_and_tiles_2d/
     raw_config["sprites_2d_config"] = {
-        "tileset_ground_url": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/environment/ground_stone1.png",
-        "gold_prop_url": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/prop/gold_drop/gold_drop_0.png",
-        "vfx_glint_url": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/vfx/glint/glint_0.png",
-        "loot_indicator_url": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/user interface/loot-indicator/loot-indicator_0.png",
-        "isometric_warrior": {
-            "idle": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/playable character/warrior/warrior_armed_idle/S/warrior_armed_idle_S_180.0_0.png",
-            "walk": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/playable character/warrior/warrior_armed_walk/S/warrior_armed_walk_S_180.0_0.png",
-            "run": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/playable character/warrior/warrior_armed_run/S/warrior_armed_run_S_180.0_0.png",
-            "attack1": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/playable character/warrior/warrior_armed_attack1/S/warrior_armed_attack1_S_180.0_0.png",
-            "attack2": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/playable character/warrior/warrior_armed_attack2/S/warrior_armed_attack2_S_180.0_0.png",
+        "pack_name": "0x72_DungeonTileset_II_and_PixelFrog",
+        "tileset_ground_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/floor_1.png",
+        "tileset_wall_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wall_mid.png",
+        "tileset_wall_left_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wall_left.png",
+        "tileset_wall_right_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wall_right.png",
+        "gold_prop_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/coin_anim_f0.png",
+        "chest_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/chest_full_open_anim_f0.png",
+        "chest_empty_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/chest_empty_open_anim_f0.png",
+        "potion_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/flask_big_red.png",
+        "door_closed_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/doors_leaf_closed.png",
+        "door_open_url": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/doors_leaf_open.png",
+        "hero_knight": {
+            "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_idle_anim_f{i}.png" for i in range(4)],
+            "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_run_anim_f{i}.png" for i in range(4)],
+            "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/knight_m_hit_anim_f0.png",
         },
-        "isometric_skeleton": {
-            "idle": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/enemy/skeleton/skeleton_default_idle/S/skeleton_default_idle_S_180.0_0.png",
-            "walk": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/enemy/skeleton/skeleton_default_walk/S/skeleton_default_walk_S_180.0_0.png",
-            "attack": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/enemy/skeleton/skeleton_default_attack1/S/skeleton_default_attack1_S_180.0_0.png",
-            "death": "/custom_assets/sprites_and_tiles_2d/LordsOfPain_Isometric/(DEMO) Lords Of Pain - Old School Isometric Assets/enemy/skeleton/skeleton_default_death/S/skeleton_default_death_S_180.0_0.png",
+        "hero_wizard": {
+            "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_m_idle_anim_f{i}.png" for i in range(4)],
+            "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_m_run_anim_f{i}.png" for i in range(4)],
+            "hit": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_m_hit_anim_f0.png",
         },
-        "hd_survivor_sheets": {
-            "idle": "/custom_assets/sprites_and_tiles_2d/HD_Survivor_2D/FREE Character HD Survivor W Bike/Idle.png",
-            "run": "/custom_assets/sprites_and_tiles_2d/HD_Survivor_2D/FREE Character HD Survivor W Bike/Run.png",
-            "walk": "/custom_assets/sprites_and_tiles_2d/HD_Survivor_2D/FREE Character HD Survivor W Bike/Walk.png",
-            "attack1": "/custom_assets/sprites_and_tiles_2d/HD_Survivor_2D/FREE Character HD Survivor W Bike/Attack1.png",
-            "attack2": "/custom_assets/sprites_and_tiles_2d/HD_Survivor_2D/FREE Character HD Survivor W Bike/Attack2.png",
-            "ride_run": "/custom_assets/sprites_and_tiles_2d/HD_Survivor_2D/FREE Character HD Survivor W Bike/RideRun.png",
-            "hit": "/custom_assets/sprites_and_tiles_2d/HD_Survivor_2D/FREE Character HD Survivor W Bike/TakeDamage.png",
-            "die": "/custom_assets/sprites_and_tiles_2d/HD_Survivor_2D/FREE Character HD Survivor W Bike/Die.png",
+        "enemy_skeleton": {
+            "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/skelet_idle_anim_f{i}.png" for i in range(4)],
+            "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/skelet_run_anim_f{i}.png" for i in range(4)],
+        },
+        "enemy_boss_demon": {
+            "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_demon_idle_anim_f{i}.png" for i in range(4)],
+            "run": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/big_demon_run_anim_f{i}.png" for i in range(4)],
+        },
+        "npc_envoy": {
+            "idle": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/wizzard_f_idle_anim_f{i}.png" for i in range(4)],
+        },
+        "coin_frames": [f"/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/coin_anim_f{i}.png" for i in range(4)],
+        "weapons_2d": {
+            "sword": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_knight_sword.png",
+            "axe": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_waraxe.png",
+            "staff": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_red_magic_staff.png",
+            "hammer": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_big_hammer.png",
+            "bow": "/custom_assets/sprites_and_tiles_2d/0x72_DungeonTileset_II/weapon_bow.png"
+        },
+        "pixel_frog_terrain": {
+            "grass_url": "/custom_assets/sprites_and_tiles_2d/PixelFrog_Tiny_Swords/Terrain/Ground/Tilemap_Grass.png",
+            "gold_mine_url": "/custom_assets/sprites_and_tiles_2d/PixelFrog_Tiny_Swords/Resources/Gold Mine/GoldMine_Active.png",
+            "tree_url": "/custom_assets/sprites_and_tiles_2d/PixelFrog_Tiny_Swords/Resources/Trees/Tree.png",
+            "pawn_blue_url": "/custom_assets/sprites_and_tiles_2d/PixelFrog_Tiny_Swords/Factions/Knights/Troops/Pawn/Blue/Pawn_Blue.png"
         },
         "indexed_count": len(sprites_2d_reg),
     }

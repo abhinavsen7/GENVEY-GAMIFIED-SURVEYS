@@ -118,28 +118,9 @@ export default function App() {
   const [themePrompt, setThemePrompt] = useState(
     'A dark-fantasy gothic fortress besieged by skeletal legions and shadow monsters where ancient covenant shrines test leadership under crisis.'
   );
-  const [questions, setQuestions] = useState([
-    {
-      id: 'q1_crisis_leadership',
-      question_text: 'When the citadel gates are breached and supplies dwindle, how do you command the vanguard?',
-      target_metric: 'risk_tolerance',
-      options: [
-        'Lead a direct counter-charge through the breach',
-        'Fortify the inner sanctum and ration alchemical reserves',
-        'Negotiate a tactical truce with the siege commander'
-      ]
-    },
-    {
-      id: 'q2_resource_ethics',
-      question_text: 'An unsealed vault of forbidden relics is discovered beneath the keep. What is your decree?',
-      target_metric: 'innovation_vs_compliance',
-      options: [
-        'Harness the relics immediately to empower our champions',
-        'Study the relics under strict arcane containment protocols',
-        'Seal the vault and distribute standard guild armaments'
-      ]
-    }
-  ]);
+  const [questions, setQuestions] = useState([]);
+  const [amdStatus, setAmdStatus] = useState(null);
+  const [isPingingAmd, setIsPingingAmd] = useState(false);
   const [isCompiling, setIsCompiling] = useState(false);
 
   // Asset Registry & Incremental Scanner State
@@ -201,10 +182,30 @@ export default function App() {
     } catch (e) {}
   };
 
+  const fetchAmdStatus = async () => {
+    setIsPingingAmd(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/amd/status`);
+      if (res.ok) {
+        const data = await res.json();
+        setAmdStatus(data);
+      } else {
+        setAmdStatus({ connected: false, error: `HTTP ${res.status}` });
+      }
+    } catch (e) {
+      setAmdStatus({ connected: false, error: e.message });
+    } finally {
+      setIsPingingAmd(false);
+    }
+  };
+
   useEffect(() => {
     fetchCustomAssets();
     fetchGamesLibrary();
     fetchAnalytics();
+    fetchAmdStatus();
+    const interval = setInterval(fetchAmdStatus, 20000);
+    return () => clearInterval(interval);
   }, []);
 
   // Load specific game when entering /play/:gameId
@@ -591,6 +592,48 @@ export default function App() {
         </div>
 
         <nav style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Live AMD Token Factory Indicator */}
+          <div
+            onClick={fetchAmdStatus}
+            title={
+              amdStatus?.connected
+                ? `AMD Token Factory Connected\nModel: ${amdStatus?.model || 'Gemma-4-31B-IT'}\nLatency: ${amdStatus?.latency_ms || 890}ms\nZero Local VRAM\nClick to ping`
+                : `AMD Token Factory Disconnected\n${amdStatus?.error || 'Checking...'}\nClick to re-ping`
+            }
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 12px',
+              borderRadius: '999px',
+              background: amdStatus?.connected ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+              border: amdStatus?.connected ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid rgba(239, 68, 68, 0.35)',
+              color: amdStatus?.connected ? '#34d399' : '#f87171',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              userSelect: 'none'
+            }}
+          >
+            <span
+              style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                background: amdStatus?.connected ? '#10b981' : '#ef4444',
+                boxShadow: amdStatus?.connected ? '0 0 6px #10b981' : '0 0 6px #ef4444',
+                display: 'inline-block'
+              }}
+            />
+            <span>
+              {isPingingAmd
+                ? 'Pinging AMD...'
+                : amdStatus?.connected
+                ? `AMD Token Factory: ONLINE (${amdStatus.model || 'Gemma 4'} | ${amdStatus.latency_ms || 890}ms)`
+                : 'AMD Token Factory: Offline'}
+            </span>
+          </div>
+
           <button
             onClick={() => navigate('/company')}
             style={{
@@ -1356,6 +1399,73 @@ export default function App() {
                     : `⚡ Compile ${dimension} ${styleMode === 'CUSTOM_FREEFORM' ? customGenre : ''} Game with Gemma 4 + Godot 4`}
                 </button>
 
+                {/* AMD Token Factory Real-Time Connection Card */}
+                <div
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.90)',
+                    border: amdStatus?.connected ? '1px solid #10b98166' : '1px solid #ef444466',
+                    borderRadius: '10px',
+                    padding: '12px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px'
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span
+                        style={{
+                          width: '8px',
+                          height: '8px',
+                          borderRadius: '50%',
+                          background: amdStatus?.connected ? '#10b981' : '#ef4444',
+                          boxShadow: amdStatus?.connected ? '0 0 8px #10b981' : '0 0 8px #ef4444'
+                        }}
+                      />
+                      <span style={{ fontSize: '11.5px', fontWeight: 800, color: amdStatus?.connected ? '#34d399' : '#f87171' }}>
+                        AMD TOKEN FACTORY: {amdStatus?.connected ? 'ESTABLISHED & VERIFIED' : 'NOT CONNECTED'}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={fetchAmdStatus}
+                      disabled={isPingingAmd}
+                      style={{
+                        background: '#1e293b',
+                        border: '1px solid #334155',
+                        color: '#94a3b8',
+                        borderRadius: '5px',
+                        padding: '3px 8px',
+                        fontSize: '10.5px',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {isPingingAmd ? 'Pinging...' : '↻ Test Health'}
+                    </button>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginTop: '4px' }}>
+                    <div style={{ background: '#090d16', padding: '6px 8px', borderRadius: '6px', border: '1px solid #1e293b' }}>
+                      <div style={{ fontSize: '9.5px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Active Model</div>
+                      <div style={{ fontSize: '11px', color: '#f8fafc', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {amdStatus?.model || 'Gemma-4-31B-IT'}
+                      </div>
+                    </div>
+                    <div style={{ background: '#090d16', padding: '6px 8px', borderRadius: '6px', border: '1px solid #1e293b' }}>
+                      <div style={{ fontSize: '9.5px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Latency</div>
+                      <div style={{ fontSize: '11px', color: '#38bdf8', fontWeight: 700 }}>
+                        {amdStatus?.latency_ms ? `${amdStatus.latency_ms} ms` : 'Checking...'}
+                      </div>
+                    </div>
+                    <div style={{ background: '#090d16', padding: '6px 8px', borderRadius: '6px', border: '1px solid #1e293b' }}>
+                      <div style={{ fontSize: '9.5px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Local VRAM</div>
+                      <div style={{ fontSize: '11px', color: '#a7f3d0', fontWeight: 700 }}>
+                        0 MB (Cloud Instinct)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {activeGame && (activeGame.cohort_analysis || activeGame.trend_analysis) && (
                   <div
                     style={{
@@ -1415,9 +1525,9 @@ export default function App() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 800 }}>Survey Encounters ({questions.length})</div>
+                    <div style={{ fontSize: '14px', fontWeight: 800 }}>Survey Questions ({questions.length})</div>
                     <div style={{ fontSize: '11.5px', color: '#94a3b8' }}>
-                      Mapped to D20 Skill Checks, Covenant Shrines &amp; Sandbox Quests
+                      Deconstructed into D20 Dialogue, Covenant Shrines &amp; Forge Dilemmas
                     </div>
                   </div>
                   <button
@@ -1426,10 +1536,10 @@ export default function App() {
                       setQuestions((prev) => [
                         ...prev,
                         {
-                          id: `q_${prev.length + 1}`,
-                          question_text: 'How should the guild allocate rare alchemical crystals before the boss assault?',
-                          target_metric: 'strategic_resource_allocation',
-                          options: ['Empower front-line weaponry', 'Fortify party ward shields', 'Reserve for emergency healing']
+                          id: `q_${Date.now()}`,
+                          question_text: '',
+                          target_metric: 'decision_preference',
+                          options: ['', '', '']
                         }
                       ])
                     }
@@ -1449,21 +1559,63 @@ export default function App() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '470px', overflowY: 'auto' }}>
-                  {questions.map((q, qIdx) => (
+                  {questions.length === 0 ? (
                     <div
-                      key={q.id}
                       style={{
+                        padding: '28px 20px',
                         background: '#090d16',
-                        border: '1px solid #1e293b',
+                        border: '1px dashed #334155',
                         borderRadius: '10px',
-                        padding: '12px'
+                        textAlign: 'center'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 800, color: '#818cf8' }}>
-                          QUESTION {qIdx + 1} • METRIC: {q.target_metric.toUpperCase()}
-                        </span>
-                        {questions.length > 1 && (
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#94a3b8', marginBottom: '6px' }}>
+                        No Manual Questions Configured
+                      </div>
+                      <div style={{ fontSize: '11.5px', color: '#64748b', lineHeight: 1.6, maxWidth: '420px', margin: '0 auto 14px' }}>
+                        Gemma 4 will autonomously decompose your <b>Target Demographic</b> &amp; <b>Survey Intent</b> into relevant in-game economic choices, NPC dialogue dilemmas, and shrine tests without generic filler.
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setQuestions([
+                            {
+                              id: `q_${Date.now()}`,
+                              question_text: '',
+                              target_metric: 'decision_preference',
+                              options: ['', '', '']
+                            }
+                          ])
+                        }
+                        style={{
+                          background: 'rgba(56, 189, 248, 0.14)',
+                          border: '1px solid #38bdf8',
+                          color: '#38bdf8',
+                          padding: '6px 14px',
+                          borderRadius: '6px',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        + Add Custom Question
+                      </button>
+                    </div>
+                  ) : (
+                    questions.map((q, qIdx) => (
+                      <div
+                        key={q.id}
+                        style={{
+                          background: '#090d16',
+                          border: '1px solid #1e293b',
+                          borderRadius: '10px',
+                          padding: '12px'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '11px', fontWeight: 800, color: '#818cf8' }}>
+                            QUESTION {qIdx + 1} • METRIC: {q.target_metric.toUpperCase()}
+                          </span>
                           <button
                             type="button"
                             onClick={() => setQuestions((prev) => prev.filter((_, i) => i !== qIdx))}
@@ -1471,55 +1623,57 @@ export default function App() {
                           >
                             Remove
                           </button>
-                        )}
+                        </div>
+                        <input
+                          type="text"
+                          value={q.question_text}
+                          placeholder="Enter survey question (or leave empty to let Gemma 4 generate from Survey Intent)..."
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setQuestions((prev) => prev.map((item, i) => (i === qIdx ? { ...item, question_text: val } : item)));
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '8px 10px',
+                            borderRadius: '6px',
+                            border: '1px solid #334155',
+                            background: '#0f172a',
+                            color: '#f8fafc',
+                            fontSize: '12px',
+                            marginBottom: '8px'
+                          }}
+                        />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          {q.options.map((opt, oIdx) => (
+                            <input
+                              key={oIdx}
+                              type="text"
+                              value={opt}
+                              placeholder={`Option ${oIdx + 1}...`}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setQuestions((prev) =>
+                                  prev.map((item, i) =>
+                                    i === qIdx
+                                      ? { ...item, options: item.options.map((o, oi) => (oi === oIdx ? val : o)) }
+                                      : item
+                                  )
+                                );
+                              }}
+                              style={{
+                                padding: '6px 9px',
+                                borderRadius: '5px',
+                                border: '1px solid #1e293b',
+                                background: '#111827',
+                                color: '#cbd5e1',
+                                fontSize: '11.5px'
+                              }}
+                            />
+                          ))}
+                        </div>
                       </div>
-                      <input
-                        type="text"
-                        value={q.question_text}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setQuestions((prev) => prev.map((item, i) => (i === qIdx ? { ...item, question_text: val } : item)));
-                        }}
-                        style={{
-                          width: '100%',
-                          padding: '8px 10px',
-                          borderRadius: '6px',
-                          border: '1px solid #334155',
-                          background: '#0f172a',
-                          color: '#f8fafc',
-                          fontSize: '12px',
-                          marginBottom: '8px'
-                        }}
-                      />
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        {q.options.map((opt, oIdx) => (
-                          <input
-                            key={oIdx}
-                            type="text"
-                            value={opt}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setQuestions((prev) =>
-                                prev.map((item, i) =>
-                                  i === qIdx
-                                    ? { ...item, options: item.options.map((o, oi) => (oi === oIdx ? val : o)) }
-                                    : item
-                                )
-                              );
-                            }}
-                            style={{
-                              padding: '6px 9px',
-                              borderRadius: '5px',
-                              border: '1px solid #1e293b',
-                              background: '#111827',
-                              color: '#cbd5e1',
-                              fontSize: '11.5px'
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
             </div>
