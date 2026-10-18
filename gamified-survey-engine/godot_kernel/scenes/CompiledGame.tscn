@@ -22,9 +22,9 @@ agent_radius = 0.45
 
 [node name="CompiledGameRoot" type="Node3D"]
 script = ExtResource("1_runtime")
-metadata/build_id = "3b8554c6-9180-425a-a28c-87ef9ace9842"
-metadata/campaign_title = "Citadel of the Astral Ledger"
-metadata/player_asset = "res://assets/custom_asset_packs/characters/Knight.glb"
+metadata/build_id = "26973a6e-d6b3-4b80-9b0b-78f7a93a6136"
+metadata/campaign_title = "Britannia Ledger: Lord British Guild Sandbox"
+metadata/player_asset = "res://assets/kaykit/adventurers/Knight.glb"
 metadata/floor_asset = "res://assets/custom_asset_packs/environments/ModularCastle_AssetPack/Floors&Ramps/Floors/Floor_2x2.glb"
 metadata/fog_hex = "#0b0e17"
 
