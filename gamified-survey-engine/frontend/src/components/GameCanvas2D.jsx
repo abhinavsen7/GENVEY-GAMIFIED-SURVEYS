@@ -11,28 +11,46 @@ export default function GameCanvas2D({
   const [playerHP, setPlayerHP] = useState(100);
   const [stamina, setStamina] = useState(100);
   const [estusCharges, setEstusCharges] = useState(3);
+  const [playerGold, setPlayerGold] = useState(compiledGame?.starting_gold || 0);
+
+  // Turn-based combat states
+  const [turnPhase, setTurnPhase] = useState('PLAYER_TURN'); // 'PLAYER_TURN' | 'ENEMY_TURN'
   const [apCurrent, setApCurrent] = useState(4);
   const [moveBudgetM, setMoveBudgetM] = useState(8.0);
+
+  // Modals & Interactivity
   const [activeDialogueNPC, setActiveDialogueNPC] = useState(null);
   const [d20RollState, setD20RollState] = useState(null);
+  const [activeForgeProp, setActiveForgeProp] = useState(null);
   const [covenantModalOpen, setCovenantModalOpen] = useState(false);
   const [statusBanner, setStatusBanner] = useState(null);
   const [barkToast, setBarkToast] = useState(null);
   const [torchesLit, setTorchesLit] = useState(true);
   const [grabbedPropName, setGrabbedPropName] = useState(null);
 
+  // Objective Tracking
+  const [completedObjectives, setCompletedObjectives] = useState(new Set());
+  const [slainCount, setSlainCount] = useState(0);
+
   const rooms = compiledGame?.rooms || [];
   const currentRoom = rooms[activeRoomIdx] || rooms[0] || {};
   const styleMode = compiledGame?.style_mode || 'BALDURS_GATE_CRPG';
+  const customGenre = compiledGame?.custom_genre || '';
+
+  // Distinguish genuine turn-based combat vs real-time action
+  const isTurnBased = Boolean(
+    styleMode === 'BALDURS_GATE_CRPG' ||
+    /turn|tactical|tactics|crpg|strategy/i.test(customGenre) ||
+    /turn|tactical|tactics|crpg|strategy/i.test(styleMode)
+  );
 
   const runtimeRef = useRef({
     px: 540,
-    py: 460,
+    py: 480,
     targetX: null,
     targetY: null,
     keys: { w: false, a: false, s: false, d: false },
     facing: 1,
-    animState: 'idle',
     attackTimer: 0,
     parryTimer: 0,
     dodgeTimer: 0,
@@ -43,17 +61,17 @@ export default function GameCanvas2D({
     vfxBlasts: [],
     enemies: [],
     props: [],
-    npc: { x: 260, y: 260, name: 'Chamber Envoy' }
+    npc: { x: 320, y: 240, name: 'Chamber Envoy', data: {} }
   });
 
-  const showBanner = (msg, ms = 2200) => {
+  const showBanner = (msg, ms = 2400) => {
     setStatusBanner(msg);
     setTimeout(() => setStatusBanner(null), ms);
   };
 
   const showBark = (speaker, line) => {
     setBarkToast({ speaker, line });
-    setTimeout(() => setBarkToast(null), 3200);
+    setTimeout(() => setBarkToast(null), 3400);
   };
 
   // Initialize room entities whenever activeRoomIdx or build_id changes
@@ -63,8 +81,14 @@ export default function GameCanvas2D({
     rt.py = 480;
     rt.targetX = null;
     rt.targetY = null;
+    setSlainCount(0);
+    setTurnPhase('PLAYER_TURN');
+    setApCurrent(4);
+    setMoveBudgetM(8.0);
+
     const roomObj = (compiledGame?.rooms || [])[activeRoomIdx] || {};
 
+    // 1. Initialize Enemies
     rt.enemies = (roomObj.enemies || []).map((en, idx) => ({
       id: en.enemy_id || `en_${idx}`,
       name: en.name || 'Skeleton Sentinel',
@@ -85,28 +109,114 @@ export default function GameCanvas2D({
       mappedOption: en.mapped_option || 'Tactical Victory'
     }));
 
-    rt.props = [
-      { id: 'barrel_1', name: 'Alchemical Barrel', tag: 'flammable_barrel', x: 760, y: 310, exploded: false, color: '#ef4444' },
-      { id: 'shrine_1', name: 'Covenant Relic Shrine', tag: 'loot_shrine', x: 310, y: 340, exploded: false, color: '#f59e0b' },
-      { id: 'crate_1', name: 'Ironbound Supply Crate', tag: 'movable_prop', x: 690, y: 420, exploded: false, color: '#38bdf8' }
-    ];
+    // 2. Initialize Props dynamically from roomObj.props
+    const rawProps = roomObj.props || [];
+    if (rawProps.length > 0) {
+      rt.props = rawProps.map((p, pIdx) => {
+        const tag = p.interactive_tag || 'movable_prop';
+        const cost = p.cost_gold || (p.prop_id?.includes('10') ? 10 : (p.prop_id?.includes('2') ? 2 : 0));
+        const px = 540 + (p.x !== undefined ? p.x * 46 : (pIdx - 1) * 160);
+        const py = 360 + (p.z !== undefined ? p.z * 38 : (pIdx % 2) * 60);
+
+        let color = '#38bdf8';
+        if (tag === 'survey_forge') color = cost === 10 ? '#f59e0b' : '#38bdf8';
+        else if (tag === 'treasure_chest') color = '#eab308';
+        else if (tag === 'mechanical_lever') color = '#a855f7';
+        else if (tag === 'flammable_barrel') color = '#ef4444';
+        else if (tag === 'loot_shrine') color = '#f59e0b';
+
+        return {
+          id: p.prop_id || `prop_${pIdx}`,
+          name: p.tier_name || p.label || p.asset || 'Dungeon Prop',
+          tag,
+          x: Math.max(140, Math.min(940, px)),
+          y: Math.max(160, Math.min(520, py)),
+          exploded: false,
+          opened: false,
+          pulled: false,
+          cost_gold: cost,
+          tier_name: p.tier_name,
+          gold_reward: p.gold_reward || 10,
+          color
+        };
+      });
+    } else {
+      // Fallback zone-themed props
+      if (activeRoomIdx === 0) {
+        rt.props = [
+          { id: 'forge_sovereign_10', name: 'Sovereign Forge ($10)', tag: 'survey_forge', cost_gold: 10, tier_name: 'Sovereign Tier ($10)', x: 300, y: 380, exploded: false, color: '#f59e0b' },
+          { id: 'forge_starter_2', name: 'Starter Forge ($2)', tag: 'survey_forge', cost_gold: 2, tier_name: 'Adventurer Tier ($2)', x: 780, y: 380, exploded: false, color: '#38bdf8' },
+          { id: 'barrel_r1', name: 'Alchemical Barrel', tag: 'flammable_barrel', x: 720, y: 260, exploded: false, color: '#ef4444' }
+        ];
+      } else if (activeRoomIdx === 1) {
+        rt.props = [
+          { id: 'lever_zone2', name: 'Mechanical Bronze Lever', tag: 'mechanical_lever', x: 780, y: 280, pulled: false, color: '#a855f7' },
+          { id: 'chest_catacombs', name: 'Treasure Chest (+10 Gold)', tag: 'treasure_chest', gold_reward: 10, opened: false, x: 300, y: 380, color: '#eab308' },
+          { id: 'barrel_r2', name: 'Alchemical Barrel', tag: 'flammable_barrel', x: 540, y: 300, exploded: false, color: '#ef4444' }
+        ];
+      } else if (activeRoomIdx === 2) {
+        rt.props = [
+          { id: 'chest_sanctum', name: 'Treasure Chest (+10 Gold)', tag: 'treasure_chest', gold_reward: 10, opened: false, x: 780, y: 380, color: '#eab308' },
+          { id: 'shrine_sanctum', name: 'Covenant Relic Shrine', tag: 'loot_shrine', x: 300, y: 380, exploded: false, color: '#f59e0b' }
+        ];
+      } else {
+        rt.props = [
+          { id: 'boss_altar', name: 'Boss Crystal Shrine', tag: 'loot_shrine', x: 540, y: 240, exploded: false, color: '#a855f7' }
+        ];
+      }
+    }
+
+    // 3. Initialize NPC strictly bound to company's survey intent (NO "uncharted crisis" filler)
+    const companyName = compiledGame?.company_name || 'The Studio';
+    const surveyIntent = compiledGame?.survey_intent || '';
+    const surveyQuestions = compiledGame?.survey_questions || [];
+    const roomSurveyQ = surveyQuestions[activeRoomIdx] || surveyQuestions[0];
+
+    let npcName = roomObj.npc?.name || `Envoy of ${companyName}`;
+    let npcQuestionText = roomObj.npc?.question_text;
+    let npcChoices = roomObj.npc?.choices;
+
+    if (!npcQuestionText || npcQuestionText.includes('uncharted crisis')) {
+      if (roomSurveyQ?.question_text && !roomSurveyQ.question_text.includes('uncharted crisis')) {
+        npcQuestionText = roomSurveyQ.question_text;
+        npcChoices = (roomSurveyQ.options || []).map((opt, i) => ({
+          choice_text: opt,
+          skill_check: ['Persuasion [DC 12]', 'Arcana [DC 14]', 'Intimidation [DC 15]', 'Insight [DC 11]'][i % 4],
+          dc: [12, 14, 15, 11][i % 4],
+          skill_name: ['Persuasion', 'Arcana', 'Intimidation', 'Insight'][i % 4],
+          metric_delta: 1.3
+        }));
+      } else if (surveyIntent) {
+        npcQuestionText = `Regarding ${companyName}'s strategic survey: "${surveyIntent}" — Which tier or feature best reflects your preference?`;
+        npcChoices = [
+          { choice_text: 'Sovereign Tier ($10/mo - Full Access, Priority & Status)', skill_check: 'Persuasion [DC 12]', dc: 12, skill_name: 'Persuasion', metric_delta: 1.5 },
+          { choice_text: 'Adventurer Tier ($2/mo - Core Functional Utility)', skill_check: 'Arcana [DC 14]', dc: 14, skill_name: 'Arcana', metric_delta: 1.2 },
+          { choice_text: 'Community Tier ($0 - Free Baseline Experience)', skill_check: 'Insight [DC 11]', dc: 11, skill_name: 'Insight', metric_delta: 1.0 }
+        ];
+      } else {
+        npcQuestionText = `What strategic product capability should ${companyName} prioritize for your cohort?`;
+        npcChoices = [
+          { choice_text: 'High-performance automated AI intelligence', skill_check: 'Arcana [DC 14]', dc: 14, skill_name: 'Arcana', metric_delta: 1.3 },
+          { choice_text: 'Modular customizable workflow integration', skill_check: 'Persuasion [DC 12]', dc: 12, skill_name: 'Persuasion', metric_delta: 1.2 },
+          { choice_text: 'Zero-latency streamlined user experience', skill_check: 'Intimidation [DC 15]', dc: 15, skill_name: 'Intimidation', metric_delta: 1.1 }
+        ];
+      }
+    }
 
     rt.npc = {
       x: 320,
-      y: 220,
-      data: roomObj.npc || {
-        name: 'Envoy of the Guild',
-        question_id: 'q1',
-        question_text: 'How do you lead your party through an uncharted crisis?',
-        choices: [
-          { choice_text: 'Decisive Tactical Assault', skill_check: 'Intimidation [DC 15]', dc: 15, skill_name: 'Intimidation', metric_delta: 1.4 },
-          { choice_text: 'Calculated Arcane Analysis', skill_check: 'Arcana [DC 14]', dc: 14, skill_name: 'Arcana', metric_delta: 1.2 },
-          { choice_text: 'Diplomatic Coalition Accord', skill_check: 'Persuasion [DC 12]', dc: 12, skill_name: 'Persuasion', metric_delta: 1.1 }
-        ]
+      y: 230,
+      data: {
+        npc_id: roomObj.npc?.npc_id || `npc_r${activeRoomIdx + 1}`,
+        name: npcName,
+        question_id: roomObj.npc?.question_id || roomSurveyQ?.id || `q_r${activeRoomIdx + 1}`,
+        question_text: npcQuestionText,
+        choices: npcChoices
       }
     };
   }, [compiledGame?.build_id, activeRoomIdx]);
 
+  // Main Canvas Render & Physics Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -153,34 +263,61 @@ export default function GameCanvas2D({
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
       const rt = runtimeRef.current;
       const k = e.key.toLowerCase();
+
       if (['w', 'a', 's', 'd'].includes(k)) {
         rt.keys[k] = true;
         rt.targetX = null;
         rt.targetY = null;
       } else if (e.code === 'Space') {
         e.preventDefault();
-        rt.dodgeTimer = 0.38;
-        setStamina(prev => Math.max(0, prev - 18));
-      } else if (k === 'e') {
-        const distNpc = Math.hypot(rt.px - rt.npc.x, rt.py - rt.npc.y);
-        if (distNpc < 140) {
-          setActiveDialogueNPC(rt.npc.data);
+        if (isTurnBased) {
+          // In turn-based mode, space casts cleave or passes
+          perform2DAttack(false);
         } else {
-          setCovenantModalOpen(true);
+          // In real-time mode, space performs real-time melee strike
+          perform2DAttack(false);
         }
-      } else if (k === 'f') {
-        setEstusCharges(3);
-        setCovenantModalOpen(prev => !prev);
+      } else if (k === 'e') {
+        // [E] Physical Interaction check (NPC, Forge Anvil, Chest, Lever, Barrel)
+        const distNpc = Math.hypot(rt.px - rt.npc.x, rt.py - rt.npc.y);
+        if (distNpc < 130) {
+          setActiveDialogueNPC(rt.npc.data);
+          return;
+        }
+
+        // Find closest prop within interaction radius
+        let closestProp = null;
+        let minDist = 110;
+        rt.props.forEach((p) => {
+          if (p.exploded) return;
+          const d = Math.hypot(p.x - rt.px, p.y - rt.py);
+          if (d < minDist) {
+            minDist = d;
+            closestProp = p;
+          }
+        });
+
+        if (closestProp) {
+          handlePropInteract(closestProp);
+        } else {
+          showBanner('No interactive object nearby (walk closer to NPC, Chest, Forge, or Lever)');
+        }
       } else if (k === 'r') {
+        // Heal Flask
         setEstusCharges(prev => {
           if (prev <= 0) {
-            showBanner('🧪 Estus Empty — Rest at Covenant Shrine [F]');
+            showBanner('🧪 Healing Flasks Empty — Rest at Shrine or Advance [F]');
             return 0;
           }
           setPlayerHP(hp => Math.min(100, hp + 45));
-          showBanner('✨ Estus Flask Consumed (+45 HP)');
+          showBanner('✨ Estus Consumed (+45 HP)');
           return prev - 1;
         });
+      } else if (k === '1') {
+        // [1] Fireball Spell / Barrel Ignition
+        triggerFireballOrIgnite();
+      } else if (k === 'f') {
+        setCovenantModalOpen(prev => !prev);
       } else if (k === 'q') {
         rt.lockedEnemyIdx = rt.lockedEnemyIdx === 0 ? null : 0;
         showBanner(rt.lockedEnemyIdx !== null ? '🎯 Target Lock-On Engaged' : '🎯 Target Lock-On Released', 1400);
@@ -195,17 +332,9 @@ export default function GameCanvas2D({
           if (idx !== -1) {
             rt.grabbedPropIdx = idx;
             setGrabbedPropName(rt.props[idx].name);
-            showBark('World Affordance', `Grabbed ${rt.props[idx].name} — Move with WASD & Press [G] to Drop`);
+            showBark('Affordance', `Grabbed ${rt.props[idx].name} — Move with WASD & Press [G] to Drop`);
           }
         }
-      } else if (e.key === '1') {
-        triggerSandboxAffordance('BURN');
-      } else if (e.key === '2') {
-        triggerSandboxAffordance('LOCKPICK');
-      } else if (e.key === '3') {
-        rt.torchesLit = !rt.torchesLit;
-        setTorchesLit(rt.torchesLit);
-        showBark('Watchman', rt.torchesLit ? '"Torches relit!"' : '"Who doused the chamber torches?!"');
       }
     };
 
@@ -237,7 +366,7 @@ export default function GameCanvas2D({
       if (rt.dodgeTimer > 0) rt.dodgeTimer -= dt;
       setStamina(prev => Math.min(100, prev + dt * 16));
 
-      // Movement
+      // Player Movement Logic
       let vx = 0;
       let vy = 0;
       if (rt.keys.w) vy -= 1;
@@ -259,11 +388,34 @@ export default function GameCanvas2D({
         }
       }
 
-      const spd = rt.dodgeTimer > 0 ? 390 : 220;
-      if (vx !== 0 || vy !== 0) {
-        const len = Math.hypot(vx, vy) || 1;
-        rt.px = Math.max(120, Math.min(w - 120, rt.px + (vx / len) * spd * dt));
-        rt.py = Math.max(110, Math.min(h - 110, rt.py + (vy / len) * spd * dt));
+      // In turn-based mode, check movement budget during PLAYER_TURN
+      const isMoving = (vx !== 0 || vy !== 0);
+      if (isMoving) {
+        if (isTurnBased) {
+          if (turnPhase !== 'PLAYER_TURN') {
+            // Cannot move during enemy turn
+            vx = 0;
+            vy = 0;
+          } else if (moveBudgetM <= 0.05) {
+            vx = 0;
+            vy = 0;
+            showBanner('⚠ Movement budget depleted (0.0m)! Cast Dash (+6m) or Click [End Turn]', 900);
+          } else {
+            const spd = 220;
+            const len = Math.hypot(vx, vy) || 1;
+            const distPx = spd * dt;
+            const distM = distPx / 35;
+            setMoveBudgetM(prev => Math.max(0, prev - distM));
+            rt.px = Math.max(120, Math.min(w - 120, rt.px + (vx / len) * distPx));
+            rt.py = Math.max(110, Math.min(h - 110, rt.py + (vy / len) * distPx));
+          }
+        } else {
+          // Real-time movement
+          const spd = rt.dodgeTimer > 0 ? 380 : 220;
+          const len = Math.hypot(vx, vy) || 1;
+          rt.px = Math.max(120, Math.min(w - 120, rt.px + (vx / len) * spd * dt));
+          rt.py = Math.max(110, Math.min(h - 110, rt.py + (vy / len) * spd * dt));
+        }
       }
 
       if (rt.grabbedPropIdx !== null && rt.props[rt.grabbedPropIdx]) {
@@ -271,7 +423,7 @@ export default function GameCanvas2D({
         rt.props[rt.grabbedPropIdx].y = rt.py + 12;
       }
 
-      // Draw 2D Retro Dungeon Floor Arena (0x72 DungeonTileset II)
+      // Background & Arena Grid
       ctx.imageSmoothingEnabled = false;
       ctx.fillStyle = rt.torchesLit ? '#090d16' : '#04060b';
       ctx.fillRect(0, 0, w, h);
@@ -297,8 +449,8 @@ export default function GameCanvas2D({
       }
       ctx.globalAlpha = 1.0;
 
-      // Subtle dungeon tactical grid
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.08)';
+      // Dungeon grid lines
+      ctx.strokeStyle = isTurnBased ? 'rgba(99, 102, 241, 0.14)' : 'rgba(56, 189, 248, 0.08)';
       ctx.lineWidth = 1;
       for (let gx = arenaLeft; gx < arenaLeft + arenaW; gx += 48) {
         ctx.beginPath();
@@ -314,14 +466,14 @@ export default function GameCanvas2D({
       }
       ctx.restore();
 
-      // Top Wall Trim from 0x72
+      // Top Wall Trim
       if (imgWall.complete && imgWall.naturalWidth > 0) {
         for (let wx = arenaLeft; wx < arenaLeft + arenaW; wx += 48) {
           ctx.drawImage(imgWall, wx, arenaTop - 28, 48, 48);
         }
       }
 
-      // Arena Border & North Gate Portal
+      // Arena Outer Border
       ctx.strokeStyle = '#334155';
       ctx.lineWidth = 4;
       ctx.strokeRect(arenaLeft, arenaTop, arenaW, arenaH);
@@ -329,109 +481,169 @@ export default function GameCanvas2D({
       // North Gate Transition Portal
       const gateX = w / 2;
       const gateY = arenaTop + 14;
-      ctx.fillStyle = '#38bdf833';
-      ctx.strokeStyle = '#38bdf8';
+      const isBossRoom = activeRoomIdx >= rooms.length - 1;
+
+      // Check if gate is locked by an unpulled lever
+      const hasUnpulledLever = rt.props.some(p => p.tag === 'mechanical_lever' && !p.pulled);
+      const gateLocked = hasUnpulledLever && !completedObjectives.has(`lever_r${activeRoomIdx}`);
+
+      ctx.fillStyle = gateLocked ? 'rgba(239, 68, 68, 0.22)' : 'rgba(56, 189, 248, 0.22)';
+      ctx.strokeStyle = gateLocked ? '#ef4444' : '#38bdf8';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.roundRect(gateX - 70, gateY - 8, 140, 26, 8);
+      ctx.roundRect(gateX - 90, gateY - 8, 180, 26, 8);
       ctx.fill();
       ctx.stroke();
-      ctx.fillStyle = '#e0f2fe';
+      ctx.fillStyle = gateLocked ? '#fca5a5' : '#e0f2fe';
       ctx.font = 'bold 11px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(
-        activeRoomIdx < rooms.length - 1 ? `▲ NORTH PORTAL (Room ${activeRoomIdx + 2})` : '👑 BOSS SANCTUM ALTAR',
+        gateLocked
+          ? '🔒 PORTCULLIS LOCKED (Pull Lever [E])'
+          : (!isBossRoom ? `▲ NORTH PORTAL (Zone ${activeRoomIdx + 2})` : '👑 BOSS SANCTUM ALTAR'),
         gateX,
         gateY + 9
       );
 
-      if (rt.py < arenaTop + 42 && Math.abs(rt.px - gateX) < 75 && activeRoomIdx < rooms.length - 1) {
-        setActiveRoomIdx(prev => Math.min(rooms.length - 1, prev + 1));
+      // North Portal Step-through
+      if (rt.py < arenaTop + 42 && Math.abs(rt.px - gateX) < 85) {
+        if (gateLocked) {
+          showBanner('🔒 The Portcullis is locked! Pull the Bronze Lever [E] first.', 1200);
+          rt.py = arenaTop + 55;
+        } else if (!isBossRoom) {
+          setActiveRoomIdx(prev => prev + 1);
+          showBanner(`🚪 Entering Zone ${activeRoomIdx + 2}...`);
+        }
       }
 
-      // Draw Interactive 2D Props (Chests, Coins, Potions)
+      // Render Interactive Props (Forge Anvils, Chests, Levers, Barrels)
       rt.props.forEach((p) => {
         if (p.exploded) return;
         ctx.save();
         ctx.translate(p.x, p.y);
-        ctx.fillStyle = `${p.color}33`;
-        ctx.strokeStyle = p.color;
-        ctx.lineWidth = 2;
+
+        const distToPlayer = Math.hypot(p.x - rt.px, p.y - rt.py);
+        const isNear = distToPlayer < 95;
+
+        // Interactive Highlight Aura
+        ctx.fillStyle = isNear ? `${p.color}55` : `${p.color}22`;
+        ctx.strokeStyle = isNear ? '#ffffff' : p.color;
+        ctx.lineWidth = isNear ? 3 : 2;
         ctx.beginPath();
-        ctx.arc(0, 0, 24, 0, Math.PI * 2);
+        ctx.arc(0, 0, 26, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
 
-        if (p.tag === 'loot_shrine') {
+        if (p.tag === 'treasure_chest' || p.tag === 'loot_shrine') {
           if (imgChest.complete && imgChest.naturalWidth > 0) {
+            ctx.globalAlpha = p.opened ? 0.45 : 1.0;
             ctx.drawImage(imgChest, -24, -24, 48, 48);
+            ctx.globalAlpha = 1.0;
           }
         } else if (p.tag === 'flammable_barrel') {
           if (imgPotion.complete && imgPotion.naturalWidth > 0) {
             ctx.drawImage(imgPotion, -20, -24, 40, 48);
           }
-        } else {
+        } else if (p.tag === 'survey_forge') {
+          // Draw Anvil / Gold Emblem
           const coinImg = coinImgs[frame];
           if (coinImg && coinImg.complete && coinImg.naturalWidth > 0) {
             ctx.drawImage(coinImg, -20, -20, 40, 40);
           }
+        } else {
+          // Lever or generic prop
+          ctx.fillStyle = p.pulled ? '#22c55e' : p.color;
+          ctx.font = '24px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(p.tag === 'mechanical_lever' ? '⚙️' : '📦', 0, 8);
         }
 
-        ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 11px Inter, sans-serif';
+        // Prop Label
+        ctx.fillStyle = isNear ? '#fef08a' : '#f8fafc';
+        ctx.font = isNear ? 'bold 12px Inter, sans-serif' : 'bold 11px Inter, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText(p.name, 0, -30);
+        ctx.fillText(
+          `${p.name} ${isNear ? '[Press E]' : ''}`,
+          0,
+          -34
+        );
         ctx.restore();
       });
 
-      // Draw Survey NPC with 0x72 Wizard Sprite
+      // Render Survey NPC (Wizard Sprite)
       ctx.save();
       ctx.translate(rt.npc.x, rt.npc.y);
-      ctx.fillStyle = 'rgba(56, 189, 248, 0.22)';
+      const distNpc = Math.hypot(rt.px - rt.npc.x, rt.py - rt.npc.y);
+      const isNearNpc = distNpc < 130;
+
+      ctx.fillStyle = isNearNpc ? 'rgba(56, 189, 248, 0.45)' : 'rgba(56, 189, 248, 0.22)';
       ctx.beginPath();
-      ctx.ellipse(0, 20, 24, 10, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 20, 26, 12, 0, 0, Math.PI * 2);
       ctx.fill();
 
       const activeNpc = npcImgs[frame];
       if (activeNpc && activeNpc.complete && activeNpc.naturalWidth > 0) {
         ctx.drawImage(activeNpc, -32, -48, 64, 64);
       }
-      ctx.fillStyle = '#38bdf8';
+      ctx.fillStyle = isNearNpc ? '#fef08a' : '#38bdf8';
       ctx.font = 'bold 12px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`💬 ${rt.npc.data.name} [Press E]`, 0, -48);
+      ctx.fillText(`💬 ${rt.npc.data.name} ${isNearNpc ? '[Press E]' : ''}`, 0, -48);
       ctx.restore();
 
-      // Update & Draw 2D Enemies (0x72 Skeletons & Boss Demon)
+      // Enemy AI & Rendering
+      let livingCount = 0;
       rt.enemies.forEach((en, idx) => {
         if (en.hp <= 0) return;
+        livingCount += 1;
 
         const dist = Math.hypot(rt.px - en.x, rt.py - en.y);
-        if (en.staggerTimer > 0) {
-          en.staggerTimer -= dt;
-        } else if (dist < 260 && dist > 56) {
-          const dx = (rt.px - en.x) / dist;
-          const dy = (rt.py - en.y) / dist;
-          en.x += dx * 85 * dt;
-          en.y += dy * 85 * dt;
-        } else if (dist <= 56) {
-          en.windupTimer += dt;
-          if (en.windupTimer >= 1.15) {
-            en.windupTimer = 0;
-            if (rt.parryTimer > 0) {
-              en.staggerTimer = 2.6;
-              rt.riposteReady = true;
-              showBanner(`⚡ PARRIED ${en.name}! Click LMB for 2.4x CRITICAL RIPOSTE!`);
-            } else if (rt.dodgeTimer <= 0) {
-              setPlayerHP(hp => Math.max(10, hp - 12));
+
+        // Turn-Based Mode vs Real-Time Mode AI
+        if (isTurnBased) {
+          // IN TURN-BASED MODE: Enemies are FROZEN while PLAYER_TURN is active!
+          // Only idle in place, no chasing or attacking until ENEMY_TURN
+          if (turnPhase === 'PLAYER_TURN') {
+            // Frozen in place
+          } else if (turnPhase === 'ENEMY_TURN') {
+            // Enemy takes turn action: advance towards player
+            if (dist > 65) {
+              const dx = (rt.px - en.x) / dist;
+              const dy = (rt.py - en.y) / dist;
+              en.x += dx * 65 * dt;
+              en.y += dy * 65 * dt;
             }
           }
         } else {
-          en.angle += dt * 1.1;
-          en.x = en.spawnX + Math.cos(en.angle) * 35;
-          en.y = en.spawnY + Math.sin(en.angle) * 22;
+          // REAL-TIME MODE AI: Continuous Chase & Strike
+          if (en.staggerTimer > 0) {
+            en.staggerTimer -= dt;
+          } else if (dist < 260 && dist > 56) {
+            const dx = (rt.px - en.x) / dist;
+            const dy = (rt.py - en.y) / dist;
+            en.x += dx * 85 * dt;
+            en.y += dy * 85 * dt;
+          } else if (dist <= 56) {
+            en.windupTimer += dt;
+            if (en.windupTimer >= 1.15) {
+              en.windupTimer = 0;
+              if (rt.parryTimer > 0) {
+                en.staggerTimer = 2.6;
+                rt.riposteReady = true;
+                showBanner(`⚡ PARRIED ${en.name}! Click LMB for 2.4x CRITICAL RIPOSTE!`);
+              } else if (rt.dodgeTimer <= 0) {
+                setPlayerHP(hp => Math.max(10, hp - 12));
+                showBanner(`💥 ${en.name} struck you for 12 DMG!`);
+              }
+            }
+          } else {
+            en.angle += dt * 1.1;
+            en.x = en.spawnX + Math.cos(en.angle) * 35;
+            en.y = en.spawnY + Math.sin(en.angle) * 22;
+          }
         }
 
+        // Render Enemy
         ctx.save();
         ctx.translate(en.x, en.y);
         ctx.fillStyle = en.isBoss ? 'rgba(168, 85, 247, 0.32)' : 'rgba(239, 68, 68, 0.25)';
@@ -445,7 +657,7 @@ export default function GameCanvas2D({
           ctx.drawImage(activeEnImg, -scale / 2, -scale / 2 - 10, scale, scale);
         }
 
-        // Lock-On Reticle
+        // Enemy Target Reticle
         if (rt.lockedEnemyIdx === idx) {
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 2.5;
@@ -467,7 +679,11 @@ export default function GameCanvas2D({
         ctx.restore();
       });
 
-      // Draw Player 2D Hero Sprite (0x72 Animated Knight + Weapon Aura)
+      // Update slain count
+      const totalEnemies = rt.enemies.length;
+      setSlainCount(totalEnemies - livingCount);
+
+      // Render Player Hero (Knight + Weapon Aura)
       ctx.save();
       ctx.translate(rt.px, rt.py);
       const auraColor = selectedWeapon?.shader_color_hex || '#f97316';
@@ -487,7 +703,6 @@ export default function GameCanvas2D({
         ctx.stroke();
       }
 
-      const isMoving = (rt.keys.w || rt.keys.a || rt.keys.s || rt.keys.d || rt.targetX !== null);
       let activeHeroImg = knightIdleImgs[frame];
       if (rt.attackTimer > 0 && knightHitImg.complete) {
         activeHeroImg = knightHitImg;
@@ -520,11 +735,11 @@ export default function GameCanvas2D({
       ctx.fillText(`YOU (${selectedWeapon?.name?.slice(0, 18) || 'Hero'})`, 0, -56);
       ctx.restore();
 
-      // Draw Active 2D Spell / Explosion VFX Blasts
+      // Render Active VFX Blasts (Fireballs, Explosions, Level Clears)
       rt.vfxBlasts = rt.vfxBlasts.filter(b => b.life > 0);
       rt.vfxBlasts.forEach((b) => {
         b.life -= dt;
-        b.radius += dt * 160;
+        b.radius += dt * 170;
         ctx.save();
         ctx.strokeStyle = b.color;
         ctx.fillStyle = `${b.color}33`;
@@ -543,57 +758,142 @@ export default function GameCanvas2D({
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, [compiledGame?.build_id, activeRoomIdx, selectedWeapon]);
+  }, [compiledGame?.build_id, activeRoomIdx, selectedWeapon, isTurnBased, turnPhase, moveBudgetM]);
 
+  // Handle Prop Interactivity on [E]
+  const handlePropInteract = (prop) => {
+    const rt = runtimeRef.current;
+    if (prop.tag === 'treasure_chest') {
+      if (prop.opened) {
+        showBark('Chest', '"This chest has already been looted."');
+        return;
+      }
+      prop.opened = true;
+      const reward = prop.gold_reward || 10;
+      setPlayerGold(prev => prev + reward);
+      setCompletedObjectives(prev => new Set(prev).add(`chest_r${activeRoomIdx}`));
+      rt.vfxBlasts.push({ x: prop.x, y: prop.y, radius: 15, life: 0.6, color: '#eab308' });
+      showBanner(`💰 Plundered Chest: +${reward} Gold! (Total: ${playerGold + reward} Gold)`);
+      sendTelemetry('LOOT_CHEST', prop.id, `Looted ${reward} Gold`, 1.2);
+    } else if (prop.tag === 'survey_forge') {
+      setActiveForgeProp(prop);
+    } else if (prop.tag === 'mechanical_lever') {
+      if (prop.pulled) {
+        showBark('Lever', '"The bronze mechanism is already locked open."');
+        return;
+      }
+      prop.pulled = true;
+      setCompletedObjectives(prev => new Set(prev).add(`lever_r${activeRoomIdx}`));
+      showBanner('⚙️ Bronze Lever Engaged: North Portcullis Raised!');
+      sendTelemetry('LEVER_PULLED', prop.id, 'Raised Portcullis', 1.1);
+    } else if (prop.tag === 'flammable_barrel') {
+      triggerFireballOrIgnite();
+    } else if (prop.tag === 'loot_shrine') {
+      setCovenantModalOpen(true);
+    }
+  };
+
+  // Physical Attack Handler
   const perform2DAttack = (heavy = false) => {
     const rt = runtimeRef.current;
+
+    if (isTurnBased && turnPhase !== 'PLAYER_TURN') {
+      showBanner('⚠ It is not your turn! Wait for enemy phase to complete.');
+      return;
+    }
+
+    if (isTurnBased) {
+      if (apCurrent < 1) {
+        showBanner('⚠ Insufficient Action Points (0 AP left) — Click [End Turn] to recharge!');
+        return;
+      }
+      setApCurrent(prev => prev - 1);
+    }
+
     rt.attackTimer = heavy ? 0.42 : 0.25;
     setStamina(prev => Math.max(0, prev - (heavy ? 24 : 14)));
     const baseDmg = (selectedWeapon?.base_damage || 68) * (heavy ? 1.45 : 1.0) * (rt.riposteReady ? 2.4 : 1.0);
     rt.riposteReady = false;
 
+    // Hit Enemies
     rt.enemies.forEach((en) => {
       if (en.hp <= 0) return;
       if (Math.hypot(en.x - rt.px, en.y - rt.py) <= 105) {
         en.hp = Math.max(0, en.hp - baseDmg);
+        rt.vfxBlasts.push({ x: en.x, y: en.y, radius: 10, life: 0.35, color: '#f97316' });
         if (en.hp <= 0) {
           showBanner(`💀 SLAIN: ${en.name} Defeated!`);
           sendTelemetry('COMBAT_KILL', en.questionId, en.mappedOption, 1.4);
         }
       }
     });
+
+    // Check hit barrels
+    rt.props.forEach((p) => {
+      if (p.tag === 'flammable_barrel' && !p.exploded && Math.hypot(p.x - rt.px, p.y - rt.py) <= 105) {
+        p.exploded = true;
+        rt.vfxBlasts.push({ x: p.x, y: p.y, radius: 24, life: 0.65, color: '#ef4444' });
+        rt.enemies.forEach(en => { en.hp = Math.max(0, en.hp - 95); });
+        showBanner('💥 Alchemical Barrel Detonated by Weapon Strike!');
+      }
+    });
   };
 
-  const triggerSandboxAffordance = (type) => {
+  // Fireball / Barrel Blast Handler
+  const triggerFireballOrIgnite = () => {
     const rt = runtimeRef.current;
-    const puz = currentRoom.immersive_sim_puzzle || {};
-    const qid = currentRoom.npc?.question_id || 'q1';
-    if (type === 'BURN') {
-      const barrel = rt.props.find(p => p.tag === 'flammable_barrel' && !p.exploded);
-      if (barrel) {
-        barrel.exploded = true;
-        rt.vfxBlasts.push({ x: barrel.x, y: barrel.y, radius: 18, life: 0.55, color: '#ef4444' });
+    if (isTurnBased) {
+      if (apCurrent < 2) {
+        showBanner('⚠ Fireball requires 2 AP — Click [End Turn] to restore AP!');
+        return;
+      }
+      setApCurrent(prev => prev - 2);
+    } else {
+      if (stamina < 20) {
+        showBanner('⚠ Low Stamina for Fireball!');
+        return;
+      }
+      setStamina(prev => prev - 20);
+    }
+
+    const blastX = rt.px + rt.facing * 90;
+    const blastY = rt.py;
+    rt.vfxBlasts.push({ x: blastX, y: blastY, radius: 28, life: 0.7, color: '#ef4444' });
+
+    // Damage enemies in blast radius
+    rt.enemies.forEach((en) => {
+      if (en.hp > 0 && Math.hypot(en.x - blastX, en.y - blastY) <= 130) {
+        en.hp = Math.max(0, en.hp - 72);
+        if (en.hp <= 0) sendTelemetry('COMBAT_KILL', en.questionId, en.mappedOption, 1.4);
+      }
+    });
+
+    // Detonate nearby barrels
+    rt.props.forEach((p) => {
+      if (p.tag === 'flammable_barrel' && !p.exploded && Math.hypot(p.x - blastX, p.y - blastY) <= 140) {
+        p.exploded = true;
+        rt.vfxBlasts.push({ x: p.x, y: p.y, radius: 32, life: 0.75, color: '#f97316' });
         rt.enemies.forEach(en => { en.hp = Math.max(0, en.hp - 95); });
       }
-      const opt = puz.flammable_barrel?.maps_to_option || 'Alchemical Ignition';
-      showBark('Guard Captain', '"The oil barrel just exploded! Sound the alarm!"');
-      sendTelemetry('SANDBOX_AFFORDANCE', qid, opt, 1.35);
-    } else if (type === 'LOCKPICK') {
-      const opt = puz.locked_gate?.maps_to_option || 'Stealth Lockpick';
-      showBark('Sanctum Warden', '"The north gate lock has been picked!"');
-      sendTelemetry('SANDBOX_AFFORDANCE', qid, opt, 1.25);
-      if (activeRoomIdx < rooms.length - 1) setActiveRoomIdx(prev => prev + 1);
-    }
+    });
+
+    showBanner('🔥 Fireball AoE Detonated!');
   };
 
+  // Genuine Turn-Based: Cast Ability
   const cast2DAbility = (ab) => {
     const rt = runtimeRef.current;
+    if (turnPhase !== 'PLAYER_TURN') {
+      showBanner('⚠ Wait for your turn! Enemy phase is running.');
+      return;
+    }
     if (apCurrent < (ab.ap_cost || 1)) {
       showBanner('⚠ Insufficient AP — Click [End Turn] to Restore 4 AP');
       return;
     }
     setApCurrent(prev => Math.max(0, prev - (ab.ap_cost || 1)));
     rt.vfxBlasts.push({ x: rt.px, y: rt.py - 30, radius: 16, life: 0.5, color: ab.color || '#38bdf8' });
+
     if (ab.heal) {
       setPlayerHP(hp => Math.min(100, hp + ab.heal));
       showBanner(`✨ ${ab.name}: +${ab.heal} HP!`);
@@ -601,7 +901,7 @@ export default function GameCanvas2D({
     }
     if (ab.move_bonus_m) {
       setMoveBudgetM(m => m + ab.move_bonus_m);
-      showBanner(`💨 ${ab.name}: +${ab.move_bonus_m}m Movement!`);
+      showBanner(`💨 ${ab.name}: +${ab.move_bonus_m}m Movement Restored!`);
       return;
     }
     const dmg = ab.damage || 52;
@@ -614,6 +914,45 @@ export default function GameCanvas2D({
     showBanner(`${ab.icon || '⚔️'} Cast ${ab.name} (${dmg} DMG)!`);
   };
 
+  // Genuine Turn-Based: Execute Enemy Turn
+  const endPlayerTurn = () => {
+    if (turnPhase === 'ENEMY_TURN') return;
+    setTurnPhase('ENEMY_TURN');
+    showBanner('⏳ ENEMY PHASE: Sentinels are executing turns...');
+
+    setTimeout(() => {
+      const rt = runtimeRef.current;
+      let totalDamageTaken = 0;
+
+      rt.enemies.forEach((en) => {
+        if (en.hp <= 0) return;
+        const dist = Math.hypot(rt.px - en.x, rt.py - en.y);
+        if (dist <= 75) {
+          totalDamageTaken += 12;
+          rt.vfxBlasts.push({ x: rt.px, y: rt.py, radius: 14, life: 0.4, color: '#ef4444' });
+        } else {
+          // Advance 60px towards player
+          const dx = (rt.px - en.x) / dist;
+          const dy = (rt.py - en.y) / dist;
+          en.x += dx * 60;
+          en.y += dy * 60;
+        }
+      });
+
+      if (totalDamageTaken > 0) {
+        setPlayerHP(hp => Math.max(10, hp - totalDamageTaken));
+        showBark('Sentinel', `"You cannot withstand the legion!"`);
+      }
+
+      // Restore player turn
+      setApCurrent(4);
+      setMoveBudgetM(8.0);
+      setTurnPhase('PLAYER_TURN');
+      showBanner('🎲 PLAYER TURN: 4 AP & 8.0m Movement Restored!');
+    }, 1200);
+  };
+
+  // D20 Dialogue Choice Roll
   const roll2DD20Choice = (ch, idx, npcObj) => {
     const dc = ch.dc || 12;
     const skill = ch.skill_name || 'Persuasion';
@@ -627,18 +966,46 @@ export default function GameCanvas2D({
         const finalRoll = Math.max(dc, Math.floor(Math.random() * 8) + 13);
         setD20RollState({ rolling: false, value: finalRoll, dc, skill });
         setTimeout(() => {
-          sendTelemetry('D20_DIALOGUE', npcObj.question_id || 'q1', ch.choice_text, ch.metric_delta || 1.3);
+          sendTelemetry('D20_DIALOGUE', npcObj.question_id || `q_r${activeRoomIdx + 1}`, ch.choice_text, ch.metric_delta || 1.3);
+          setCompletedObjectives(prev => new Set(prev).add(npcObj.question_id || `npc_r${activeRoomIdx + 1}`));
           if (ch.grants_weapon_id && compiledGame?.weapons && onSelectWeapon) {
             const w = compiledGame.weapons.find(x => x.weapon_id === ch.grants_weapon_id);
             if (w) onSelectWeapon(w);
           }
           setD20RollState(null);
           setActiveDialogueNPC(null);
-          showBanner(`🎲 D20 ${skill} [${finalRoll} vs DC ${dc}] Success — Survey Recorded!`);
+          showBanner(`🎲 D20 ${skill} [${finalRoll} vs DC ${dc}] Success — Survey Response Recorded!`);
         }, 950);
       }
     }, 65);
   };
+
+  // Survey Forge Selection
+  const selectForgeTier = (tierName, costGold, weaponIndex = 0) => {
+    if (playerGold < costGold) {
+      showBanner(`⚠ Insufficient Gold for ${tierName} (${costGold} Gold required — Loot chests first!)`);
+    } else {
+      setPlayerGold(prev => prev - costGold);
+    }
+    setCompletedObjectives(prev => new Set(prev).add(`forge_r${activeRoomIdx}`));
+    if (compiledGame?.weapons?.[weaponIndex] && onSelectWeapon) {
+      onSelectWeapon(compiledGame.weapons[weaponIndex]);
+    }
+    sendTelemetry('SURVEY_FORGE_TIER', activeForgeProp?.id || 'forge_anvil', tierName, costGold === 10 ? 1.5 : 1.2);
+    showBanner(`⚒️ Upgraded to ${tierName}! Weapon equipped.`);
+    setActiveForgeProp(null);
+  };
+
+  // Determine Objective Statuses
+  const totalRoomEnemies = (compiledGame?.rooms?.[activeRoomIdx]?.enemies || []).length;
+  const isCombatCleared = totalRoomEnemies > 0 && slainCount >= totalRoomEnemies;
+  const isNpcSurveyDone = completedObjectives.has(runtimeRef.current.npc.data?.question_id || `npc_r${activeRoomIdx + 1}`);
+  const hasChestInRoom = runtimeRef.current.props.some(p => p.tag === 'treasure_chest');
+  const isChestDone = completedObjectives.has(`chest_r${activeRoomIdx}`);
+  const hasForgeInRoom = runtimeRef.current.props.some(p => p.tag === 'survey_forge');
+  const isForgeDone = completedObjectives.has(`forge_r${activeRoomIdx}`);
+  const hasLeverInRoom = runtimeRef.current.props.some(p => p.tag === 'mechanical_lever');
+  const isLeverDone = completedObjectives.has(`lever_r${activeRoomIdx}`);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: '#070a12' }}>
@@ -648,7 +1015,7 @@ export default function GameCanvas2D({
           const rect = e.currentTarget.getBoundingClientRect();
           const cx = e.clientX - rect.left;
           const cy = e.clientY - rect.top;
-          if (styleMode === 'BALDURS_GATE_CRPG' && !e.shiftKey) {
+          if (isTurnBased && !e.shiftKey) {
             runtimeRef.current.targetX = cx;
             runtimeRef.current.targetY = cy;
           } else {
@@ -663,40 +1030,129 @@ export default function GameCanvas2D({
         style={{ width: '100%', height: '100%', display: 'block', cursor: 'crosshair' }}
       />
 
-      {/* Top-Left 2D Player HUD */}
+      {/* Top-Left Player Status HUD */}
       <div style={{
         position: 'absolute',
         top: '14px',
         left: '14px',
-        background: 'rgba(11, 16, 29, 0.90)',
+        background: 'rgba(11, 16, 29, 0.94)',
         border: '1px solid #334155',
         borderRadius: '10px',
         padding: '10px 14px',
-        minWidth: '340px',
+        minWidth: '320px',
         zIndex: 12
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontWeight: 800, color: compiledGame?.is_custom_genre ? '#f472b6' : '#34d399', marginBottom: '4px' }}>
-          <span>2D ENGINE ({compiledGame?.custom_genre || compiledGame?.style_mode || 'ISOMETRIC'}) • CHAMBER {activeRoomIdx + 1}/{rooms.length || 1}</span>
-          <span style={{ color: '#facc15' }}>🧪 Estus [R]: {estusCharges}/3</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontWeight: 800, color: '#38bdf8', marginBottom: '4px' }}>
+          <span>{isTurnBased ? '🎲 TURN-BASED CRPG' : '⚔️ REAL-TIME ACTION'} • ZONE {activeRoomIdx + 1}/{rooms.length || 1}</span>
+          <span style={{ color: '#fbbf24', fontWeight: 900 }}>💰 {playerGold} GOLD</span>
         </div>
         <div style={{ fontSize: '13px', fontWeight: 800, color: '#f8fafc', marginBottom: '6px' }}>
-          {currentRoom.name || compiledGame?.campaign_title || '2D Sanctum'}
+          {currentRoom.name || compiledGame?.campaign_title || 'Dungeon Chamber'}
         </div>
         <div style={{ display: 'flex', gap: '8px', marginBottom: '6px' }}>
-          <div style={{ flex: 1, height: '6px', background: '#1e293b', borderRadius: '999px', overflow: 'hidden' }}>
+          <div style={{ flex: 1, height: '6px', background: '#1e293b', borderRadius: '999px', overflow: 'hidden' }} title="Health">
             <div style={{ width: `${playerHP}%`, height: '100%', background: '#ef4444' }} />
           </div>
-          <div style={{ flex: 1, height: '6px', background: '#1e293b', borderRadius: '999px', overflow: 'hidden' }}>
+          <div style={{ flex: 1, height: '6px', background: '#1e293b', borderRadius: '999px', overflow: 'hidden' }} title="Stamina">
             <div style={{ width: `${stamina}%`, height: '100%', background: '#22c55e' }} />
           </div>
         </div>
-        <div style={{ fontSize: '10px', color: '#94a3b8', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-          <span>[WASD/Click] Move</span>
-          <span>• [LMB] Attack</span>
-          <span>• [RMB] Parry</span>
-          <span>• [E] Parley</span>
-          <span>• [G] {grabbedPropName ? `Drop ${grabbedPropName}` : 'Grab Prop'}</span>
-          <span>• [F] Shrine</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', color: '#94a3b8' }}>
+          <span>HP: {playerHP}/100</span>
+          <span>🧪 Flasks: {estusCharges}/3 [R]</span>
+          <span>Weapon: <strong style={{ color: '#f8fafc' }}>{selectedWeapon?.name?.slice(0, 14) || 'Sword'}</strong></span>
+        </div>
+      </div>
+
+      {/* Top-Right Mission Objectives HUD */}
+      <div style={{
+        position: 'absolute',
+        top: '14px',
+        right: '14px',
+        background: 'rgba(11, 16, 29, 0.94)',
+        border: '1px solid #6366f1',
+        borderRadius: '10px',
+        padding: '10px 14px',
+        width: '310px',
+        zIndex: 12
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px', borderBottom: '1px solid #1e293b', paddingBottom: '4px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#818cf8', letterSpacing: '0.04em' }}>
+            🎯 MISSION OBJECTIVES (ZONE {activeRoomIdx + 1})
+          </span>
+          <span style={{ fontSize: '9.5px', color: '#94a3b8' }}>
+            {activeRoomIdx + 1} of {rooms.length || 1}
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '11px' }}>
+          {/* Objective 1: NPC Dialogue */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: isNpcSurveyDone ? '#94a3b8' : '#f8fafc', textDecoration: isNpcSurveyDone ? 'line-through' : 'none' }}>
+              💬 Speak with {runtimeRef.current.npc.data?.name?.slice(0, 18) || 'Envoy'}
+            </span>
+            <span style={{ fontWeight: 800, color: isNpcSurveyDone ? '#34d399' : '#f59e0b' }}>
+              {isNpcSurveyDone ? '[✓] Done' : '[E] Talk'}
+            </span>
+          </div>
+
+          {/* Objective 2: Chest */}
+          {hasChestInRoom && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: isChestDone ? '#94a3b8' : '#f8fafc', textDecoration: isChestDone ? 'line-through' : 'none' }}>
+                📦 Plunder Gold Chest (+10 Gold)
+              </span>
+              <span style={{ fontWeight: 800, color: isChestDone ? '#34d399' : '#eab308' }}>
+                {isChestDone ? '[✓] Looted' : '[E] Open'}
+              </span>
+            </div>
+          )}
+
+          {/* Objective 3: Forge Anvil */}
+          {hasForgeInRoom && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: isForgeDone ? '#94a3b8' : '#f8fafc', textDecoration: isForgeDone ? 'line-through' : 'none' }}>
+                ⚒️ Evaluate Forge Tier ($10 vs $2)
+              </span>
+              <span style={{ fontWeight: 800, color: isForgeDone ? '#34d399' : '#38bdf8' }}>
+                {isForgeDone ? '[✓] Chosen' : '[E] Forge'}
+              </span>
+            </div>
+          )}
+
+          {/* Objective 4: Lever */}
+          {hasLeverInRoom && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: isLeverDone ? '#94a3b8' : '#f8fafc', textDecoration: isLeverDone ? 'line-through' : 'none' }}>
+                ⚙️ Pull Bronze Lever (Raise Gate)
+              </span>
+              <span style={{ fontWeight: 800, color: isLeverDone ? '#34d399' : '#a855f7' }}>
+                {isLeverDone ? '[✓] Raised' : '[E] Pull'}
+              </span>
+            </div>
+          )}
+
+          {/* Objective 5: Combat */}
+          {totalRoomEnemies > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: isCombatCleared ? '#94a3b8' : '#f8fafc', textDecoration: isCombatCleared ? 'line-through' : 'none' }}>
+                💀 Defeat Sentinels ({slainCount}/{totalRoomEnemies})
+              </span>
+              <span style={{ fontWeight: 800, color: isCombatCleared ? '#34d399' : '#ef4444' }}>
+                {isCombatCleared ? '[✓] Cleared' : 'Active'}
+              </span>
+            </div>
+          )}
+
+          {/* Objective 6: North Portal */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #1e293b', paddingTop: '4px' }}>
+            <span style={{ color: '#cbd5e1' }}>
+              🚪 North Portal to Zone {activeRoomIdx + 2}
+            </span>
+            <span style={{ fontWeight: 800, color: '#38bdf8' }}>
+              Walk North ▲
+            </span>
+          </div>
         </div>
       </div>
 
@@ -713,7 +1169,8 @@ export default function GameCanvas2D({
           borderRadius: '999px',
           fontSize: '12px',
           fontWeight: 800,
-          zIndex: 22
+          zIndex: 22,
+          boxShadow: '0 4px 20px rgba(250, 204, 21, 0.25)'
         }}>
           {statusBanner}
         </div>
@@ -737,67 +1194,320 @@ export default function GameCanvas2D({
         </div>
       )}
 
-      {/* Bottom-Center 5-Ability Action Bar */}
-      <div style={{
-        position: 'absolute',
-        bottom: '16px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        background: 'rgba(9, 13, 24, 0.94)',
-        border: compiledGame?.is_custom_genre ? '1px solid #ec4899' : '1px solid #6366f1',
-        borderRadius: '12px',
-        padding: '10px 14px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        zIndex: 16
-      }}>
-        <div style={{ paddingRight: '10px', borderRight: '1px solid #334155', fontSize: '10px', color: '#cbd5e1' }}>
-          <div style={{ fontWeight: 800, color: compiledGame?.is_custom_genre ? '#f472b6' : '#818cf8' }}>AP: {apCurrent}/4</div>
-          <div style={{ color: '#34d399' }}>Move: {moveBudgetM.toFixed(1)}m</div>
-        </div>
-        {(compiledGame?.custom_mechanics?.custom_hotbar || compiledGame?.mechanics_spec?.crpg_abilities || [
-          { id: 'cleave', name: 'Main Hand Cleave', ap_cost: 1, damage: 38, color: '#f97316', icon: '⚔️' },
-          { id: 'fireball', name: 'Fireball AoE', ap_cost: 2, damage: 64, color: '#ef4444', icon: '🔥' },
-          { id: 'frost_nova', name: 'Frost Nova', ap_cost: 2, damage: 48, color: '#38bdf8', icon: '❄️' },
-          { id: 'healing_word', name: 'Healing Word', ap_cost: 1, heal: 45, color: '#22c55e', icon: '✨' },
-          { id: 'tactical_dash', name: 'Tactical Dash', ap_cost: 1, move_bonus_m: 6.0, color: '#a855f7', icon: '💨' }
-        ]).map((ab) => (
+      {/* Bottom Controls: GENUINE TURN-BASED vs REAL-TIME ACTION */}
+      {isTurnBased ? (
+        /* Genuine Turn-Based Combat Bar */
+        <div style={{
+          position: 'absolute',
+          bottom: '16px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'rgba(9, 13, 24, 0.94)',
+          border: turnPhase === 'PLAYER_TURN' ? '1px solid #6366f1' : '1px solid #ef4444',
+          borderRadius: '12px',
+          padding: '10px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          zIndex: 16
+        }}>
+          <div style={{ paddingRight: '10px', borderRight: '1px solid #334155', fontSize: '10px', color: '#cbd5e1' }}>
+            <div style={{
+              fontWeight: 900,
+              color: turnPhase === 'PLAYER_TURN' ? '#34d399' : '#f87171',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              background: turnPhase === 'PLAYER_TURN' ? 'rgba(52, 211, 153, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+              marginBottom: '3px'
+            }}>
+              {turnPhase === 'PLAYER_TURN' ? 'PLAYER PHASE' : 'ENEMY PHASE'}
+            </div>
+            <div style={{ fontWeight: 800, color: '#818cf8' }}>AP: {apCurrent}/4</div>
+            <div style={{ color: '#38bdf8' }}>Move: {moveBudgetM.toFixed(1)}m</div>
+          </div>
+
+          {(compiledGame?.custom_mechanics?.custom_hotbar || compiledGame?.mechanics_spec?.crpg_abilities || [
+            { id: 'cleave', name: 'Main Hand Cleave', ap_cost: 1, damage: 38, color: '#f97316', icon: '⚔️' },
+            { id: 'fireball', name: 'Fireball AoE', ap_cost: 2, damage: 64, color: '#ef4444', icon: '🔥' },
+            { id: 'frost_nova', name: 'Frost Nova', ap_cost: 2, damage: 48, color: '#38bdf8', icon: '❄️' },
+            { id: 'healing_word', name: 'Healing Word', ap_cost: 1, heal: 45, color: '#22c55e', icon: '✨' },
+            { id: 'tactical_dash', name: 'Tactical Dash', ap_cost: 1, move_bonus_m: 6.0, color: '#a855f7', icon: '💨' }
+          ]).map((ab) => (
+            <button
+              key={ab.id}
+              onClick={() => cast2DAbility(ab)}
+              disabled={turnPhase !== 'PLAYER_TURN'}
+              style={{
+                background: '#1e293b',
+                border: `1px solid ${ab.color || '#6366f1'}`,
+                borderRadius: '8px',
+                padding: '6px 10px',
+                color: '#f8fafc',
+                cursor: turnPhase === 'PLAYER_TURN' ? 'pointer' : 'not-allowed',
+                opacity: turnPhase === 'PLAYER_TURN' ? 1 : 0.45,
+                fontSize: '11px',
+                fontWeight: 700
+              }}
+            >
+              {ab.icon || '⚡'} {ab.name} ({ab.ap_cost || 1} AP)
+            </button>
+          ))}
+
           <button
-            key={ab.id}
-            onClick={() => cast2DAbility(ab)}
+            onClick={endPlayerTurn}
+            disabled={turnPhase !== 'PLAYER_TURN'}
             style={{
-              background: '#1e293b',
-              border: `1px solid ${ab.color || '#6366f1'}`,
+              background: turnPhase === 'PLAYER_TURN'
+                ? 'linear-gradient(135deg, #4f46e5, #7c3aed)'
+                : '#334155',
+              color: '#fff',
+              border: 'none',
               borderRadius: '8px',
-              padding: '6px 10px',
-              color: '#f8fafc',
-              cursor: 'pointer',
+              padding: '8px 14px',
               fontSize: '11px',
-              fontWeight: 700
+              fontWeight: 800,
+              cursor: turnPhase === 'PLAYER_TURN' ? 'pointer' : 'not-allowed'
             }}
           >
-            {ab.icon || '⚡'} {ab.name} ({ab.ap_cost || 1} AP)
+            ⏳ End Turn
           </button>
-        ))}
-        <button
-          onClick={() => { setApCurrent(4); setMoveBudgetM(8.0); showBanner('🎲 Turn Reset: 4 AP Restored'); }}
-          style={{
-            background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '8px 12px',
-            fontSize: '11px',
-            fontWeight: 800,
-            cursor: 'pointer'
-          }}
-        >
-          ⏳ End Turn
-        </button>
-      </div>
+        </div>
+      ) : (
+        /* Real-Time Action Controls Hotbar (NO Turn-Based AP Buttons!) */
+        <div style={{
+          position: 'absolute',
+          bottom: '16px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'rgba(9, 13, 24, 0.94)',
+          border: '1px solid #38bdf8',
+          borderRadius: '12px',
+          padding: '8px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          zIndex: 16
+        }}>
+          <button
+            onClick={() => perform2DAttack(false)}
+            style={{
+              background: '#1e293b',
+              border: '1px solid #f97316',
+              borderRadius: '8px',
+              padding: '7px 12px',
+              color: '#f8fafc',
+              fontSize: '11px',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            ⚔️ Strike [LMB / Space]
+          </button>
+          <button
+            onClick={triggerFireballOrIgnite}
+            style={{
+              background: '#1e293b',
+              border: '1px solid #ef4444',
+              borderRadius: '8px',
+              padding: '7px 12px',
+              color: '#f8fafc',
+              fontSize: '11px',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            🔥 Fireball AoE [1]
+          </button>
+          <button
+            onClick={() => {
+              setEstusCharges(prev => {
+                if (prev <= 0) { showBanner('🧪 Flask Empty!'); return 0; }
+                setPlayerHP(hp => Math.min(100, hp + 45));
+                showBanner('✨ Estus Flask Consumed (+45 HP)');
+                return prev - 1;
+              });
+            }}
+            style={{
+              background: '#1e293b',
+              border: '1px solid #22c55e',
+              borderRadius: '8px',
+              padding: '7px 12px',
+              color: '#f8fafc',
+              fontSize: '11px',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            🧪 Heal Flask [R] ({estusCharges})
+          </button>
+          <button
+            onClick={() => {
+              const rt = runtimeRef.current;
+              const distNpc = Math.hypot(rt.px - rt.npc.x, rt.py - rt.npc.y);
+              if (distNpc < 140) setActiveDialogueNPC(rt.npc.data);
+              else showBanner('Walk close to NPC or Props to Interact [E]');
+            }}
+            style={{
+              background: '#1e293b',
+              border: '1px solid #38bdf8',
+              borderRadius: '8px',
+              padding: '7px 12px',
+              color: '#38bdf8',
+              fontSize: '11px',
+              fontWeight: 800,
+              cursor: 'pointer'
+            }}
+          >
+            💬 Interact [E]
+          </button>
+          <button
+            onClick={() => {
+              const rt = runtimeRef.current;
+              rt.lockedEnemyIdx = rt.lockedEnemyIdx === 0 ? null : 0;
+              showBanner(rt.lockedEnemyIdx !== null ? '🎯 Target Lock-On Engaged' : '🎯 Target Lock-On Released', 1400);
+            }}
+            style={{
+              background: '#1e293b',
+              border: '1px solid #94a3b8',
+              borderRadius: '8px',
+              padding: '7px 10px',
+              color: '#cbd5e1',
+              fontSize: '11px',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+          >
+            🎯 Lock [Q]
+          </button>
+        </div>
+      )}
 
-      {/* 2D D20 Dialogue Modal */}
+      {/* Survey Forge Tier Modal ($10 vs $2 Decomposed Pricing Intent) */}
+      {activeForgeProp && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(7, 10, 18, 0.88)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 30
+        }}>
+          <div style={{
+            width: '520px',
+            background: '#0f172a',
+            border: '1px solid #f59e0b',
+            borderRadius: '14px',
+            padding: '22px',
+            boxShadow: '0 20px 50px rgba(245, 158, 11, 0.25)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ fontSize: '15px', fontWeight: 900, color: '#f59e0b' }}>
+                ⚒️ {compiledGame?.company_name || 'STUDIO'} SURVEY FORGE ANVIL
+              </div>
+              <button
+                onClick={() => setActiveForgeProp(null)}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '16px' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div style={{ fontSize: '13px', color: '#f8fafc', marginBottom: '14px', lineHeight: 1.5 }}>
+              The Forge Master tests your valuation of <strong>{compiledGame?.company_name || 'our service'}</strong>:
+              <br />
+              <span style={{ color: '#38bdf8', fontStyle: 'italic' }}>
+                "{compiledGame?.survey_intent || 'Evaluate willingness to upgrade to premium tier'}"
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={() => selectForgeTier('Sovereign Tier ($10/mo - Premium Weapon & Exclusive Aura)', 10, 0)}
+                style={{
+                  padding: '12px 14px',
+                  background: 'rgba(245, 158, 11, 0.12)',
+                  border: '1px solid #f59e0b',
+                  borderRadius: '10px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <div>
+                  <div style={{ color: '#fbbf24', fontWeight: 800, fontSize: '13px' }}>
+                    👑 Sovereign Tier ($10 / mo)
+                  </div>
+                  <div style={{ color: '#cbd5e1', fontSize: '11px' }}>
+                    Full Unrestricted Access • Golden Aura VFX • +90 Poise Damage
+                  </div>
+                </div>
+                <div style={{ color: '#fbbf24', fontWeight: 900, fontSize: '12px' }}>
+                  Cost: 10 Gold
+                </div>
+              </button>
+
+              <button
+                onClick={() => selectForgeTier('Adventurer Tier ($2/mo - Core Utility Weapon)', 2, 1)}
+                style={{
+                  padding: '12px 14px',
+                  background: 'rgba(56, 189, 248, 0.12)',
+                  border: '1px solid #38bdf8',
+                  borderRadius: '10px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <div>
+                  <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: '13px' }}>
+                    ⚡ Adventurer Tier ($2 / mo)
+                  </div>
+                  <div style={{ color: '#cbd5e1', fontSize: '11px' }}>
+                    Standard Utility • Lightning Arc VFX • Balanced Agility
+                  </div>
+                </div>
+                <div style={{ color: '#38bdf8', fontWeight: 900, fontSize: '12px' }}>
+                  Cost: 2 Gold
+                </div>
+              </button>
+
+              <button
+                onClick={() => selectForgeTier('Community Free Tier ($0 - Baseline Weapon)', 0, 2)}
+                style={{
+                  padding: '10px 14px',
+                  background: 'rgba(71, 85, 105, 0.15)',
+                  border: '1px solid #475569',
+                  borderRadius: '10px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <div>
+                  <div style={{ color: '#94a3b8', fontWeight: 700, fontSize: '12px' }}>
+                    🛡 Community Baseline ($0)
+                  </div>
+                  <div style={{ color: '#64748b', fontSize: '10.5px' }}>
+                    Standard Base Features • No Cost
+                  </div>
+                </div>
+                <div style={{ color: '#94a3b8', fontWeight: 800, fontSize: '11px' }}>
+                  Free
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2D D20 Dialogue Modal strictly bound to Company's Intent */}
       {activeDialogueNPC && (
         <div style={{
           position: 'absolute',
@@ -851,7 +1561,7 @@ export default function GameCanvas2D({
       )}
 
       {/* Covenant Shrine Modal */}
-      {covenantModalOpen && currentRoom.npc && (
+      {covenantModalOpen && (
         <div style={{
           position: 'absolute',
           inset: 0,
@@ -863,23 +1573,26 @@ export default function GameCanvas2D({
         }}>
           <div style={{ width: '500px', background: '#0f172a', border: '1px solid #f59e0b', borderRadius: '14px', padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#f59e0b' }}>🔥 BONFIRE COVENANT SHRINE</span>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: '#f59e0b' }}>🔥 COVENANT RELIC SHRINE</span>
               <button onClick={() => setCovenantModalOpen(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>✕</button>
             </div>
-            <div style={{ fontSize: '14px', color: '#f8fafc', marginBottom: '12px' }}>"{currentRoom.npc.question_text}"</div>
+            <div style={{ fontSize: '14px', color: '#f8fafc', marginBottom: '12px' }}>
+              "{runtimeRef.current.npc.data?.question_text || 'Pledge your covenant to replenish healing flasks and record your allegiance.'}"
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {(currentRoom.npc.choices || []).map((ch, idx) => (
+              {(runtimeRef.current.npc.data?.choices || []).map((ch, idx) => (
                 <button
                   key={idx}
                   onClick={() => {
                     setEstusCharges(3);
-                    sendTelemetry('COVENANT_SHRINE', currentRoom.npc.question_id || 'q1', ch.choice_text, ch.metric_delta || 1.3);
+                    sendTelemetry('COVENANT_SHRINE', runtimeRef.current.npc.data?.question_id || 'q1', ch.choice_text, ch.metric_delta || 1.3);
+                    setCompletedObjectives(prev => new Set(prev).add(`shrine_r${activeRoomIdx}`));
                     setCovenantModalOpen(false);
-                    showBanner(`🔥 Covenant Pledged: ${ch.choice_text}`);
+                    showBanner(`🔥 Covenant Pledged: ${ch.choice_text} (Flasks Refilled!)`);
                   }}
                   style={{ textAlign: 'left', padding: '10px 12px', background: '#1e293b', border: '1px solid #f59e0b66', borderRadius: '8px', color: '#f8fafc', cursor: 'pointer' }}
                 >
-                  <strong style={{ color: '#fbbf24' }}>Vow {idx + 1}:</strong> {ch.choice_text}
+                  <strong style={{ color: '#fbbf24' }}>Pledge {idx + 1}:</strong> {ch.choice_text}
                 </button>
               ))}
             </div>

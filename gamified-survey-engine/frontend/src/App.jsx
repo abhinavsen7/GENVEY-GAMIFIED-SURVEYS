@@ -114,10 +114,7 @@ export default function App() {
   const [dimension, setDimension] = useState('3D'); // '3D' | '2D'
   const [styleMode, setStyleMode] = useState('DARK_SOULS_ACTION');
   const [customGenre, setCustomGenre] = useState('PSX Survival Horror');
-  const [lengthMinutes, setLengthMinutes] = useState(8);
-  const [themePrompt, setThemePrompt] = useState(
-    'A dark-fantasy gothic fortress besieged by skeletal legions and shadow monsters where ancient covenant shrines test leadership under crisis.'
-  );
+  const [themePrompt, setThemePrompt] = useState('');
   const [questions, setQuestions] = useState([]);
   const [amdStatus, setAmdStatus] = useState(null);
   const [isPingingAmd, setIsPingingAmd] = useState(false);
@@ -1363,6 +1360,7 @@ export default function App() {
                     rows={3}
                     value={themePrompt}
                     onChange={(e) => setThemePrompt(e.target.value)}
+                    placeholder="Optional aesthetic guidance (e.g. Neon Cyberpunk, 16-bit Cozy Village, Abandoned Station, Ancient Temple)..."
                     style={{
                       width: '100%',
                       padding: '10px 12px',

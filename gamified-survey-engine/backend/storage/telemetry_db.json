@@ -1,1 +1,272 @@
-[]
+[
+  {
+    "player_id": "player_vanguard",
+    "game_id": "8643662b-761e-4128-a6a6-382cf6b0642e",
+    "question_id": "q1_crisis_leadership",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Lead a direct counter-charge through the breach",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Staff",
+    "timestamp": "2026-10-18T08:08:07.978814+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "8643662b-761e-4128-a6a6-382cf6b0642e",
+    "question_id": "q1_crisis_leadership",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Lead a direct counter-charge through the breach",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Staff",
+    "timestamp": "2026-10-18T08:08:07.980344+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "8643662b-761e-4128-a6a6-382cf6b0642e",
+    "question_id": "q1_crisis_leadership",
+    "interaction_type": "COVENANT_SHRINE",
+    "selected_option": "Lead a direct counter-charge through the breach",
+    "metric_delta": 1.5,
+    "weapon_equipped": "Obsidian Insights Studio Staff",
+    "timestamp": "2026-10-18T08:08:34.932335+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "8643662b-761e-4128-a6a6-382cf6b0642e",
+    "question_id": "q2_resource_ethics",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Harness the relics immediately to empower our champions",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Staff",
+    "timestamp": "2026-10-18T08:08:41.639788+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "8643662b-761e-4128-a6a6-382cf6b0642e",
+    "question_id": "q2_resource_ethics",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Harness the relics immediately to empower our champions",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Staff",
+    "timestamp": "2026-10-18T08:08:41.641382+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "8643662b-761e-4128-a6a6-382cf6b0642e",
+    "question_id": "lever_zone2",
+    "interaction_type": "PORTCULLIS_LEVER_PULLED",
+    "selected_option": "Lever Mechanism Pulled",
+    "metric_delta": 2.0,
+    "weapon_equipped": "Obsidian Insights Studio Staff",
+    "timestamp": "2026-10-18T08:09:04.984175+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "8643662b-761e-4128-a6a6-382cf6b0642e",
+    "question_id": "q1_crisis_leadership",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Lead a direct counter-charge through the breach",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Staff",
+    "timestamp": "2026-10-18T08:09:13.013460+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "8643662b-761e-4128-a6a6-382cf6b0642e",
+    "question_id": "q1_crisis_leadership",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Lead a direct counter-charge through the breach",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Staff",
+    "timestamp": "2026-10-18T08:09:13.015257+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q1_crisis_leadership",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Lead a direct counter-charge through the breach",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:10:59.229408+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q1_crisis_leadership",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Lead a direct counter-charge through the breach",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:11:00.507017+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q2_resource_ethics",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Harness the relics immediately to empower our champions",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:11:05.094409+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q2_resource_ethics",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Harness the relics immediately to empower our champions",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:11:05.095373+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q1_crisis_leadership",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Lead a direct counter-charge through the breach",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:11:11.172108+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q1_crisis_leadership",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Lead a direct counter-charge through the breach",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:11:11.173826+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q2_resource_ethics",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Harness the relics immediately to empower our champions",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:11:20.123329+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q2_resource_ethics",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Harness the relics immediately to empower our champions",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:11:21.511792+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "barrel_melee_strike",
+    "interaction_type": "BARREL_IGNITED",
+    "selected_option": "Alchemical Barrel Struck & Detonated",
+    "metric_delta": 1.8,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:13:23.742714+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q1_crisis_leadership",
+    "interaction_type": "COVENANT_SHRINE",
+    "selected_option": "Fortify the inner sanctum and ration alchemical reserves",
+    "metric_delta": 1.15,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:13:35.106240+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "barrel_melee_strike",
+    "interaction_type": "BARREL_IGNITED",
+    "selected_option": "Alchemical Barrel Struck & Detonated",
+    "metric_delta": 1.8,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:13:37.762961+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q2_resource_ethics",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Harness the relics immediately to empower our champions",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:13:46.206618+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "1bd26b58-9f4f-4daf-a6a6-b33afa884cbb",
+    "question_id": "q2_resource_ethics",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Harness the relics immediately to empower our champions",
+    "metric_delta": 1.45,
+    "weapon_equipped": "Obsidian Insights Studio Sword 2Handed",
+    "timestamp": "2026-10-18T08:13:52.832484+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "eeed3964-6190-4cb4-bf87-3b367b89d84a",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Fast, automated high-throughput workflows",
+    "metric_delta": 1.4,
+    "weapon_equipped": "Obsidian Insights Studio Claymore",
+    "timestamp": "2026-10-18T08:42:54.818387+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "eeed3964-6190-4cb4-bf87-3b367b89d84a",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Fast, automated high-throughput workflows",
+    "metric_delta": 1.4,
+    "weapon_equipped": "Obsidian Insights Studio Claymore",
+    "timestamp": "2026-10-18T08:42:58.391802+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "eeed3964-6190-4cb4-bf87-3b367b89d84a",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COVENANT_SHRINE",
+    "selected_option": "Fast, automated high-throughput workflows",
+    "metric_delta": 1.5,
+    "weapon_equipped": "Obsidian Insights Studio Claymore",
+    "timestamp": "2026-10-18T08:43:14.615813+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "eeed3964-6190-4cb4-bf87-3b367b89d84a",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "SANDBOX_AFFORDANCE",
+    "selected_option": "Fast, automated high-throughput workflows",
+    "metric_delta": 1.35,
+    "weapon_equipped": "Obsidian Insights Studio Claymore",
+    "timestamp": "2026-10-18T08:43:20.074578+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "eeed3964-6190-4cb4-bf87-3b367b89d84a",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COVENANT_SHRINE",
+    "selected_option": "Zero-latency real-time response",
+    "metric_delta": 0.8,
+    "weapon_equipped": "Obsidian Insights Studio Claymore",
+    "timestamp": "2026-10-18T08:43:34.724175+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "eeed3964-6190-4cb4-bf87-3b367b89d84a",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COVENANT_SHRINE",
+    "selected_option": "Secure self-hosted data isolation",
+    "metric_delta": 0.45,
+    "weapon_equipped": "Obsidian Insights Studio Claymore",
+    "timestamp": "2026-10-18T08:43:44.956196+00:00"
+  }
+]
