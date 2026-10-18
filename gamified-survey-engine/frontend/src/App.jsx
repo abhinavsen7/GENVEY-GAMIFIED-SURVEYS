@@ -116,6 +116,7 @@ export default function App() {
   const [dimension, setDimension] = useState('3D'); // '3D' | '2D'
   const [styleMode, setStyleMode] = useState('DARK_SOULS_ACTION');
   const [customGenre, setCustomGenre] = useState('PSX Survival Horror');
+  const [lengthMinutes, setLengthMinutes] = useState(8);
   const [themePrompt, setThemePrompt] = useState('');
   const [questions, setQuestions] = useState([]);
   const [amdStatus, setAmdStatus] = useState(null);
@@ -1400,6 +1401,51 @@ export default function App() {
                       resize: 'vertical'
                     }}
                   />
+                </div>
+
+                {/* Campaign Playtime Length Selector */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '11px', fontWeight: 700, color: '#38bdf8' }}>
+                      ⏱️ ESTIMATED PLAYTIME LENGTH ({lengthMinutes} MINUTES • {lengthMinutes <= 6 ? '4 Zones' : lengthMinutes <= 12 ? '6 Zones' : '8 Zones'})
+                    </label>
+                    <span style={{ fontSize: '10.5px', color: '#94a3b8' }}>
+                      Determines total connected dungeon zones &amp; encounters
+                    </span>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                    {[
+                      { minutes: 4, label: '⚡ Rapid (4 min)', zones: '4 Zones' },
+                      { minutes: 8, label: '⚔️ Standard (8 min)', zones: '6 Zones' },
+                      { minutes: 12, label: '🏰 Deep Dive (12 min)', zones: '6 Zones' },
+                      { minutes: 16, label: '👑 Epic Gauntlet (16 min)', zones: '8 Zones' }
+                    ].map((opt) => (
+                      <button
+                        key={opt.minutes}
+                        type="button"
+                        onClick={() => setLengthMinutes(opt.minutes)}
+                        style={{
+                          padding: '9px 10px',
+                          borderRadius: '8px',
+                          border: lengthMinutes === opt.minutes ? '2px solid #38bdf8' : '1px solid #334155',
+                          background: lengthMinutes === opt.minutes ? 'rgba(56, 189, 248, 0.18)' : '#090d16',
+                          color: lengthMinutes === opt.minutes ? '#38bdf8' : '#cbd5e1',
+                          fontWeight: 800,
+                          fontSize: '11.5px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '2px'
+                        }}
+                      >
+                        <span>{opt.label}</span>
+                        <span style={{ fontSize: '9.5px', fontWeight: 600, color: lengthMinutes === opt.minutes ? '#7dd3fc' : '#64748b' }}>
+                          {opt.zones}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <button
