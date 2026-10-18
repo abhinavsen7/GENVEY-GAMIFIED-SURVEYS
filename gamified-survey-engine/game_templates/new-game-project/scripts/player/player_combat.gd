@@ -176,11 +176,6 @@ func _physics_process(delta: float) -> void:
 	if _phase == Phase.ACTIVE:
 		if _atk.range > 0.0:
 			_do_hits()
-		if _atk.get("after", false):
-			_ghost_t -= delta
-			if _ghost_t <= 0.0:
-				_ghost_t = 0.06
-				FX.afterimage(player.get_parent(), player.global_transform, _atk.get("trail", CRIMSON))
 	if _phase == Phase.RECOVERY and _sequence.is_empty() and _queued != "" and _phase_t < _atk.recovery * 0.6 / attack_speed:
 		_start(_queued)
 		return
@@ -196,7 +191,7 @@ func _tick_cooldowns(delta: float) -> void:
 	_ui_t -= delta
 	if _ui_t <= 0.0:  # HUD text refresh at 10 Hz, not every frame
 		_ui_t = 0.1
-		skills_changed.emit("[1] Crimson Flash %s   [2] Phantom Tempest %s   [3] Heavenfall Cleaver %s" % [_cd_text("flash"), _cd_text("tempest"), _cd_text("cleaver")])
+		skills_changed.emit("[1] Flash %s  [2] Tempest %s  [3] Cleaver %s" % [_cd_text("flash"), _cd_text("tempest"), _cd_text("cleaver")])
 
 func _cd_text(k: String) -> String:
 	return "READY" if _cds[k] <= 0.0 else "%.1fs" % _cds[k]
@@ -275,8 +270,52 @@ func _begin(step: String) -> void:
 	_phase_t = _atk.windup / attack_speed
 	_pose(_atk.wind, 0.15 if step in ["heavy", "cleaver"] else -0.05, _phase_t)
 	if player and player.hero and player.hero.has_method("play_action"):
-		var clip_name := "Judgment" if step in ["heavy", "cleaver", "ult_final"] else "Attack"
-		player.hero.play_action(clip_name, 0.06)
+		var clip_name := "Attack_Slash"
+		var spd := 1.0
+		match step:
+			"light0":
+				clip_name = "Attack_Slash"
+				spd = 1.9
+			"light1":
+				clip_name = "Attack_Thrust"
+				spd = 1.8
+			"light2":
+				clip_name = "Attack_Spin"
+				spd = 1.7
+			"light3":
+				clip_name = "Attack_Slam"
+				spd = 1.3
+			"heavy":
+				clip_name = "Attack_Heavy"
+				spd = 1.1
+			"flash":
+				clip_name = "Attack_Flash"
+				spd = 2.2
+			"tempest_a":
+				clip_name = "Attack_Slash"
+				spd = 2.4
+			"tempest_b":
+				clip_name = "Attack_Thrust"
+				spd = 2.4
+			"tempest_fin":
+				clip_name = "Attack_Spin"
+				spd = 1.6
+			"cleaver":
+				clip_name = "Attack_Cleaver"
+				spd = 1.0
+			"ult_cut_a":
+				clip_name = "Attack_Slash"
+				spd = 2.8
+			"ult_cut_b":
+				clip_name = "Attack_Thrust"
+				spd = 2.8
+			"ult_final":
+				clip_name = "Attack_Slam"
+				spd = 1.0
+			_:
+				clip_name = "Attack_Slash"
+				spd = 1.5
+		player.hero.play_action(clip_name, 0.05, spd)
 	player.set_blade_glow(_atk.get("glow", 1.0) * effect_intensity)
 	if _atk.has("jump"):
 		player.velocity.y = _atk.jump
@@ -305,6 +344,14 @@ func _advance() -> void:
 				player.create_tween().tween_property(player.rig, "rotation:y", -TAU, _phase_t)
 			if _atk.range > 0.0:
 				_do_hits()
+			# High-impact slash arc on every sword strike
+			var slash_col: Color = _atk.get("trail", CRIMSON)
+			var slash_rad: float = maxf(_atk.range * 0.9, 1.8)
+			var fwd: Vector3 = -player.visual.global_basis.z if player.visual else player.forward()
+			var tilt: float = 0.25 if _chain % 2 == 0 else -0.25
+			if _atk.get("spin", false):
+				slash_rad = 2.4
+			FX.slash_blade_arc(player.get_parent(), player.global_position, fwd, slash_col, slash_rad, tilt)
 			if _atk.has("area"):
 				_area_hit(_radius(_atk.area), _atk.get("area_dmg", _atk.dmg))
 			if _atk.get("arc_fx", false):

@@ -148,6 +148,34 @@ static func crimson_arc(parent: Node, pos: Vector3, yaw: float, radius: float) -
 	t.tween_property(m, "albedo_color", Color(0.6, 0.2, 1.0, 0.0), 0.55)
 	t.chain().tween_callback(arc.queue_free)
 
+## High-impact crescent blade slash arc (Elden Ring / DMC / FF7R style).
+static func slash_blade_arc(parent: Node, pos: Vector3, facing: Vector3, color := Color(1.0, 0.25, 0.2), radius := 1.8, tilt := 0.25) -> void:
+	_init_cache()
+	var arc := MeshInstance3D.new()
+	arc.mesh = _ring_mesh
+	var m := _emissive(color, 14.0, 0.95)
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	arc.material_override = m
+	arc.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(arc)
+	
+	var yaw := atan2(facing.x, facing.z)
+	arc.global_position = pos + Vector3(0, 0.95, 0) + facing * 0.6
+	arc.rotation = Vector3(tilt, yaw, -0.35)
+	arc.scale = Vector3(0.4, 0.08, 0.4)
+	
+	var light := OmniLight3D.new()
+	light.light_color = color
+	light.light_energy = 4.5
+	light.omni_range = radius * 1.5
+	arc.add_child(light)
+	
+	var t := arc.create_tween().set_parallel(true)
+	t.tween_property(arc, "scale", Vector3(radius, 0.12, radius * 1.1), 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	t.tween_property(m, "albedo_color:a", 0.0, 0.22).set_ease(Tween.EASE_IN)
+	t.tween_property(light, "light_energy", 0.0, 0.20)
+	t.chain().tween_callback(arc.queue_free)
+
 static func afterimage(parent: Node, xform: Transform3D, color := Color(0.4, 0.6, 1.0)) -> void:
 	_init_cache()
 	var g := MeshInstance3D.new()

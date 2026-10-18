@@ -7,6 +7,7 @@ enum Phase { TITLE, COMBAT, REWARD, SURVEY, FINAL, ENDED }
 
 const PickupRes := preload("res://scripts/loot/pickup.gd")
 const SFX := preload("res://scripts/audio/sfx.gd")
+const SurveyNPC := preload("res://scripts/npc/survey_npc.gd")
 
 ## Survives scene reloads so Restart skips the title screen.
 static var skip_title := false
@@ -45,6 +46,7 @@ var _survey_started := false
 var _survey_wave := 0
 var _survey_pos := Vector3.ZERO
 var _nearest: PickupRes
+var _nearest_npc: SurveyNPC = null
 var _query := PhysicsShapeQueryParameters3D.new()
 
 func _ready() -> void:
@@ -137,17 +139,40 @@ func _begin_reward_phase() -> void:
 	_rewarded_waves[_wave] = true
 	phase = Phase.REWARD
 	hud.banner("WAVE CLEARED")
-	hud.set_objective("Collect the relics [E]   -   Press G to begin wave %d" % (_wave + 2))
+	hud.set_objective("Speak to the Scholars [E]   -   Press G to begin wave %d" % (_wave + 2))
 	var wave_num := _wave + 1
-	var spots := _find_spawn_spots(4)
+	var spots := _find_spawn_spots(3)
 	_drop(PickupRes.Kind.HEALTH, spots[0], wave_num)
 	_drop(PickupRes.Kind.ENERGY, spots[1], wave_num)
 	# Wave 1 always drops the Shadow Blade; wave 2 rolls Great Sword or Dual Blades.
 	var w: Dictionary = weapon_drops[0 if _wave == 0 else randi_range(1, weapon_drops.size() - 1)]
 	if not player.combat.owned_weapons.has(w.name):
 		_drop(PickupRes.Kind.WEAPON, spots[2], wave_num, w.name, w.desc)
-	if not _survey_done.has(wave_num):
-		_drop(PickupRes.Kind.SURVEY, spots[3], wave_num)
+	# Spawn 2 interactive NPCs to ask survey questions and grant blessings
+	_spawn_survey_npcs(wave_num)
+
+func _spawn_survey_npcs(wave_num: int) -> void:
+	var existing := get_tree().get_nodes_in_group("survey_npcs")
+	if existing.size() >= 2:
+		for n in existing:
+			if n is SurveyNPC:
+				n.wave = wave_num
+				n.consulted = false
+				n._update_label()
+		return
+	# NPC 1: Sir George, Gothic Inquisitor
+	var npc1 := SurveyNPC.new()
+	npc1.setup(SurveyNPC.Kind.INQUISITOR, wave_num)
+	npc1.position = Vector3(-3.2, 0.0, -1.2)
+	add_child(npc1)
+	FX.hit_sparks(self, npc1.position + Vector3(0, 1, 0), true)
+	
+	# NPC 2: Rowan, Relic Chronicler
+	var npc2 := SurveyNPC.new()
+	npc2.setup(SurveyNPC.Kind.CHRONICLER, wave_num)
+	npc2.position = Vector3(3.2, 0.0, -1.2)
+	add_child(npc2)
+	FX.hit_sparks(self, npc2.position + Vector3(0, 1, 0), true)
 
 func _drop(kind: PickupRes.Kind, pos: Vector3, wave_num: int, n := "", d := "") -> PickupRes:
 	var p := PickupRes.new()
@@ -196,7 +221,11 @@ func _process(delta: float) -> void:
 func _end_reward_phase() -> void:
 	for p in get_tree().get_nodes_in_group("pickups"):
 		p.queue_free()  # leftover loot does not carry into combat
+	for n in get_tree().get_nodes_in_group("survey_npcs"):
+		FX.death_burst(self, n.global_position + Vector3(0, 1, 0))
+		n.queue_free()
 	_nearest = null
+	_nearest_npc = null
 	hud.hide_prompt()
 	phase = Phase.COMBAT
 	hud.set_objective("Prepare yourself...")
@@ -204,19 +233,44 @@ func _end_reward_phase() -> void:
 
 func _update_interaction() -> void:
 	_nearest = null
+	_nearest_npc = null
 	var best := INF
 	if phase == Phase.REWARD and not player.health.dead:
+		# Check NPCs first for dialogue / survey
+		for n in get_tree().get_nodes_in_group("survey_npcs"):
+			if n is SurveyNPC:
+				var d: float = n.update_proximity(player.global_position)
+				if d < n.interact_radius and d < best:
+					best = d
+					_nearest_npc = n
+		# Check pickups if no closer NPC
 		for p in get_tree().get_nodes_in_group("pickups"):
 			var d: float = p.update_proximity(player.global_position)
 			if d < p.interact_radius and d < best:
 				best = d
 				_nearest = p
-	if _nearest:
-		hud.show_prompt(_nearest.item_name, _nearest.description)
+				_nearest_npc = null
+	if _nearest_npc:
+		hud.show_prompt(_nearest_npc.npc_name, _nearest_npc.dialogue_prompt, "Speak")
+		if Input.is_action_just_pressed("interact"):
+			_talk_to_npc(_nearest_npc)
+	elif _nearest:
+		hud.show_prompt(_nearest.item_name, _nearest.description, "Collect")
 		if Input.is_action_just_pressed("interact"):
 			_collect(_nearest)
 	else:
 		hud.hide_prompt()
+
+func _talk_to_npc(npc: SurveyNPC) -> void:
+	if player.combat.is_busy() or player.is_dodging():
+		hud.toast("Finish your action first")
+		return
+	if _survey_done.has(npc.wave) or npc.is_consulted():
+		hud.toast("%s: 'Go forth, Champion! Our sacred blessings remain with you.'" % npc.npc_name, Color(1, 0.9, 0.5))
+		return
+	SFX.pickup(self)
+	hud.toast("%s: 'Hail, warrior! Share your impressions to claim the relic blessing.'" % npc.npc_name, Color(1, 0.9, 0.6))
+	_open_survey(npc.wave, npc.global_position)
 
 ## Applies a pickup's effect. try_collect() guarantees one application.
 func _collect(p: PickupRes) -> void:
@@ -298,6 +352,9 @@ func _on_survey_completed(answers: Dictionary, reward_id: String) -> void:
 		return  # repeated-claim guard
 	_survey_done[_survey_wave] = true
 	SurveyStore.record_completion(_survey_wave, answers, reward_id)
+	for n in get_tree().get_nodes_in_group("survey_npcs"):
+		if n is SurveyNPC:
+			n.mark_consulted()
 	match reward_id:
 		"heal_50":
 			player.health.heal(player.health.max_health * 0.5)

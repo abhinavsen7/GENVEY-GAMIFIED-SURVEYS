@@ -91,6 +91,40 @@
         "GUARD_BRIBE_ACCEPTED",
         "SURVEY_EVIDENCE_UNCOVERED"
       ]
+    },
+    {
+      "cartridge_id": "shadow_requiem_hack_and_slash",
+      "title": "Shadow Requiem: 3D Gothic Hack-and-Slash Gauntlet",
+      "dimension": "3D",
+      "author": "Shadow Requiem Studio (Godot 4 Core)",
+      "primary_genre": "DARK_SOULS_ACTION",
+      "supported_genres": [
+        "DARK_SOULS_ACTION",
+        "ACTION_BOSS_GAUNTLET",
+        "HORDE_SURVIVOR_ARENA",
+        "PSX_SURVIVAL_HORROR"
+      ],
+      "entry_point": "game_templates/new-game-project/CartridgeContract.js",
+      "camera_mode": "THIRD_PERSON_SHOULDER",
+      "godot_project_path": "game_templates/new-game-project",
+      "godot_scene_path": "res://main.tscn",
+      "key_mechanics": [
+        "Gothic Swordsman with Analytical Two-Bone IK Weapon Grip & 24-Bone Skeleton",
+        "0.50s Fast Dodge Roll with Invulnerability Frames (i-frames)",
+        "Procedural 16-Bit PCM Real-Time Sound Synthesizer (No external audio files)",
+        "Interactive Inquisitor & Chronicler Survey NPCs Spawning Between Waves",
+        "Shadow Blade, Requiem Edge, and Great Sword of Judgment Weapon Progression"
+      ],
+      "few_shot_physics_prompt": "Enforce fast third-person dodge rolling, 4-hit combo chains, and orbital camera framing. Spawn interactive survey NPCs between waves to trade opinions for relic blessings.",
+      "telemetry_events": [
+        "LIGHT_ATTACK_COMBO",
+        "HEAVY_ATTACK_EXECUTED",
+        "DODGE_ROLL_EVASION",
+        "SURVEY_NPC_CONSULTED",
+        "RELIC_BLESSING_CLAIMED",
+        "WAVE_CLEARED"
+      ]
     }
   ]
 }
+

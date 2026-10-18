@@ -36,6 +36,13 @@ const C_JUMP_LOOP := "Jump"
 const C_JUMP_LAND := "Jump_Land"
 const C_ROLL := "Roll"
 const C_ATTACK := "Attack"
+const C_ATTACK_SLASH := "Attack_Slash"
+const C_ATTACK_THRUST := "Attack_Thrust"
+const C_ATTACK_SPIN := "Attack_Spin"
+const C_ATTACK_SLAM := "Attack_Slam"
+const C_ATTACK_HEAVY := "Attack_Heavy"
+const C_ATTACK_CLEAVER := "Attack_Cleaver"
+const C_ATTACK_FLASH := "Attack_Flash"
 const C_JUDGMENT := "Judgment"
 const C_HIT := "Hit"
 const C_DEATH := "Death"
@@ -136,23 +143,23 @@ const BONE_ALIASES := {
 
 @export_group("Stance")
 ## Both authored in character-local space; +X is the sword-hand side.
-@export var combat_grip := Vector3(0.26, 1.12, -0.30)
-@export var combat_blade := Vector3(0.14, -0.30, -0.94)
-@export var relaxed_grip := Vector3(0.32, 0.95, -0.08)
-@export var relaxed_blade := Vector3(0.12, -0.50, -0.86)
+@export var combat_grip := Vector3(0.06, 0.96, -0.28)
+@export var combat_blade := Vector3(-0.30, 0.50, -0.81)
+@export var relaxed_grip := Vector3(0.22, 0.88, -0.16)
+@export var relaxed_blade := Vector3(0.12, 0.48, -0.87)
 ## How far down the handle the supporting hand sits, toward the pommel.
-@export var handle_span := 0.20
+@export var handle_span := 0.15
 ## Distance at which an enemy pulls the hero into the combat guard.
 @export var alert_range := 11.0
-@export var stance_blend := 2.5
+@export var stance_blend := 3.0
 ## Amplitude of breathing and small weight shifts. Keep subtle.
-@export var breathing := 0.012
-@export var elbow_pole := Vector3(0.6, -0.25, 0.75)
+@export var breathing := 0.008
+@export var elbow_pole := Vector3(0.6, -0.20, 0.70)
 @export var hand_rot_right := Vector3.ZERO
 @export var hand_rot_left := Vector3.ZERO
 ## false keeps the wrist orientation the clip authored (no broken wrists);
 ## true forces the palm onto the weapon basis (tighter wrap, may twist).
-@export var force_hand_basis := false
+@export var force_hand_basis := true
 ## How much of the swing is transferred into torso rotation.
 @export var swing_torso := 0.45
 ## Fallback only, used when the arm chain cannot be identified by name.
@@ -239,15 +246,17 @@ func _build_model() -> void:
 		_mirror = 1.0 if visual.to_local(_bone_world(_hand_r).origin).x >= 0.0 else -1.0
 	_ik_ready = _arm_r.size() == 5
 	if _sk:
+		_build_hero_outfit()
 		var bone_attach := BoneAttachment3D.new()
 		bone_attach.name = "RightHandAttachment"
-		bone_attach.bone_name = "hand_r"
 		_sk.add_child(bone_attach)
+		bone_attach.bone_name = "hand_r"
+		bone_attach.bone_idx = _sk.find_bone("hand_r")
 		
 		weapon_socket = Node3D.new()
 		weapon_socket.name = "WeaponSocket"
-		weapon_socket.position = Vector3(0.0, 0.04, 0.0)
-		weapon_socket.rotation_degrees = Vector3(-90.0, 0.0, 0.0)
+		weapon_socket.position = Vector3(0.0, 0.02, 0.035)
+		weapon_socket.rotation_degrees = Vector3(-45.0, 165.0, -180.0)
 		bone_attach.add_child(weapon_socket)
 	_diagnose()
 
@@ -393,10 +402,35 @@ func _build_clips() -> void:
 	if lib.get_animation_list().size() == 0:
 		push_warning("[HeroRig] no clip could be retargeted; the mesh will not animate.")
 		return
+
+	# Retarget donor clips to build specialized combat strikes (Elden Ring / FF7R / Onimusha)
+	var rt_attack := _retarget(_src(ual, "Sword_Attack"), lookup)
+	var rt_cross := _retarget(_src(ual, "Punch_Cross"), lookup)
+	var rt_exit := _retarget(_src(ual, "Spell_Simple_Exit"), lookup)
+
+	if rt_attack:
+		lib.add_animation(C_ATTACK_SLASH, _slice_animation(rt_attack, 0.15, 0.70))
+		_clips[C_ATTACK_SLASH] = true
+		lib.add_animation(C_ATTACK_SPIN, _slice_animation(rt_attack, 0.10, 0.85))
+		_clips[C_ATTACK_SPIN] = true
+		lib.add_animation(C_ATTACK_HEAVY, _slice_animation(rt_attack, 0.05, 0.85))
+		_clips[C_ATTACK_HEAVY] = true
+	if rt_cross:
+		lib.add_animation(C_ATTACK_THRUST, _slice_animation(rt_cross, 0.08, 0.65))
+		_clips[C_ATTACK_THRUST] = true
+		lib.add_animation(C_ATTACK_FLASH, _slice_animation(rt_cross, 0.05, 0.50))
+		_clips[C_ATTACK_FLASH] = true
+	if rt_exit:
+		lib.add_animation(C_ATTACK_SLAM, _slice_animation(rt_exit, 0.0, 0.43))
+		_clips[C_ATTACK_SLAM] = true
+		lib.add_animation(C_ATTACK_CLEAVER, _slice_animation(rt_exit, 0.0, 0.43))
+		_clips[C_ATTACK_CLEAVER] = true
+
 	_anim.add_animation_library("", lib)
 	_anim.animation_finished.connect(_on_anim_finished)
-	_anim.play(C_IDLE if _clips.has(C_IDLE) else C_WALK)
-	_anim.speed_scale = 1.0 if _clips.has(C_IDLE) else idle_clip_speed
+	var start_idle := C_IDLE_COMBAT if _clips.has(C_IDLE_COMBAT) else (C_IDLE if _clips.has(C_IDLE) else C_WALK)
+	_anim.play(start_idle)
+	_anim.speed_scale = 1.0 if (_clips.has(C_IDLE_COMBAT) or _clips.has(C_IDLE)) else idle_clip_speed
 
 ## Every bone name in this skeleton, keyed both raw and normalised.
 func _bone_lookup() -> Dictionary:
@@ -482,13 +516,33 @@ func clip_length(name: String) -> float:
 		return _anim.get_animation(name).length
 	return 0.0
 
-## Plays a one-shot action clip (attack, hit, death). Returns false when the clip
-## is unavailable so the caller can keep its existing behaviour.
-func play_action(name: String, blend := 0.12) -> bool:
+## Extracts a sub-range from an authored animation to create a razor-sharp combat strike.
+func _slice_animation(src: Animation, start_t: float, end_t: float, loop := false) -> Animation:
+	if src == null:
+		return null
+	var out := Animation.new()
+	out.length = maxf(end_t - start_t, 0.05)
+	out.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
+	for track_idx in src.get_track_count():
+		var path := src.track_get_path(track_idx)
+		var type := src.track_get_type(track_idx)
+		var new_track := out.add_track(type)
+		out.track_set_path(new_track, path)
+		out.track_set_interpolation_type(new_track, src.track_get_interpolation_type(track_idx))
+		for k in src.track_get_key_count(track_idx):
+			var t := src.track_get_key_time(track_idx, k)
+			if t >= start_t - 0.001 and t <= end_t + 0.001:
+				var v = src.track_get_key_value(track_idx, k)
+				var trans := src.track_get_key_transition(track_idx, k)
+				out.track_insert_key(new_track, clampf(t - start_t, 0.0, out.length), v, trans)
+	return out
+
+## Plays a one-shot action clip (attack, hit, death) with an optional speed scale.
+func play_action(name: String, blend := 0.08, speed := 1.0) -> bool:
 	if _anim == null or not _anim.has_animation(name):
 		return false
 	_anim.play(name, blend)
-	_anim.speed_scale = 1.0
+	_anim.speed_scale = speed
 	return true
 
 # ------------------------------------------------------------------ roll & jump
@@ -525,11 +579,12 @@ func on_jump() -> void:
 
 func _on_anim_finished(name: StringName) -> void:
 	var sname := str(name)
+	var idle_clip := C_IDLE_COMBAT if _clips.has(C_IDLE_COMBAT) else C_IDLE
 	if sname == C_ROLL:
 		_rolling = false
 		_roll_timer = 0.0
-		if _anim and _clips.has(C_IDLE):
-			_anim.play(C_IDLE, clip_blend)
+		if _anim and _clips.has(idle_clip):
+			_anim.play(idle_clip, clip_blend)
 	elif sname == C_JUMP_START:
 		_jump_startup = false
 		if _clips.has(C_JUMP_LOOP):
@@ -537,6 +592,10 @@ func _on_anim_finished(name: StringName) -> void:
 			_anim.speed_scale = 1.0
 	elif sname == C_JUMP_LAND:
 		_land_timer = 0.0
+	elif sname.begins_with("Attack") or sname == C_ATTACK or sname == C_JUDGMENT or sname == C_HIT:
+		if _anim and not _combat_busy():
+			_anim.play(idle_clip, 0.15)
+			_anim.speed_scale = 1.0
 
 # ------------------------------------------------------------------ flash
 func _build_flash() -> void:
@@ -617,6 +676,12 @@ func update_locomotion(velocity: Vector3, delta: float) -> void:
 			_was_on_floor = on_floor
 			return
 
+	# Active combat actions own playback until recovery finishes
+	if _combat_busy():
+		_apply_contact()
+		_was_on_floor = on_floor
+		return
+
 	# Airborne state: slow down stride while in mid-air
 	if not on_floor:
 		if _anim.current_animation == C_WALK or _anim.current_animation == C_RUN or _anim.current_animation == C_SPRINT:
@@ -627,7 +692,7 @@ func update_locomotion(velocity: Vector3, delta: float) -> void:
 
 	# Idle state
 	if hs < 0.2:
-		var idle_clip := C_IDLE_COMBAT if (_stance > 0.5 and _clips.has(C_IDLE_COMBAT)) else C_IDLE
+		var idle_clip := C_IDLE_COMBAT if _clips.has(C_IDLE_COMBAT) else C_IDLE
 		if _anim.current_animation != idle_clip:
 			_anim.play(idle_clip, clip_blend)
 		_anim.speed_scale = 1.0
@@ -667,11 +732,13 @@ func _process(delta: float) -> void:
 		_bank = lerpf(_bank, bank_target, clampf(12.0 * delta, 0.0, 1.0))
 	if _sk == null:
 		return
-	if not _ik_on or _rolling:
-		return
 	_update_stance(delta)
-	# Clean upright skeletal posing: let professional UAL locomotion clips drive torso naturally
-	# _torso()
+	
+	# Handcrafted Quaternius UAL animations drive the skeleton naturally.
+	# Clear all bone overrides so the mesh NEVER pinches, twists, or combines.
+	if _sk:
+		_sk.clear_bones_global_pose_override()
+
 	# The weapon is socketed directly to hand_r via BoneAttachment3D.
 	# Drive hand_attach to match weapon_socket so weapon effects/trails follow seamlessly.
 	if hand_attach and weapon_socket:
@@ -745,11 +812,10 @@ func _weapon_world() -> Transform3D:
 	# The weapon model points along -Z from a grip at its origin, so its +Z runs
 	# back down the handle toward the pommel.
 	var z_axis := -d
-	var y_axis := Vector3.UP.cross(z_axis)
-	if y_axis.length_squared() < 0.001:
-		y_axis = Vector3.RIGHT
-	y_axis = y_axis.normalized()
-	var x_axis := y_axis.cross(z_axis).normalized()
+	var x_axis := d.cross(Vector3.UP).normalized()
+	if x_axis.length_squared() < 0.001:
+		x_axis = Vector3.RIGHT
+	var y_axis := z_axis.cross(x_axis).normalized()
 	return Transform3D(visual.global_basis * Basis(x_axis, y_axis, z_axis), visual.to_global(g))
 
 # ------------------------------------------------------------------ ground
@@ -858,7 +924,7 @@ func _override(idx: int, origin: Vector3, basis: Basis) -> void:
 	# The skeleton carries the cm -> m scale, so only the rotation is carried
 	# across: taking the scale into a bone basis would stretch the limbs.
 	var local_basis := inv.basis.orthonormalized() * basis.orthonormalized()
-	_sk.set_bone_global_pose_override(idx, Transform3D(local_basis, inv * origin), 1.0, false)
+	_sk.set_bone_global_pose_override(idx, Transform3D(local_basis, inv * origin), 1.0, true)
 
 ## Hips, spine and chest take part in the swing, and the torso leans with
 ## speed. This is what stops an attack from looking like an arm-only twitch.
@@ -879,3 +945,212 @@ func _apply_body(idx: int, yaw: float, tilt: float, roll: float = 0.0) -> void:
 	var r := Basis(fwd, roll) * Basis(right, -tilt) * Basis(Vector3.UP, yaw)
 	# Only the rotation is replaced; the bone keeps the clip's own origin.
 	_override(idx, _sk.global_transform * pose.origin, r * b)
+
+# ------------------------------------------------------------------ hero outfit
+func _build_hero_outfit() -> void:
+	if _sk == null:
+		return
+	
+	# 1. Dress the base body mesh in a dark fantasy tactical warrior suit (no bare skin / underwear)
+	var suit_mat := StandardMaterial3D.new()
+	suit_mat.albedo_color = Color(0.12, 0.12, 0.15)
+	suit_mat.metallic = 0.20
+	suit_mat.roughness = 0.65
+	
+	for mi in _meshes:
+		if is_instance_valid(mi) and mi.name == "SuperHero_Male":
+			mi.set_surface_override_material(0, suit_mat)
+	
+	# 2. Materials for modular 3D armor
+	var steel_mat := StandardMaterial3D.new()
+	steel_mat.albedo_color = Color(0.18, 0.18, 0.22)
+	steel_mat.metallic = 0.95
+	steel_mat.roughness = 0.25
+
+	var gold_mat := StandardMaterial3D.new()
+	gold_mat.albedo_color = Color(0.72, 0.55, 0.22)
+	gold_mat.metallic = 1.0
+	gold_mat.roughness = 0.30
+
+	var crimson_mat := StandardMaterial3D.new()
+	crimson_mat.albedo_color = Color(0.45, 0.08, 0.10)
+	crimson_mat.metallic = 0.1
+	crimson_mat.roughness = 0.85
+
+	var rune_gem_mat := StandardMaterial3D.new()
+	rune_gem_mat.albedo_color = Color(1.0, 0.18, 0.18)
+	rune_gem_mat.emission_enabled = true
+	rune_gem_mat.emission = Color(1.0, 0.18, 0.18)
+	rune_gem_mat.emission_energy_multiplier = 4.0
+
+	# 3. Add Stylish 3D Hair (sculpted directly on head bone local coordinates, zero sky float)
+	var head_bone := _sk.find_bone("Head")
+	if head_bone >= 0:
+		var hair_attach := _make_attachment("HeadAttachment", "Head", head_bone)
+		var h_node := Node3D.new()
+		hair_attach.add_child(h_node)
+		var h_mat := StandardMaterial3D.new()
+		h_mat.albedo_color = Color(0.08, 0.06, 0.05)
+		h_mat.metallic = 0.1
+		h_mat.roughness = 0.40
+
+		# Crown of hair covering top and back of skull
+		var crown := SphereMesh.new()
+		crown.radius = 0.108
+		crown.height = 0.16
+		_mesh_part(h_node, crown, Vector3(0, 0.055, -0.015), h_mat, Vector3(-0.15, 0, 0))
+
+		# Front parted bangs across the forehead
+		var bangs_l := BoxMesh.new()
+		bangs_l.size = Vector3(0.08, 0.04, 0.06)
+		_mesh_part(h_node, bangs_l, Vector3(-0.045, 0.08, -0.085), h_mat, Vector3(-0.35, 0.2, 0.1))
+
+		var bangs_r := BoxMesh.new()
+		bangs_r.size = Vector3(0.08, 0.04, 0.06)
+		_mesh_part(h_node, bangs_r, Vector3(0.045, 0.08, -0.085), h_mat, Vector3(-0.35, -0.2, -0.1))
+
+		# Side swept locks
+		var side_l := BoxMesh.new()
+		side_l.size = Vector3(0.03, 0.12, 0.06)
+		_mesh_part(h_node, side_l, Vector3(-0.10, 0.02, -0.04), h_mat, Vector3(0.1, 0, -0.15))
+
+		var side_r := BoxMesh.new()
+		side_r.size = Vector3(0.03, 0.12, 0.06)
+		_mesh_part(h_node, side_r, Vector3(0.10, 0.02, -0.04), h_mat, Vector3(0.1, 0, 0.15))
+
+		# Back layered locks
+		var back_lock := BoxMesh.new()
+		back_lock.size = Vector3(0.14, 0.10, 0.05)
+		_mesh_part(h_node, back_lock, Vector3(0, -0.01, 0.08), h_mat, Vector3(0.3, 0, 0))
+
+	# 4. Armored Torso Cuirass & Harness (attached to spine_02 / spine_03)
+	var spine_bone := _sk.find_bone("spine_02")
+	if spine_bone < 0:
+		spine_bone = _sk.find_bone("spine_03")
+	if spine_bone >= 0:
+		var chest_attach := _make_attachment("ChestAttachment", _sk.get_bone_name(spine_bone), spine_bone)
+		var cuirass := Node3D.new()
+		chest_attach.add_child(cuirass)
+		# Steel Breastplate
+		var bp := BoxMesh.new()
+		bp.size = Vector3(0.32, 0.28, 0.24)
+		_mesh_part(cuirass, bp, Vector3(0, 0.02, 0.01), steel_mat)
+		# Gold chest crest / trim
+		var crest := BoxMesh.new()
+		crest.size = Vector3(0.08, 0.16, 0.25)
+		_mesh_part(cuirass, crest, Vector3(0, 0.04, 0.01), gold_mat)
+		# Ember Core Gem
+		var core_gem := SphereMesh.new()
+		core_gem.radius = 0.025
+		core_gem.height = 0.05
+		_mesh_part(cuirass, core_gem, Vector3(0, 0.06, -0.12), rune_gem_mat)
+		# Crimson Harness Straps
+		var strap := BoxMesh.new()
+		strap.size = Vector3(0.34, 0.04, 0.25)
+		_mesh_part(cuirass, strap, Vector3(0, -0.08, 0.0), crimson_mat)
+
+	# 5. Shoulder Pauldrons (clavicle_l and clavicle_r)
+	for side: String in ["l", "r"]:
+		var clav_name: String = "clavicle_" + side
+		var c_bone := _sk.find_bone(clav_name)
+		if c_bone >= 0:
+			var p_attach := _make_attachment("Pauldrons_" + side, clav_name, c_bone)
+			var p_node := Node3D.new()
+			p_attach.add_child(p_node)
+			var sign_x := 1.0 if side == "r" else -1.0
+			var p_mesh := BoxMesh.new()
+			p_mesh.size = Vector3(0.14, 0.08, 0.18)
+			_mesh_part(p_node, p_mesh, Vector3(0.06 * sign_x, 0.05, 0), steel_mat, Vector3(0, 0, -0.25 * sign_x))
+			var rim_mesh := BoxMesh.new()
+			rim_mesh.size = Vector3(0.15, 0.02, 0.19)
+			_mesh_part(p_node, rim_mesh, Vector3(0.06 * sign_x, 0.08, 0), gold_mat, Vector3(0, 0, -0.25 * sign_x))
+			var stud := SphereMesh.new()
+			stud.radius = 0.018
+			stud.height = 0.036
+			_mesh_part(p_node, stud, Vector3(0.10 * sign_x, 0.09, 0), rune_gem_mat)
+
+	# 6. Combat Bracers / Gauntlets (lowerarm_l and lowerarm_r)
+	for side: String in ["l", "r"]:
+		var arm_name: String = "lowerarm_" + side
+		var a_bone := _sk.find_bone(arm_name)
+		if a_bone >= 0:
+			var b_attach := _make_attachment("Bracer_" + side, arm_name, a_bone)
+			var b_node := Node3D.new()
+			b_attach.add_child(b_node)
+			var bracer := CylinderMesh.new()
+			bracer.top_radius = 0.052
+			bracer.bottom_radius = 0.046
+			bracer.height = 0.16
+			_mesh_part(b_node, bracer, Vector3(0, 0.08, 0), steel_mat)
+			var b_strap := CylinderMesh.new()
+			b_strap.top_radius = 0.054
+			b_strap.bottom_radius = 0.048
+			b_strap.height = 0.04
+			_mesh_part(b_node, b_strap, Vector3(0, 0.08, 0), crimson_mat)
+
+	# 7. Heavy War Belt & Battle Sash (pelvis)
+	var pelvis_bone := _sk.find_bone("pelvis")
+	if pelvis_bone >= 0:
+		var belt_attach := _make_attachment("BeltAttachment", "pelvis", pelvis_bone)
+		var belt_node := Node3D.new()
+		belt_attach.add_child(belt_node)
+		var belt := CylinderMesh.new()
+		belt.top_radius = 0.17
+		belt.bottom_radius = 0.18
+		belt.height = 0.09
+		_mesh_part(belt_node, belt, Vector3(0, 0.02, 0), crimson_mat)
+		var buckle := BoxMesh.new()
+		buckle.size = Vector3(0.08, 0.09, 0.03)
+		_mesh_part(belt_node, buckle, Vector3(0, 0.02, -0.18), gold_mat)
+		var sash_l := BoxMesh.new()
+		sash_l.size = Vector3(0.09, 0.35, 0.02)
+		_mesh_part(belt_node, sash_l, Vector3(-0.16, -0.16, 0.02), crimson_mat, Vector3(0, 0, 0.15))
+		var sash_r := BoxMesh.new()
+		sash_r.size = Vector3(0.09, 0.35, 0.02)
+		_mesh_part(belt_node, sash_r, Vector3(0.16, -0.16, 0.02), crimson_mat, Vector3(0, 0, -0.15))
+
+	# 8. Armored Greaves / Boots (calf_l and calf_r)
+	for side: String in ["l", "r"]:
+		var calf_name: String = "calf_" + side
+		var leg_bone := _sk.find_bone(calf_name)
+		if leg_bone >= 0:
+			var g_attach := _make_attachment("Greave_" + side, calf_name, leg_bone)
+			var g_node := Node3D.new()
+			g_attach.add_child(g_node)
+			var greave := CylinderMesh.new()
+			greave.top_radius = 0.065
+			greave.bottom_radius = 0.052
+			greave.height = 0.26
+			_mesh_part(g_node, greave, Vector3(0, 0.14, 0), steel_mat)
+			var ridge := BoxMesh.new()
+			ridge.size = Vector3(0.03, 0.24, 0.03)
+			_mesh_part(g_node, ridge, Vector3(0, 0.14, -0.06), gold_mat)
+
+	# 9. High-Collar Battle Scarf / Mantle (neck_01)
+	var neck_bone := _sk.find_bone("neck_01")
+	if neck_bone >= 0:
+		var neck_attach := _make_attachment("NeckAttachment", "neck_01", neck_bone)
+		var scarf_node := Node3D.new()
+		neck_attach.add_child(scarf_node)
+		var cowl := CylinderMesh.new()
+		cowl.top_radius = 0.12
+		cowl.bottom_radius = 0.14
+		cowl.height = 0.08
+		_mesh_part(scarf_node, cowl, Vector3(0, 0.02, 0), crimson_mat)
+
+func _make_attachment(node_name: String, bone_name: String, bone_idx: int) -> BoneAttachment3D:
+	var ba := BoneAttachment3D.new()
+	ba.name = node_name
+	_sk.add_child(ba)
+	ba.bone_name = bone_name
+	ba.bone_idx = bone_idx
+	return ba
+
+func _mesh_part(parent: Node3D, mesh: Mesh, pos: Vector3, mat: Material, rot := Vector3.ZERO) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	mi.position = pos
+	mi.rotation = rot
+	mi.material_override = mat
+	parent.add_child(mi)
+	return mi

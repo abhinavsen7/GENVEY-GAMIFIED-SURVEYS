@@ -133,8 +133,8 @@ func _build_visual() -> void:
 	visual.add_child(rig)
 	hero = HeroRig.new()
 	hero.name = "HeroRig"
-	# Solve the rig before the skeleton's own update for this frame.
-	hero.process_priority = -10
+	# Solve the rig after AnimationPlayer evaluates the locomotion clip.
+	hero.process_priority = 10
 	add_child(hero)
 	# The sword pivot is driven onto the sword hand bone every frame instead of
 	# sitting at a fixed offset beside the hip.
@@ -217,14 +217,14 @@ func equip_weapon(weapon_name: String) -> void:
 		hand_attach.add_child(_left_pivot)
 	var L := WeaponLib.blade_length(weapon_name)
 	if trail:
-		trail.position = Vector3(0, 0, -0.12 - L * 0.55)
+		trail.position = Vector3(0, 0, -0.06 - L * 0.5)
 		(trail.process_material as ParticleProcessMaterial).emission_box_extents = Vector3(0.02, 0.02, L * 0.45)
 		var c := WeaponLib.rune_color(weapon_name)
 		var qm := (trail.draw_pass_1 as QuadMesh).material as StandardMaterial3D
 		qm.albedo_color = c
 		qm.emission = c
 	if sword_tip:
-		sword_tip.position = Vector3(0, 0, -0.2 - L)
+		sword_tip.position = Vector3(0, 0, -0.08 - L)
 	if hero:
 		hero.set_left_blade(_left_pivot)
 
@@ -413,10 +413,6 @@ func _process_dodge(delta: float) -> void:
 	_dodge_time -= delta
 	velocity.x = _dodge_dir.x * dodge_speed
 	velocity.z = _dodge_dir.z * dodge_speed
-	_ghost_timer -= delta
-	if _ghost_timer <= 0.0 and is_inside_tree():
-		_ghost_timer = 0.06
-		FX.afterimage(get_parent(), global_transform)
 	if _dodge_time <= 0.0:
 		collision_mask = 1 | 4
 		if rig:

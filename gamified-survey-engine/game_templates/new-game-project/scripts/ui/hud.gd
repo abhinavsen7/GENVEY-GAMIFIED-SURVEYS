@@ -44,7 +44,7 @@ func set_skills(t: String) -> void:
 func set_ult(v: float, mx: float) -> void:
 	_ult.value = v / mx * 100.0
 	var full := v >= mx
-	_ult_label.text = "[V] Requiem of a Thousand Ashes  %s" % ("READY!" if full else "%d%%" % int(v / mx * 100.0))
+	_ult_label.text = "[V] Requiem  %s" % ("READY!" if full else "%d%%" % int(v / mx * 100.0))
 	_ult_label.modulate = Color(1.6, 1.3, 1.3) if full else Color.WHITE
 
 func _ready() -> void:
@@ -55,62 +55,62 @@ func _ready() -> void:
 	add_child(root)
 	# --- player bars (top-left)
 	var box := VBoxContainer.new()
-	box.position = Vector2(28, 24)
-	box.add_theme_constant_override("separation", 6)
+	box.position = Vector2(24, 20)
+	box.add_theme_constant_override("separation", 2)
 	root.add_child(box)
-	_hp_label = _label("HP 150 / 150", 18)
+	_hp_label = _label("HP 150 / 150", 13)
 	box.add_child(_hp_label)
-	_hp = _bar(Color(0.8, 0.1, 0.12), Vector2(360, 22))
+	_hp = _bar(Color(0.85, 0.12, 0.14), Vector2(220, 10))
 	box.add_child(_hp)
-	_sp_label = _label("[Q] Shockwave  READY", 16)
+	_sp_label = _label("[Q] Shockwave  READY", 11)
 	box.add_child(_sp_label)
-	_sp = _bar(Color(0.55, 0.3, 1.0), Vector2(260, 12))
+	_sp = _bar(Color(0.55, 0.35, 1.0), Vector2(170, 6))
 	_sp.value = 100
 	box.add_child(_sp)
 	# --- objective (top-center)
-	_objective = _label("", 22)
+	_objective = _label("", 15)
 	_objective.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	_objective.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_objective.position = Vector2(-300, 24)
-	_objective.size = Vector2(600, 40)
+	_objective.position = Vector2(-280, 20)
+	_objective.size = Vector2(560, 28)
 	root.add_child(_objective)
 	# --- kills + combo (top-right)
-	_kills = _label("Defeated: 0", 20)
+	_kills = _label("Defeated: 0", 14)
 	_kills.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_kills.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_kills.position = Vector2(-330, 24)
-	_kills.size = Vector2(300, 30)
+	_kills.position = Vector2(-240, 20)
+	_kills.size = Vector2(216, 26)
 	root.add_child(_kills)
-	_combo = _label("", 54)
+	_combo = _label("", 38)
 	_combo.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
 	_combo.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_combo.position = Vector2(-430, -120)
-	_combo.size = Vector2(400, 80)
+	_combo.position = Vector2(-360, -90)
+	_combo.size = Vector2(330, 60)
 	_combo.add_theme_color_override("font_color", Color(1.0, 0.75, 0.3))
 	root.add_child(_combo)
 	# --- center banner
-	_banner = _label("", 64)
+	_banner = _label("", 48)
 	_banner.set_anchors_preset(Control.PRESET_CENTER)
 	_banner.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_banner.position = Vector2(-500, -160)
-	_banner.size = Vector2(1000, 90)
+	_banner.position = Vector2(-400, -130)
+	_banner.size = Vector2(800, 70)
 	_banner.modulate.a = 0.0
 	root.add_child(_banner)
-	var hint := _label("Esc: Pause / Controls", 14)
+	var hint := _label("Esc: Pause / Controls", 11)
 	hint.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	hint.position = Vector2(28, -40)
+	hint.position = Vector2(24, -30)
 	hint.modulate.a = 0.6
 	root.add_child(hint)
 	# --- weapon / buff line under the bars
-	_buffs = _label("Weapon: Ashen Edge", 15)
+	_buffs = _label("Weapon: Ashen Edge", 11)
 	_buffs.modulate = Color(1.0, 0.8, 0.5)
 	box.add_child(_buffs)
-	_skills = _label("", 15)
+	_skills = _label("", 11)
 	box.add_child(_skills)
-	_ult_label = _label("[V] Requiem of a Thousand Ashes  0%", 16)
+	_ult_label = _label("[V] Requiem  0%", 11)
 	_ult_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.45))
 	box.add_child(_ult_label)
-	_ult = _bar(Color(0.9, 0.08, 0.12), Vector2(360, 14))
+	_ult = _bar(Color(0.9, 0.1, 0.14), Vector2(220, 6))
 	_ult.value = 0
 	box.add_child(_ult)
 	# --- interaction prompt (bottom-center)
@@ -146,9 +146,9 @@ func _ready() -> void:
 	root.add_child(_debug)
 	_build_overlays(root)
 
-## Shows the nearest collectible's name, description and key prompt.
-func show_prompt(item_name: String, desc: String) -> void:
-	_prompt_label.text = "%s\n%s\n[E] Collect" % [item_name, desc]
+## Shows the nearest collectible or NPC's name, description and key prompt.
+func show_prompt(item_name: String, desc: String, action := "Collect") -> void:
+	_prompt_label.text = "%s\n%s\n[E] %s" % [item_name, desc, action]
 	_prompt.visible = true
 
 func hide_prompt() -> void:
@@ -181,21 +181,24 @@ func _label(t: String, size: int) -> Label:
 	l.text = t
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_outline_color", Color.BLACK)
-	l.add_theme_constant_override("outline_size", 6)
+	l.add_theme_constant_override("outline_size", 3)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return l
 
 func _bar(c: Color, sz: Vector2) -> ProgressBar:
 	var b := ProgressBar.new()
 	b.custom_minimum_size = sz
+	b.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	b.show_percentage = false
 	b.value = 100
 	var bg := StyleBoxFlat.new()
-	bg.bg_color = Color(0, 0, 0, 0.6)
-	bg.border_color = Color(0.6, 0.5, 0.4, 0.8)
-	bg.set_border_width_all(2)
+	bg.bg_color = Color(0.02, 0.02, 0.04, 0.75)
+	bg.border_color = Color(0.4, 0.35, 0.3, 0.8)
+	bg.set_border_width_all(1)
+	bg.set_corner_radius_all(2)
 	var fg := StyleBoxFlat.new()
 	fg.bg_color = c
+	fg.set_corner_radius_all(2)
 	b.add_theme_stylebox_override("background", bg)
 	b.add_theme_stylebox_override("fill", fg)
 	return b

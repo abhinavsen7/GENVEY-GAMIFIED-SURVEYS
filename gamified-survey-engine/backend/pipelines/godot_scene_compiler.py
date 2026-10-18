@@ -507,32 +507,69 @@ navigation_mesh = SubResource("NavigationMesh_main")
 
 
 def launch_native_godot_window(game_config: Dict[str, Any]) -> Dict[str, Any]:
-    """Compiles CompiledGame.tscn for game_config and spawns native desktop Godot 4 window."""
-    scene_info = compile_godot_scene_from_config(game_config)
-    godot_bin = shutil.which("godot4") or shutil.which("godot") or "/home/me/.local/bin/godot4"
+    """Compiles or targets Godot project and spawns native desktop Godot 4 window."""
+    # Check if this is the Shadow Requiem (new-game-project) cartridge or custom scene
+    cartridge_id = game_config.get("cartridge_id", "")
+    build_id = game_config.get("build_id", "")
+    custom_project = REPO_ROOT / "game_templates" / "new-game-project"
+    
+    if (cartridge_id == "shadow_requiem_hack_and_slash" or build_id == "shadow_requiem") and custom_project.exists():
+        target_project_dir = custom_project
+        target_scene = "res://main.tscn"
+        scene_info = {
+            "scene_path": str(custom_project / "main.tscn"),
+            "res_scene": target_scene,
+            "build_id": build_id or "shadow_requiem"
+        }
+    else:
+        scene_info = compile_godot_scene_from_config(game_config)
+        target_project_dir = GODOT_PROJECT_DIR
+        target_scene = "res://scenes/CompiledGame.tscn"
 
-    if not Path(godot_bin).exists():
+    # Search for Godot binary across PATH and known installation paths
+    candidate_bins = [
+        shutil.which("godot4"),
+        shutil.which("godot"),
+        "B:/download/Godot_v4.7.2-stable_win64.exe/Godot_v4.7.2-stable_win64.exe",
+        "B:\\download\\Godot_v4.7.2-stable_win64.exe\\Godot_v4.7.2-stable_win64.exe",
+        "/home/me/.local/bin/godot4"
+    ]
+    godot_bin = None
+    for cand in candidate_bins:
+        if cand and Path(cand).exists():
+            godot_bin = str(cand)
+            break
+
+    if not godot_bin:
         return {
             "status": "error",
-            "message": "godot4 binary not found on system PATH.",
+            "message": "Godot 4 binary not found on system PATH or download directory.",
             **scene_info,
         }
 
     env = os.environ.copy()
-    if "DISPLAY" not in env:
+    if os.name != "nt" and "DISPLAY" not in env:
         env["DISPLAY"] = ":0"
 
+    popen_kwargs = {
+        "cwd": str(target_project_dir),
+        "env": env,
+        "stdout": subprocess.DEVNULL,
+        "stderr": subprocess.DEVNULL
+    }
+    if os.name == "nt":
+        popen_kwargs["creationflags"] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
+    else:
+        popen_kwargs["start_new_session"] = True
+
     proc = subprocess.Popen(
-        [godot_bin, "--path", str(GODOT_PROJECT_DIR), "res://scenes/CompiledGame.tscn"],
-        cwd=str(GODOT_PROJECT_DIR),
-        env=env,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        start_new_session=True,
+        [godot_bin, "--path", str(target_project_dir), target_scene],
+        **popen_kwargs
     )
     return {
         "status": "launched",
         "pid": proc.pid,
-        "command": f"{godot_bin} --path {GODOT_PROJECT_DIR} res://scenes/CompiledGame.tscn",
+        "command": f"{godot_bin} --path {target_project_dir} {target_scene}",
         **scene_info,
     }
+

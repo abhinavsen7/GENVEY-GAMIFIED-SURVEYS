@@ -348,5 +348,25 @@
     "metric_delta": 1.5,
     "weapon_equipped": "Obsidian Insights Studio Claymore",
     "timestamp": "2026-10-18T09:05:45.988957+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "3b0e693c-8db6-46e6-803e-744f7e4220c5",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Sovereign Tier ($10 - Full Access & Exclusive Status)",
+    "metric_delta": 1.4,
+    "weapon_equipped": "Obsidian Insights Studio Dagger",
+    "timestamp": "2026-10-18T09:19:50.386081+00:00"
+  },
+  {
+    "player_id": "player_vanguard",
+    "game_id": "3b0e693c-8db6-46e6-803e-744f7e4220c5",
+    "question_id": "q_intent_primary_tradeoff",
+    "interaction_type": "COMBAT_KILL",
+    "selected_option": "Sovereign Tier ($10 - Full Access & Exclusive Status)",
+    "metric_delta": 1.4,
+    "weapon_equipped": "Obsidian Insights Studio Dagger",
+    "timestamp": "2026-10-18T09:19:51.142055+00:00"
   }
 ]
