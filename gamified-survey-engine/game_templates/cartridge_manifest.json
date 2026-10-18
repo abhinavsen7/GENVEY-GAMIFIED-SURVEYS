@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "2.0.0",
+  "description": "Teammate Game Cartridge Registry — Pluggable Base Games & Few-Shot RAG Mechanics for AMD Token Factory (Gemma 4)",
+  "cartridges": [
+    {
+      "cartridge_id": "dark_souls_cathedral_gauntlet",
+      "title": "Dark Souls: Cathedral of the Ashen Sovereign",
+      "dimension": "3D",
+      "author": "Teammate Engine Team (Action ARPG Core)",
+      "primary_genre": "DARK_SOULS_ACTION",
+      "supported_genres": [
+        "DARK_SOULS_ACTION",
+        "PSX_SURVIVAL_HORROR",
+        "HORDE_SURVIVOR_ARENA",
+        "ACTION_BOSS_GAUNTLET"
+      ],
+      "entry_point": "game_templates/dark_souls_cathedral_gauntlet/CartridgeContract.js",
+      "camera_mode": "THIRD_PERSON_SHOULDER",
+      "key_mechanics": [
+        "200ms Active Shield Parry & 2.4x Stagger Critical Riposte",
+        "Real-Time Stamina Management & Roll Invincibility i-frames",
+        "Multi-Phase Boss AI with Atmospheric Arena Cutscenes",
+        "Estus Flask Healing replenishing at Covenant Bonfire Shrines",
+        "Gold Economy & Competing Survey Forges ($10 Premium Relic vs $2 Micro-Upgrade)"
+      ],
+      "few_shot_physics_prompt": "Enforce sliding AABB Box3 collisions against all walls, pillars, and gates. Block X and Z axes independently to enable wall gliding. Animate chests opening with lid rotation and emit 10 gold particles.",
+      "telemetry_events": [
+        "PARRY_EXECUTED",
+        "CRITICAL_RIPOSTE",
+        "ESTUS_DRUNK",
+        "COVENANT_VOW_SWORN",
+        "SURVEY_FORGE_PURCHASE",
+        "BOSS_SLAIN"
+      ]
+    },
+    {
+      "cartridge_id": "baldurs_gate_tactical_keep",
+      "title": "Baldur's Gate: Tactical Keep of the Astral Ledger",
+      "dimension": "3D",
+      "author": "Teammate Systems Team (Turn-Based CRPG)",
+      "primary_genre": "BALDURS_GATE_CRPG",
+      "supported_genres": [
+        "BALDURS_GATE_CRPG",
+        "CASTLE_SIEGE_WARFARE",
+        "TACTICAL_STRATEGY"
+      ],
+      "entry_point": "game_templates/baldurs_gate_tactical_keep/CartridgeContract.js",
+      "camera_mode": "ISOMETRIC_TACTICAL",
+      "key_mechanics": [
+        "Turn-Based 4-AP Action Economy with Movement Budget Meter (8.0m)",
+        "5-Slot Spell Action Bar (Fireball AoE, Frost Nova, Tactical Dash, Healing Word)",
+        "Animated Polyhedral 3D D20 Skill Check Die Rolling (Persuasion, Arcana, Intimidation)",
+        "Mechanical Levers Linked to Iron Portcullis Gates",
+        "Multi-Option Dialogue Trees with DC Threshold Resolutions"
+      ],
+      "few_shot_physics_prompt": "Ground plane raycasting for tactical waypoint pathfinding. Highlight interactive levers and chests with gold emissive rings when within 4.5m range.",
+      "telemetry_events": [
+        "D20_SKILL_CHECK",
+        "SPELL_CAST_AOE",
+        "AP_END_TURN",
+        "PORTCULLIS_LEVER_PULLED",
+        "TACTICAL_CHOICE_COMMITTED"
+      ]
+    },
+    {
+      "cartridge_id": "ultima_2d_living_town",
+      "title": "Ultima 7: The Living Sanctum of Britannia",
+      "dimension": "2D",
+      "author": "Teammate Retro Team (Pixel-Art Systems)",
+      "primary_genre": "ULTIMA_IMMERSIVE_SANDBOX",
+      "supported_genres": [
+        "ULTIMA_IMMERSIVE_SANDBOX",
+        "MYSTERY_INVESTIGATION",
+        "COZY_CRAFTING_RPG"
+      ],
+      "entry_point": "game_templates/ultima_2d_living_town/CartridgeContract.js",
+      "camera_mode": "TOP_DOWN_PIXEL",
+      "key_mechanics": [
+        "Systemic Object Affordances (Physical Prop Grabbing, Stacking, Throwing)",
+        "Flammable Oil Barrels Exploding Adjacent Barricades",
+        "Day/Night & Torch Light Cones toggling Stealth vs Visibility",
+        "Dynamic Guard AI Barks and Behavioral Memory",
+        "Authentic 16x16 Pixel-Art Sprite and Tilemap Renderer (Zero Geometric Primitives)"
+      ],
+      "few_shot_physics_prompt": "Solid 16x16 grid tile collision for walls and water. Movable props have mass and can be dragged by player. Explosions apply radial force to nearby physical entities.",
+      "telemetry_events": [
+        "BARREL_IGNITED",
+        "PROP_MOVED_AND_STACKED",
+        "TORCH_STEALTH_TOGGLED",
+        "GUARD_BRIBE_ACCEPTED",
+        "SURVEY_EVIDENCE_UNCOVERED"
+      ]
+    }
+  ]
+}

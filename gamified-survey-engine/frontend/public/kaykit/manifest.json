@@ -1,0 +1,1022 @@
+{
+  "dungeon": [
+    {
+      "name": "banner_blue.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_blue.gltf.glb"
+    },
+    {
+      "name": "banner_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_brown.gltf.glb"
+    },
+    {
+      "name": "banner_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_green.gltf.glb"
+    },
+    {
+      "name": "banner_patternA_blue.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternA_blue.gltf.glb"
+    },
+    {
+      "name": "banner_patternA_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternA_brown.gltf.glb"
+    },
+    {
+      "name": "banner_patternA_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternA_green.gltf.glb"
+    },
+    {
+      "name": "banner_patternA_red.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternA_red.gltf.glb"
+    },
+    {
+      "name": "banner_patternA_white.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternA_white.gltf.glb"
+    },
+    {
+      "name": "banner_patternA_yellow.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternA_yellow.gltf.glb"
+    },
+    {
+      "name": "banner_patternB_blue.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternB_blue.gltf.glb"
+    },
+    {
+      "name": "banner_patternB_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternB_brown.gltf.glb"
+    },
+    {
+      "name": "banner_patternB_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternB_green.gltf.glb"
+    },
+    {
+      "name": "banner_patternB_red.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternB_red.gltf.glb"
+    },
+    {
+      "name": "banner_patternB_white.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternB_white.gltf.glb"
+    },
+    {
+      "name": "banner_patternB_yellow.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternB_yellow.gltf.glb"
+    },
+    {
+      "name": "banner_patternC_blue.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternC_blue.gltf.glb"
+    },
+    {
+      "name": "banner_patternC_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternC_brown.gltf.glb"
+    },
+    {
+      "name": "banner_patternC_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternC_green.gltf.glb"
+    },
+    {
+      "name": "banner_patternC_red.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternC_red.gltf.glb"
+    },
+    {
+      "name": "banner_patternC_white.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternC_white.gltf.glb"
+    },
+    {
+      "name": "banner_patternC_yellow.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_patternC_yellow.gltf.glb"
+    },
+    {
+      "name": "banner_red.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_red.gltf.glb"
+    },
+    {
+      "name": "banner_shield_blue.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_shield_blue.gltf.glb"
+    },
+    {
+      "name": "banner_shield_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_shield_brown.gltf.glb"
+    },
+    {
+      "name": "banner_shield_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_shield_green.gltf.glb"
+    },
+    {
+      "name": "banner_shield_red.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_shield_red.gltf.glb"
+    },
+    {
+      "name": "banner_shield_white.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_shield_white.gltf.glb"
+    },
+    {
+      "name": "banner_shield_yellow.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_shield_yellow.gltf.glb"
+    },
+    {
+      "name": "banner_thin_blue.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_thin_blue.gltf.glb"
+    },
+    {
+      "name": "banner_thin_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_thin_brown.gltf.glb"
+    },
+    {
+      "name": "banner_thin_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_thin_green.gltf.glb"
+    },
+    {
+      "name": "banner_thin_red.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_thin_red.gltf.glb"
+    },
+    {
+      "name": "banner_thin_white.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_thin_white.gltf.glb"
+    },
+    {
+      "name": "banner_thin_yellow.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_thin_yellow.gltf.glb"
+    },
+    {
+      "name": "banner_triple_blue.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_triple_blue.gltf.glb"
+    },
+    {
+      "name": "banner_triple_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_triple_brown.gltf.glb"
+    },
+    {
+      "name": "banner_triple_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_triple_green.gltf.glb"
+    },
+    {
+      "name": "banner_triple_red.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_triple_red.gltf.glb"
+    },
+    {
+      "name": "banner_triple_white.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_triple_white.gltf.glb"
+    },
+    {
+      "name": "banner_triple_yellow.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_triple_yellow.gltf.glb"
+    },
+    {
+      "name": "banner_white.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_white.gltf.glb"
+    },
+    {
+      "name": "banner_yellow.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/banner_yellow.gltf.glb"
+    },
+    {
+      "name": "barrel_large.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/barrel_large.gltf.glb"
+    },
+    {
+      "name": "barrel_large_decorated.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/barrel_large_decorated.gltf.glb"
+    },
+    {
+      "name": "barrel_small.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/barrel_small.gltf.glb"
+    },
+    {
+      "name": "barrel_small_stack.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/barrel_small_stack.gltf.glb"
+    },
+    {
+      "name": "barrier.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/barrier.gltf.glb"
+    },
+    {
+      "name": "barrier_colum_half.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/barrier_colum_half.gltf.glb"
+    },
+    {
+      "name": "barrier_column.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/barrier_column.gltf.glb"
+    },
+    {
+      "name": "barrier_corner.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/barrier_corner.gltf.glb"
+    },
+    {
+      "name": "barrier_half.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/barrier_half.gltf.glb"
+    },
+    {
+      "name": "bed_decorated.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bed_decorated.gltf.glb"
+    },
+    {
+      "name": "bed_floor.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bed_floor.gltf.glb"
+    },
+    {
+      "name": "bed_frame.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bed_frame.gltf.glb"
+    },
+    {
+      "name": "bottle_A_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bottle_A_brown.gltf.glb"
+    },
+    {
+      "name": "bottle_A_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bottle_A_green.gltf.glb"
+    },
+    {
+      "name": "bottle_A_labeled_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bottle_A_labeled_brown.gltf.glb"
+    },
+    {
+      "name": "bottle_A_labeled_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bottle_A_labeled_green.gltf.glb"
+    },
+    {
+      "name": "bottle_B_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bottle_B_brown.gltf.glb"
+    },
+    {
+      "name": "bottle_B_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bottle_B_green.gltf.glb"
+    },
+    {
+      "name": "bottle_C_brown.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bottle_C_brown.gltf.glb"
+    },
+    {
+      "name": "bottle_C_green.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/bottle_C_green.gltf.glb"
+    },
+    {
+      "name": "box_large.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/box_large.gltf.glb"
+    },
+    {
+      "name": "box_small.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/box_small.gltf.glb"
+    },
+    {
+      "name": "box_small_decorated.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/box_small_decorated.gltf.glb"
+    },
+    {
+      "name": "box_stacked.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/box_stacked.gltf.glb"
+    },
+    {
+      "name": "candle.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/candle.gltf.glb"
+    },
+    {
+      "name": "candle_lit.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/candle_lit.gltf.glb"
+    },
+    {
+      "name": "candle_melted.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/candle_melted.gltf.glb"
+    },
+    {
+      "name": "candle_thin.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/candle_thin.gltf.glb"
+    },
+    {
+      "name": "candle_thin_lit.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/candle_thin_lit.gltf.glb"
+    },
+    {
+      "name": "candle_triple.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/candle_triple.gltf.glb"
+    },
+    {
+      "name": "chair.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/chair.gltf.glb"
+    },
+    {
+      "name": "chest",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/chest.glb"
+    },
+    {
+      "name": "chest_gold",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/chest_gold.glb"
+    },
+    {
+      "name": "coin.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/coin.gltf.glb"
+    },
+    {
+      "name": "coin_stack_large.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/coin_stack_large.gltf.glb"
+    },
+    {
+      "name": "coin_stack_medium.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/coin_stack_medium.gltf.glb"
+    },
+    {
+      "name": "coin_stack_small.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/coin_stack_small.gltf.glb"
+    },
+    {
+      "name": "column.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/column.gltf.glb"
+    },
+    {
+      "name": "crates_stacked.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/crates_stacked.gltf.glb"
+    },
+    {
+      "name": "floor_dirt_large.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_dirt_large.gltf.glb"
+    },
+    {
+      "name": "floor_dirt_large_rocky.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_dirt_large_rocky.gltf.glb"
+    },
+    {
+      "name": "floor_dirt_small_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_dirt_small_A.gltf.glb"
+    },
+    {
+      "name": "floor_dirt_small_B.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_dirt_small_B.gltf.glb"
+    },
+    {
+      "name": "floor_dirt_small_C.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_dirt_small_C.gltf.glb"
+    },
+    {
+      "name": "floor_dirt_small_D.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_dirt_small_D.gltf.glb"
+    },
+    {
+      "name": "floor_dirt_small_corner.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_dirt_small_corner.gltf.glb"
+    },
+    {
+      "name": "floor_dirt_small_weeds.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_dirt_small_weeds.gltf.glb"
+    },
+    {
+      "name": "floor_foundation_allsides.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_foundation_allsides.gltf.glb"
+    },
+    {
+      "name": "floor_foundation_corner.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_foundation_corner.gltf.glb"
+    },
+    {
+      "name": "floor_foundation_diagonal_corner.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_foundation_diagonal_corner.gltf.glb"
+    },
+    {
+      "name": "floor_foundation_front.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_foundation_front.gltf.glb"
+    },
+    {
+      "name": "floor_foundation_front_and_back.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_foundation_front_and_back.gltf.glb"
+    },
+    {
+      "name": "floor_foundation_front_and_sides.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_foundation_front_and_sides.gltf.glb"
+    },
+    {
+      "name": "floor_tile_big_grate.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_big_grate.gltf.glb"
+    },
+    {
+      "name": "floor_tile_big_grate_open.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_big_grate_open.gltf.glb"
+    },
+    {
+      "name": "floor_tile_big_spikes",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_big_spikes.glb"
+    },
+    {
+      "name": "floor_tile_extralarge_grates.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_extralarge_grates.gltf.glb"
+    },
+    {
+      "name": "floor_tile_extralarge_grates_open.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_extralarge_grates_open.gltf.glb"
+    },
+    {
+      "name": "floor_tile_grate.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_grate.gltf.glb"
+    },
+    {
+      "name": "floor_tile_grate_open.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_grate_open.gltf.glb"
+    },
+    {
+      "name": "floor_tile_large.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_large.gltf.glb"
+    },
+    {
+      "name": "floor_tile_large_rocks.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_large_rocks.gltf.glb"
+    },
+    {
+      "name": "floor_tile_small.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_small.gltf.glb"
+    },
+    {
+      "name": "floor_tile_small_broken_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_small_broken_A.gltf.glb"
+    },
+    {
+      "name": "floor_tile_small_broken_B.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_small_broken_B.gltf.glb"
+    },
+    {
+      "name": "floor_tile_small_corner.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_small_corner.gltf.glb"
+    },
+    {
+      "name": "floor_tile_small_decorated.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_small_decorated.gltf.glb"
+    },
+    {
+      "name": "floor_tile_small_weeds_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_small_weeds_A.gltf.glb"
+    },
+    {
+      "name": "floor_tile_small_weeds_B.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_tile_small_weeds_B.gltf.glb"
+    },
+    {
+      "name": "floor_wood_large.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_wood_large.gltf.glb"
+    },
+    {
+      "name": "floor_wood_large_dark.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_wood_large_dark.gltf.glb"
+    },
+    {
+      "name": "floor_wood_small.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_wood_small.gltf.glb"
+    },
+    {
+      "name": "floor_wood_small_dark.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/floor_wood_small_dark.gltf.glb"
+    },
+    {
+      "name": "keg.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/keg.gltf.glb"
+    },
+    {
+      "name": "keg_decorated.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/keg_decorated.gltf.glb"
+    },
+    {
+      "name": "key.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/key.gltf.glb"
+    },
+    {
+      "name": "keyring.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/keyring.gltf.glb"
+    },
+    {
+      "name": "keyring_hanging.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/keyring_hanging.gltf.glb"
+    },
+    {
+      "name": "pillar.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/pillar.gltf.glb"
+    },
+    {
+      "name": "pillar_decorated.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/pillar_decorated.gltf.glb"
+    },
+    {
+      "name": "plate.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/plate.gltf.glb"
+    },
+    {
+      "name": "plate_food_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/plate_food_A.gltf.glb"
+    },
+    {
+      "name": "plate_food_B.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/plate_food_B.gltf.glb"
+    },
+    {
+      "name": "plate_small.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/plate_small.gltf.glb"
+    },
+    {
+      "name": "plate_stack.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/plate_stack.gltf.glb"
+    },
+    {
+      "name": "rubble_half.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/rubble_half.gltf.glb"
+    },
+    {
+      "name": "rubble_large.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/rubble_large.gltf.glb"
+    },
+    {
+      "name": "shelf_large.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/shelf_large.gltf.glb"
+    },
+    {
+      "name": "shelf_small.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/shelf_small.gltf.glb"
+    },
+    {
+      "name": "shelf_small_candles.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/shelf_small_candles.gltf.glb"
+    },
+    {
+      "name": "shelves.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/shelves.gltf.glb"
+    },
+    {
+      "name": "stairs.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/stairs.gltf.glb"
+    },
+    {
+      "name": "stairs_narrow.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/stairs_narrow.gltf.glb"
+    },
+    {
+      "name": "stairs_wall_left.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/stairs_wall_left.gltf.glb"
+    },
+    {
+      "name": "stairs_wall_right.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/stairs_wall_right.gltf.glb"
+    },
+    {
+      "name": "stairs_walled.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/stairs_walled.gltf.glb"
+    },
+    {
+      "name": "stairs_wide.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/stairs_wide.gltf.glb"
+    },
+    {
+      "name": "stairs_wood.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/stairs_wood.gltf.glb"
+    },
+    {
+      "name": "stairs_wood_decorated.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/stairs_wood_decorated.gltf.glb"
+    },
+    {
+      "name": "stool.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/stool.gltf.glb"
+    },
+    {
+      "name": "sword_shield.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/sword_shield.gltf.glb"
+    },
+    {
+      "name": "sword_shield_broken.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/sword_shield_broken.gltf.glb"
+    },
+    {
+      "name": "sword_shield_gold.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/sword_shield_gold.gltf.glb"
+    },
+    {
+      "name": "table_long.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_long.gltf.glb"
+    },
+    {
+      "name": "table_long_broken.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_long_broken.gltf.glb"
+    },
+    {
+      "name": "table_long_decorated_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_long_decorated_A.gltf.glb"
+    },
+    {
+      "name": "table_long_decorated_C.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_long_decorated_C.gltf.glb"
+    },
+    {
+      "name": "table_long_tablecloth.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_long_tablecloth.gltf.glb"
+    },
+    {
+      "name": "table_long_tablecloth_decorated_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_long_tablecloth_decorated_A.gltf.glb"
+    },
+    {
+      "name": "table_medium.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_medium.gltf.glb"
+    },
+    {
+      "name": "table_medium_broken.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_medium_broken.gltf.glb"
+    },
+    {
+      "name": "table_medium_decorated_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_medium_decorated_A.gltf.glb"
+    },
+    {
+      "name": "table_medium_tablecloth.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_medium_tablecloth.gltf.glb"
+    },
+    {
+      "name": "table_medium_tablecloth_decorated_B.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_medium_tablecloth_decorated_B.gltf.glb"
+    },
+    {
+      "name": "table_small.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_small.gltf.glb"
+    },
+    {
+      "name": "table_small_decorated_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_small_decorated_A.gltf.glb"
+    },
+    {
+      "name": "table_small_decorated_B.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/table_small_decorated_B.gltf.glb"
+    },
+    {
+      "name": "torch.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/torch.gltf.glb"
+    },
+    {
+      "name": "torch_lit.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/torch_lit.gltf.glb"
+    },
+    {
+      "name": "torch_mounted.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/torch_mounted.gltf.glb"
+    },
+    {
+      "name": "trunk_large_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/trunk_large_A.gltf.glb"
+    },
+    {
+      "name": "trunk_large_B.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/trunk_large_B.gltf.glb"
+    },
+    {
+      "name": "trunk_large_C.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/trunk_large_C.gltf.glb"
+    },
+    {
+      "name": "trunk_medium_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/trunk_medium_A.gltf.glb"
+    },
+    {
+      "name": "trunk_medium_B.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/trunk_medium_B.gltf.glb"
+    },
+    {
+      "name": "trunk_medium_C.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/trunk_medium_C.gltf.glb"
+    },
+    {
+      "name": "trunk_small_A.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/trunk_small_A.gltf.glb"
+    },
+    {
+      "name": "trunk_small_B.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/trunk_small_B.gltf.glb"
+    },
+    {
+      "name": "trunk_small_C.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/trunk_small_C.gltf.glb"
+    },
+    {
+      "name": "wall.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall.gltf.glb"
+    },
+    {
+      "name": "wall_Tsplit.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_Tsplit.gltf.glb"
+    },
+    {
+      "name": "wall_Tsplit_sloped.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_Tsplit_sloped.gltf.glb"
+    },
+    {
+      "name": "wall_arched.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_arched.gltf.glb"
+    },
+    {
+      "name": "wall_archedwindow_gated.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_archedwindow_gated.gltf.glb"
+    },
+    {
+      "name": "wall_archedwindow_gated_scaffold.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_archedwindow_gated_scaffold.gltf.glb"
+    },
+    {
+      "name": "wall_archedwindow_open.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_archedwindow_open.gltf.glb"
+    },
+    {
+      "name": "wall_broken.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_broken.gltf.glb"
+    },
+    {
+      "name": "wall_corner.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_corner.gltf.glb"
+    },
+    {
+      "name": "wall_corner_gated.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_corner_gated.gltf.glb"
+    },
+    {
+      "name": "wall_corner_scaffold.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_corner_scaffold.gltf.glb"
+    },
+    {
+      "name": "wall_corner_small.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_corner_small.gltf.glb"
+    },
+    {
+      "name": "wall_cracked.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_cracked.gltf.glb"
+    },
+    {
+      "name": "wall_crossing.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_crossing.gltf.glb"
+    },
+    {
+      "name": "wall_doorway",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_doorway.glb"
+    },
+    {
+      "name": "wall_doorway_Tsplit.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_doorway_Tsplit.gltf.glb"
+    },
+    {
+      "name": "wall_doorway_scaffold",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_doorway_scaffold.glb"
+    },
+    {
+      "name": "wall_doorway_sides.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_doorway_sides.gltf.glb"
+    },
+    {
+      "name": "wall_endcap.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_endcap.gltf.glb"
+    },
+    {
+      "name": "wall_gated.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_gated.gltf.glb"
+    },
+    {
+      "name": "wall_half.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_half.gltf.glb"
+    },
+    {
+      "name": "wall_half_endcap.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_half_endcap.gltf.glb"
+    },
+    {
+      "name": "wall_half_endcap_sloped.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_half_endcap_sloped.gltf.glb"
+    },
+    {
+      "name": "wall_open_scaffold.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_open_scaffold.gltf.glb"
+    },
+    {
+      "name": "wall_pillar.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_pillar.gltf.glb"
+    },
+    {
+      "name": "wall_scaffold.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_scaffold.gltf.glb"
+    },
+    {
+      "name": "wall_shelves.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_shelves.gltf.glb"
+    },
+    {
+      "name": "wall_sloped.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_sloped.gltf.glb"
+    },
+    {
+      "name": "wall_window_closed.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_window_closed.gltf.glb"
+    },
+    {
+      "name": "wall_window_closed_scaffold.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_window_closed_scaffold.gltf.glb"
+    },
+    {
+      "name": "wall_window_open.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_window_open.gltf.glb"
+    },
+    {
+      "name": "wall_window_open_scaffold.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/wall_window_open_scaffold.gltf.glb"
+    }
+  ],
+  "adventurers": [
+    {
+      "name": "arrow",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/arrow.gltf"
+    },
+    {
+      "name": "arrow_bundle",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/arrow_bundle.gltf"
+    },
+    {
+      "name": "axe_1handed",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/axe_1handed.gltf"
+    },
+    {
+      "name": "axe_2handed",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/axe_2handed.gltf"
+    },
+    {
+      "name": "crossbow_1handed",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/crossbow_1handed.gltf"
+    },
+    {
+      "name": "crossbow_2handed",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/crossbow_2handed.gltf"
+    },
+    {
+      "name": "dagger",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/dagger.gltf"
+    },
+    {
+      "name": "mug_empty",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/mug_empty.gltf"
+    },
+    {
+      "name": "mug_full",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/mug_full.gltf"
+    },
+    {
+      "name": "quiver",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/quiver.gltf"
+    },
+    {
+      "name": "shield_badge",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/shield_badge.gltf"
+    },
+    {
+      "name": "shield_badge_color",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/shield_badge_color.gltf"
+    },
+    {
+      "name": "shield_round",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/shield_round.gltf"
+    },
+    {
+      "name": "shield_round_barbarian",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/shield_round_barbarian.gltf"
+    },
+    {
+      "name": "shield_round_color",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/shield_round_color.gltf"
+    },
+    {
+      "name": "shield_spikes",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/shield_spikes.gltf"
+    },
+    {
+      "name": "shield_spikes_color",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/shield_spikes_color.gltf"
+    },
+    {
+      "name": "shield_square",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/shield_square.gltf"
+    },
+    {
+      "name": "shield_square_color",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/shield_square_color.gltf"
+    },
+    {
+      "name": "smokebomb",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/smokebomb.gltf"
+    },
+    {
+      "name": "spellbook_closed",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/spellbook_closed.gltf"
+    },
+    {
+      "name": "spellbook_open",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/spellbook_open.gltf"
+    },
+    {
+      "name": "staff",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/staff.gltf"
+    },
+    {
+      "name": "sword_1handed",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/sword_1handed.gltf"
+    },
+    {
+      "name": "sword_2handed",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/sword_2handed.gltf"
+    },
+    {
+      "name": "sword_2handed_color",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/sword_2handed_color.gltf"
+    },
+    {
+      "name": "wand",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Assets/gltf/wand.gltf"
+    },
+    {
+      "name": "Barbarian",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Characters/gltf/Barbarian.glb"
+    },
+    {
+      "name": "Knight",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Characters/gltf/Knight.glb"
+    },
+    {
+      "name": "Mage",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Characters/gltf/Mage.glb"
+    },
+    {
+      "name": "Rogue",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Characters/gltf/Rogue.glb"
+    },
+    {
+      "name": "Rogue_Hooded",
+      "url": "/kaykit/adventurers/addons/kaykit_character_pack_adventures/Characters/gltf/Rogue_Hooded.glb"
+    }
+  ],
+  "skeletons": [
+    {
+      "name": "Skeleton_Arrow",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Arrow.gltf"
+    },
+    {
+      "name": "Skeleton_Arrow_Broken",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Arrow_Broken.gltf"
+    },
+    {
+      "name": "Skeleton_Arrow_Broken_Half",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Arrow_Broken_Half.gltf"
+    },
+    {
+      "name": "Skeleton_Arrow_Half",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Arrow_Half.gltf"
+    },
+    {
+      "name": "Skeleton_Axe",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Axe.gltf"
+    },
+    {
+      "name": "Skeleton_Blade",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Blade.gltf"
+    },
+    {
+      "name": "Skeleton_Crossbow",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Crossbow.gltf"
+    },
+    {
+      "name": "Skeleton_Quiver",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Quiver.gltf"
+    },
+    {
+      "name": "Skeleton_Shield_Large_A",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Shield_Large_A.gltf"
+    },
+    {
+      "name": "Skeleton_Shield_Large_B",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Shield_Large_B.gltf"
+    },
+    {
+      "name": "Skeleton_Shield_Small_A",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Shield_Small_A.gltf"
+    },
+    {
+      "name": "Skeleton_Shield_Small_B",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Shield_Small_B.gltf"
+    },
+    {
+      "name": "Skeleton_Staff",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Assets/gltf/Skeleton_Staff.gltf"
+    },
+    {
+      "name": "Skeleton_Mage",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_Mage.glb"
+    },
+    {
+      "name": "Skeleton_Minion",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_Minion.glb"
+    },
+    {
+      "name": "Skeleton_Rogue",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_Rogue.glb"
+    },
+    {
+      "name": "Skeleton_Warrior",
+      "url": "/kaykit/skeletons/addons/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_Warrior.glb"
+    }
+  ],
+  "animations": [
+    {
+      "name": "stairs_wall_right.gltf",
+      "url": "/kaykit/dungeon/addons/kaykit_dungeon_remastered/Assets/gltf/stairs_wall_right.gltf.glb"
+    }
+  ]
+}

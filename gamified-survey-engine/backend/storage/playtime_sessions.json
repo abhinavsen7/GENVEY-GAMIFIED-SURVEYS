@@ -1,0 +1,77 @@
+[
+  {
+    "user_id": "u_gz_01",
+    "genre_played": "SOULSLIKE_ACTION",
+    "session_duration_seconds": 1840
+  },
+  {
+    "user_id": "u_gz_01",
+    "genre_played": "PSX_SURVIVAL_HORROR",
+    "session_duration_seconds": 2100
+  },
+  {
+    "user_id": "u_gz_02",
+    "genre_played": "HORDE_SURVIVOR_ARENA",
+    "session_duration_seconds": 2650
+  },
+  {
+    "user_id": "u_gz_02",
+    "genre_played": "BALDURS_GATE_CRPG",
+    "session_duration_seconds": 920
+  },
+  {
+    "user_id": "u_gz_03",
+    "genre_played": "PSX_SURVIVAL_HORROR",
+    "session_duration_seconds": 3200
+  },
+  {
+    "user_id": "u_gz_03",
+    "genre_played": "SOULSLIKE_ACTION",
+    "session_duration_seconds": 1400
+  },
+  {
+    "user_id": "u_gz_04",
+    "genre_played": "SOULSLIKE_ACTION",
+    "session_duration_seconds": 2450
+  },
+  {
+    "user_id": "u_mil_01",
+    "genre_played": "BALDURS_GATE_CRPG",
+    "session_duration_seconds": 4120
+  },
+  {
+    "user_id": "u_mil_01",
+    "genre_played": "ULTIMA_IMMERSIVE_SANDBOX",
+    "session_duration_seconds": 3100
+  },
+  {
+    "user_id": "u_mil_02",
+    "genre_played": "ULTIMA_IMMERSIVE_SANDBOX",
+    "session_duration_seconds": 4500
+  },
+  {
+    "user_id": "u_mil_02",
+    "genre_played": "BALDURS_GATE_CRPG",
+    "session_duration_seconds": 2200
+  },
+  {
+    "user_id": "u_mil_03",
+    "genre_played": "BALDURS_GATE_CRPG",
+    "session_duration_seconds": 3800
+  },
+  {
+    "user_id": "u_mil_04",
+    "genre_played": "MYSTERY_INVESTIGATION",
+    "session_duration_seconds": 2900
+  },
+  {
+    "user_id": "u_teen_01",
+    "genre_played": "HORDE_SURVIVOR_ARENA",
+    "session_duration_seconds": 3600
+  },
+  {
+    "user_id": "u_teen_02",
+    "genre_played": "HORDE_SURVIVOR_ARENA",
+    "session_duration_seconds": 2800
+  }
+]

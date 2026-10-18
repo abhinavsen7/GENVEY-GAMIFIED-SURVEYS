@@ -1,31 +1,28 @@
 /**
- * GENVEY 3D SOULS ENGINE — FRONTEND CONTROLLER (Track 4)
- * Connects the Three.js 3D Souls Boss Arena, Audience World Switcher,
- * Player Cash/Gift Card Wallet, Company Studio Generator, and AMD/Gemma Status.
+ * ODYSSEY & TRISTRAM — ENGINE STUDIO CONTROLLER
+ * Connects the downloaded reone (KotOR) & Freeablo (Diablo) engines to the WebGL Viewport,
+ * Native Desktop Launcher, Color & Survey Customizer, and Decision Analytics.
  */
 
 const state = {
-  companies: [],
-  players: [],
   campaigns: [],
-  rewardsCatalog: [],
   activeCampaignId: null,
-  activePlayerId: null,
+  activeGenre: 'reone_kotor',
   activeStageIndex: 0,
-  audienceMode: 'dark_fantasy_souls',
-  recordedAnswers: [],
   soulsEngine: null,
-  audioCtx: null
+  musicEnabled: true,
+  enginesStatus: {}
 };
 
 async function initApp() {
   bindTabs();
+  bindEngineSwitcher();
   bindControls();
+  bindCustomizerForm();
   await fetchState();
-  initSouls3DEngine();
-  loadCampaignInto3DArena(getActiveCampaign());
+  init3DGameDirector();
+  loadActiveCampaignIntoEngine();
   refreshAnalyticsPanel();
-  checkAiStatusFast();
 }
 
 function bindTabs() {
@@ -36,357 +33,337 @@ function bindTabs() {
       btn.classList.add('active');
       const panel = document.getElementById(btn.dataset.tab);
       if (panel) panel.classList.add('active');
+
+      if (btn.dataset.tab === 'analytics-tab') {
+        refreshAnalyticsPanel();
+      }
     });
   });
+}
 
-  document.getElementById('header-ai-pill')?.addEventListener('click', () => {
-    document.querySelector('[data-tab="track4-tab"]')?.click();
+function bindEngineSwitcher() {
+  const btnKotor = document.getElementById('btn-switch-kotor');
+  const btnDiablo = document.getElementById('btn-switch-diablo');
+
+  btnKotor?.addEventListener('click', () => {
+    btnKotor.classList.add('active');
+    btnDiablo?.classList.remove('active');
+    switchToGenre('reone_kotor');
   });
+
+  btnDiablo?.addEventListener('click', () => {
+    btnDiablo.classList.add('active');
+    btnKotor?.classList.remove('active');
+    switchToGenre('freeablo_diablo');
+  });
+}
+
+function switchToGenre(genreKey) {
+  state.activeGenre = genreKey;
+  const body = document.getElementById('app-body');
+
+  if (genreKey === 'reone_kotor') {
+    body.className = 'theme-kotor';
+    document.getElementById('brand-logo-icon').textContent = '🌌';
+    document.getElementById('engine-tag-badge').textContent = 'reone Odyssey';
+    document.getElementById('engine-tag-sub').textContent = 'Star Wars: Knights of the Old Republic RPG Engine';
+  } else {
+    body.className = 'theme-diablo';
+    document.getElementById('brand-logo-icon').textContent = '🔥';
+    document.getElementById('engine-tag-badge').textContent = 'Freeablo ARPG';
+    document.getElementById('engine-tag-sub').textContent = 'Diablo 1 & 2 Dark Gothic ARPG Engine';
+  }
+
+  // Find a campaign matching this genre
+  const matchingCamp = state.campaigns.find((c) => c.genre === genreKey);
+  if (matchingCamp) {
+    state.activeCampaignId = matchingCamp.id;
+    const sel = document.getElementById('campaign-select');
+    if (sel) sel.value = matchingCamp.id;
+  }
+
+  loadActiveCampaignIntoEngine();
 }
 
 function getActiveCampaign() {
   return state.campaigns.find((c) => c.id === state.activeCampaignId) || state.campaigns[0];
 }
 
-function getActivePlayer() {
-  return state.players.find((p) => p.id === state.activePlayerId) || state.players[0];
-}
-
 async function fetchState() {
-  const res = await fetch('/api/state');
-  const data = await res.json();
-  state.companies = data.companies || [];
-  state.players = data.players || [];
-  state.campaigns = data.campaigns || [];
-  state.rewardsCatalog = data.rewardsCatalog || [];
+  try {
+    const res = await fetch('/api/state');
+    const data = await res.json();
+    state.campaigns = data.campaigns || [];
+    state.enginesStatus = data.engines || {};
 
-  if (!state.activeCampaignId && state.campaigns[0]) {
-    state.activeCampaignId = state.campaigns[0].id;
-  }
-  if (!state.activePlayerId && state.players[0]) {
-    state.activePlayerId = state.players[0].id;
-  }
+    if (!state.activeCampaignId && state.campaigns[0]) {
+      state.activeCampaignId = state.campaigns[0].id;
+      state.activeGenre = state.campaigns[0].genre || 'reone_kotor';
+    }
 
-  renderCampaignSelect();
-  renderPlayerWallet();
+    renderCampaignSelect();
+    updateEnginePill();
+  } catch (err) {
+    console.error('Failed to fetch state:', err);
+  }
 }
 
 function renderCampaignSelect() {
   const sel = document.getElementById('campaign-select');
   if (!sel) return;
   sel.innerHTML = state.campaigns
-    .map((c) => `<option value="${c.id}" ${c.id === state.activeCampaignId ? 'selected' : ''}>${c.title} (+${c.rewardPoints} Coins)</option>`)
+    .map(
+      (c) =>
+        `<option value="${c.id}" ${c.id === state.activeCampaignId ? 'selected' : ''}>${c.title} [${c.genre === 'reone_kotor' ? 'KotOR' : 'Diablo'}]</option>`
+    )
     .join('');
+
+  sel.addEventListener('change', (e) => {
+    state.activeCampaignId = e.target.value;
+    const camp = getActiveCampaign();
+    if (camp) {
+      state.activeGenre = camp.genre || 'reone_kotor';
+      const isKotor = state.activeGenre === 'reone_kotor';
+      document.getElementById('btn-switch-kotor')?.classList.toggle('active', isKotor);
+      document.getElementById('btn-switch-diablo')?.classList.toggle('active', !isKotor);
+      switchToGenre(state.activeGenre);
+    }
+  });
 }
 
-function renderPlayerWallet() {
-  const player = getActivePlayer();
-  if (!player) return;
+function updateEnginePill() {
+  const textEl = document.getElementById('engine-pill-text');
+  if (!textEl) return;
+  const reone = state.enginesStatus.reone;
+  const freeablo = state.enginesStatus.freeablo;
 
-  const pSel = document.getElementById('player-select');
-  if (pSel) {
-    pSel.innerHTML = state.players
-      .map((p) => `<option value="${p.id}" ${p.id === player.id ? 'selected' : ''}>${p.name} (${p.points} Coins)</option>`)
-      .join('');
+  const kCount = reone?.talkTableStatus?.totalStringsCount || 49266;
+  textEl.textContent = `reone: ${kCount.toLocaleString()} Strings • Freeablo: Ready`;
+}
+
+function init3DGameDirector() {
+  const canvas = document.getElementById('souls-canvas');
+  const hudContainer = document.getElementById('relic-labels-layer');
+  if (!canvas || !window.Genvey3DGameDirector) return;
+
+  state.soulsEngine = new window.Genvey3DGameDirector(canvas, hudContainer, {
+    onHudUpdate: (hud) => {
+      document.getElementById('player-hp-text').textContent = hud.playerHp;
+      document.getElementById('player-mana-text').textContent = hud.playerMana;
+      document.getElementById('boss-hp-fill').style.width = `${Math.max(0, hud.bossHp)}%`;
+
+      // Update Diablo health / mana liquid height
+      if (hud.currentGenre === 'freeablo_diablo') {
+        const hpPct = Math.max(0, Math.min(100, hud.playerHp));
+        const manaPct = Math.max(0, Math.min(100, hud.playerMana));
+        document.getElementById('diablo-health-fill').style.height = `${hpPct}%`;
+        document.getElementById('diablo-mana-fill').style.height = `${manaPct}%`;
+        document.getElementById('diablo-health-value').textContent = `${hud.playerHp} / 100`;
+        document.getElementById('diablo-mana-value').textContent = `${hud.playerMana} / 100`;
+      }
+    },
+    onAlignmentMessage: (data) => {
+      const banner = document.getElementById('kotor-alignment-banner');
+      if (banner) {
+        document.getElementById('kotor-align-title').textContent = data.alignTitle;
+        document.getElementById('kotor-align-sub').textContent = data.alignSub;
+        banner.classList.remove('hidden');
+        clearTimeout(banner._hideTimer);
+        banner._hideTimer = setTimeout(() => banner.classList.add('hidden'), 2800);
+      }
+    },
+    onCombatMessage: (msg) => {
+      console.log('Combat note:', msg);
+    },
+    onVictory: (summary) => {
+      handlePhaseOrGameVictory(summary);
+    }
+  });
+}
+
+function loadActiveCampaignIntoEngine() {
+  const camp = getActiveCampaign();
+  if (!camp || !state.soulsEngine) return;
+
+  state.activeStageIndex = 0;
+  const isKotor = (camp.genre === 'reone_kotor');
+
+  // Toggle HUD elements for KotOR vs Diablo
+  document.getElementById('diablo-orbs-container')?.classList.toggle('hidden', isKotor);
+
+  // Update sidebar engine details
+  if (isKotor) {
+    document.getElementById('sidebar-engine-title').textContent = '🌌 Engine: reone Odyssey';
+    document.getElementById('meta-engine-arch').textContent = 'reone (seedhartha/reone C++)';
+    document.getElementById('meta-engine-data').textContent = 'Aspyr KotOR Retail Assets';
+    document.getElementById('meta-engine-strings').textContent = '49,266 Strings (dialog.tlk)';
+    document.getElementById('meta-engine-hero').textContent = 'Jedi Knight.glb (Plasma Lightsaber)';
+    document.getElementById('meta-engine-audio').textContent = 'Darth Malak Battle Theme (PCM WAV)';
+    document.getElementById('stimulus-instruction').textContent = '🌌 Align with one of the 4 Star Map Consoles [1–4] to break the Sith shield!';
+  } else {
+    document.getElementById('sidebar-engine-title').textContent = '🔥 Engine: Freeablo ARPG';
+    document.getElementById('meta-engine-arch').textContent = 'Freeablo v0.4 (wheybags/freeablo)';
+    document.getElementById('meta-engine-data').textContent = 'Tristram Catacombs & MPQ Core';
+    document.getElementById('meta-engine-strings').textContent = 'resources/settings-user.ini active';
+    document.getElementById('meta-engine-hero').textContent = 'Barbarian.glb (2H Battleaxe Cleave)';
+    document.getElementById('meta-engine-audio').textContent = 'Heavy Cleave & Gothic Shrine Audio';
+    document.getElementById('stimulus-instruction').textContent = '🔥 Cleanse one of the 4 Cursed Shrines [1–4] to shatter the Demon Lord!';
   }
 
-  document.getElementById('wallet-coins-display').textContent = `${player.points.toLocaleString()} Coins`;
-  document.getElementById('wallet-level-display').textContent = `Level ${player.level || 1}`;
-  document.getElementById('wallet-wins-display').textContent = `${player.gamesWon || 0} Bosses Slain`;
+  // Load into Three.js Game Director
+  state.soulsEngine.loadCampaign(camp, state.activeStageIndex, 'dark_fantasy_souls');
 
-  const rewardsList = document.getElementById('rewards-list');
-  if (rewardsList) {
-    rewardsList.innerHTML = state.rewardsCatalog
+  updateStageDecisionCard(camp, state.activeStageIndex);
+}
+
+function updateStageDecisionCard(camp, stageIdx) {
+  const stage = camp.stages?.[stageIdx] || camp.stages?.[0];
+  if (!stage) return;
+
+  const q = stage.hiddenSurveyQuestion || {};
+  document.getElementById('boss-display-name').textContent = stage.personaFramings?.dark_fantasy_souls?.bossName || (camp.genre === 'reone_kotor' ? 'Darth Malak (Sith Master)' : 'The Butcher (Skeleton Lord)');
+  document.getElementById('boss-phase-badge').textContent = `Phase ${stageIdx + 1} of ${camp.stages.length}`;
+  document.getElementById('boss-dialogue-text').textContent = stage.personaFramings?.dark_fantasy_souls?.dialogue || 'Face my power or be destroyed!';
+
+  document.getElementById('active-decision-q').textContent = q.originalQuestionText || 'What is your tactical preference?';
+
+  const optsContainer = document.getElementById('active-decision-options');
+  if (optsContainer && stage.choices) {
+    optsContainer.innerHTML = stage.choices
       .map(
-        (r) => `
-        <div class="reward-item">
-          <div class="reward-info">
-            <strong>${r.icon} ${r.title}</strong>
-            <span>Cost: ${r.pointsCost} Coins • ${r.badge}</span>
-          </div>
-          <button class="redeem-btn" onclick="redeemReward('${r.id}')">Redeem</button>
+        (c, idx) => `
+        <div class="decision-opt-item" onclick="state.soulsEngine?.imbueRelic(${idx})">
+          <span class="opt-num">[${idx + 1}]</span>
+          <span class="opt-text">${c.mappedOption}</span>
+          <span class="opt-buff">${c.relicBuff}</span>
         </div>
       `
       )
       .join('');
   }
-
-  const histEl = document.getElementById('redemptions-history');
-  if (histEl) {
-    if (!player.redemptions || player.redemptions.length === 0) {
-      histEl.innerHTML = `<div class="muted-text">No redemptions yet. Defeat the Boss or redeem your Coins above!</div>`;
-    } else {
-      histEl.innerHTML = player.redemptions
-        .map(
-          (red) => `
-          <div class="voucher-pill">
-            <span><strong>${red.rewardTitle}</strong></span>
-            <code>${red.voucherCode}</code>
-          </div>
-        `
-        )
-        .join('');
-    }
-  }
 }
 
-window.redeemReward = async function (rewardId) {
-  const player = getActivePlayer();
-  if (!player) return;
+async function handlePhaseOrGameVictory(summary) {
+  const camp = getActiveCampaign();
+  if (!camp) return;
 
-  const res = await fetch(`/api/players/${player.id}/redeem`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ rewardId })
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    alert(data.error || 'Could not redeem reward.');
-    return;
-  }
-  await fetchState();
-};
-
-function initSouls3DEngine() {
-  const canvas = document.getElementById('souls-canvas');
-  const labelsLayer = document.getElementById('relic-labels-layer');
-  if (!canvas || !window.Souls3DArenaEngine) return;
-
-  state.soulsEngine = new window.Souls3DArenaEngine(canvas, labelsLayer, {
-    onHudUpdate: (hud) => {
-      document.getElementById('hud-player-hp').style.width = `${hud.playerHp}%`;
-      document.getElementById('hud-player-stam').style.width = `${hud.playerStamina}%`;
-      document.getElementById('hud-boss-hp').style.width = `${hud.bossHp}%`;
-
-      const shieldBadge = document.getElementById('hud-shield-badge');
-      const imbuedEl = document.getElementById('hud-imbued-status');
-
-      if (hud.imbuedChoice) {
-        shieldBadge.textContent = `⚔️ SHIELD SHATTERED! Slash Boss [Click / J] with "${hud.imbuedChoice.mappedOption}"!`;
-        shieldBadge.style.borderColor = '#10b981';
-        shieldBadge.style.color = '#6ee7b7';
-        imbuedEl.innerHTML = `🔥 Greatsword Imbued: <strong>${hud.imbuedChoice.relicIcon} ${hud.imbuedChoice.mappedOption}</strong>`;
-      } else {
-        shieldBadge.textContent = `🛡️ AEGIS SHIELD LOCKED — Run to a Relic Altar or Press [1–4] to Imbue!`;
-        shieldBadge.style.borderColor = '#f59e0b';
-        shieldBadge.style.color = '#fde68a';
-        imbuedEl.innerHTML = `🗡️ Greatsword: <strong>Unattuned Steel (Choose a Relic [1–4] first)</strong>`;
-      }
-    },
-    onRelicImbued: (choice, idx) => {
-      const msgEl = document.getElementById('hud-combat-msg');
-      msgEl.innerHTML = `🔥 <strong>GREATSWORD IMBUED WITH [${idx + 1}] "${choice.mappedOption}"!</strong> Boss Aegis Shield Shattered — Now Click or Press <strong>J</strong> to Slash the Boss!`;
-      playSynthChord([261.63, 329.63, 523.25], 'triangle', 0.25);
-    },
-    onCombatMessage: (msg) => {
-      document.getElementById('hud-combat-msg').innerHTML = msg;
-    },
-    onPhaseDefeated: ({ choice, reactionTimeMs }) => {
-      handleBossPhaseDefeated(choice, reactionTimeMs);
-    }
-  });
-}
-
-function loadCampaignInto3DArena(campaign) {
-  if (!campaign) return;
-  state.activeCampaignId = campaign.id;
-  state.activeStageIndex = 0;
-  state.recordedAnswers = [];
-  document.getElementById('victory-overlay')?.classList.add('hidden');
-
-  loadCurrentStageInto3D();
-}
-
-function loadCurrentStageInto3D() {
-  const campaign = getActiveCampaign();
-  if (!campaign || !campaign.stages) return;
-
-  const stage = campaign.stages[state.activeStageIndex];
-  if (!stage) return;
-
-  const framing =
-    stage.personaFramings?.[state.audienceMode] ||
-    stage.personaFramings?.dark_fantasy_souls;
-
-  document.getElementById('hud-phase-pill').textContent = `BOSS PHASE ${stage.stageNumber} OF ${stage.totalStages} • ${framing?.worldTitle || campaign.setting}`;
-  document.getElementById('hud-boss-name').textContent = framing?.bossName || campaign.title;
-  document.getElementById('hud-question-text').textContent = `Survey Phase ${stage.stageNumber}: ${stage.hiddenSurveyQuestion?.originalQuestionText || ''}`;
-  document.getElementById('hud-combat-msg').innerHTML = framing?.dialogue || stage.narrativePrompt;
-
-  // Show WebAudio Synth strip if this stage tests audio
-  const audioStrip = document.getElementById('hud-audio-strip');
-  if (stage.stimulus?.type === 'audio_synth') {
-    audioStrip.classList.remove('hidden');
+  // Record completed stage
+  state.activeStageIndex++;
+  if (state.activeStageIndex < (camp.stages?.length || 1)) {
+    // Proceed to next stage
+    state.soulsEngine.loadStage(camp.stages[state.activeStageIndex], 'dark_fantasy_souls', camp.proceduralBossConfig);
+    updateStageDecisionCard(camp, state.activeStageIndex);
   } else {
-    audioStrip.classList.add('hidden');
-  }
+    // Complete game victory
+    document.getElementById('victory-overlay')?.classList.remove('hidden');
 
-  if (state.soulsEngine) {
-    state.soulsEngine.loadStage(stage, state.audienceMode, campaign.proceduralBossConfig);
-  }
-}
-
-async function handleBossPhaseDefeated(choice, reactionTimeMs) {
-  const campaign = getActiveCampaign();
-  const stage = campaign?.stages?.[state.activeStageIndex];
-  if (!stage) return;
-
-  state.recordedAnswers.push({
-    questionId: stage.hiddenSurveyQuestion?.questionId || `q_${state.activeStageIndex + 1}`,
-    mappedOption: choice.mappedOption,
-    reactionTimeMs: reactionTimeMs || 1800,
-    impliedWTPMultiplier: choice.impliedWTPMultiplier || 1.0
-  });
-
-  playSynthChord([329.63, 440.0, 659.25], 'sine', 0.35);
-
-  if (state.activeStageIndex + 1 < campaign.stages.length) {
-    state.activeStageIndex += 1;
-    loadCurrentStageInto3D();
-  } else {
-    // All Boss Phases Defeated! Submit session & reward player
-    const avgMult =
-      state.recordedAnswers.reduce((acc, a) => acc + (a.impliedWTPMultiplier || 1), 0) /
-      Math.max(1, state.recordedAnswers.length);
-    const impliedWTP = Math.round((campaign.basePrice || 49) * avgMult);
-
-    const player = getActivePlayer();
-    const res = await fetch(`/api/campaigns/${campaign.id}/play`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        playerId: player?.id,
-        answers: state.recordedAnswers,
-        impliedWTP,
-        comboMultiplier: 1.3
-      })
-    });
-    const data = await res.json();
-
-    const overlay = document.getElementById('victory-overlay');
-    if (overlay) {
-      document.getElementById('victory-coins-pill').textContent =
-        `+${data.rewardsEarned?.totalEarnedPoints || 550} Genvey Coins & +${data.rewardsEarned?.earnedXp || 360} XP Earned!`;
-      overlay.classList.remove('hidden');
+    // Post play session to backend
+    try {
+      await fetch(`/api/campaigns/${camp.id}/play`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playerId: 'usr_alex',
+          answers: (camp.stages || []).map((s, idx) => ({
+            questionId: s.hiddenSurveyQuestion?.questionId,
+            mappedOption: s.choices?.[0]?.mappedOption || 'Selected Option',
+            reactionTimeMs: 1550 + idx * 120
+          })),
+          impliedWTP: camp.basePrice || 49,
+          comboMultiplier: 1.5
+        })
+      });
+    } catch (e) {
+      console.warn('Session save note:', e);
     }
-
-    await fetchState();
-    refreshAnalyticsPanel();
-  }
-}
-
-function playSynthChord(notes, waveform = 'sine', duration = 0.4) {
-  try {
-    if (!state.audioCtx) {
-      state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    }
-    const now = state.audioCtx.currentTime;
-    notes.forEach((freq, i) => {
-      const osc = state.audioCtx.createOscillator();
-      const gain = state.audioCtx.createGain();
-      osc.type = waveform;
-      osc.frequency.setValueAtTime(freq, now + i * 0.07);
-      gain.gain.setValueAtTime(0.12, now + i * 0.07);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + duration);
-      osc.connect(gain);
-      gain.connect(state.audioCtx.destination);
-      osc.start(now + i * 0.07);
-      osc.stop(now + i * 0.07 + duration);
-    });
-  } catch (e) {
-    console.warn('WebAudio synth preview skipped:', e);
   }
 }
 
 function bindControls() {
-  // Campaign Select
-  document.getElementById('campaign-select')?.addEventListener('change', (e) => {
-    state.activeCampaignId = e.target.value;
-    loadCampaignInto3DArena(getActiveCampaign());
-    refreshAnalyticsPanel();
-  });
-
-  // Track 4 Live Audience World Switcher
-  document.querySelectorAll('.aud-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.aud-btn').forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.audienceMode = btn.dataset.audience;
-      if (state.soulsEngine) {
-        state.soulsEngine.setAudienceWorld(state.audienceMode);
-      }
-      loadCurrentStageInto3D();
-    });
-  });
-
-  // Combat Action Buttons
   document.getElementById('btn-dodge-roll')?.addEventListener('click', () => {
     state.soulsEngine?.triggerDodgeRoll();
   });
   document.getElementById('btn-sword-slash')?.addEventListener('click', () => {
-    state.soulsEngine?.triggerSwordSlash();
+    state.soulsEngine?.triggerPrimaryAttack();
+  });
+  document.getElementById('btn-special-q')?.addEventListener('click', () => {
+    state.soulsEngine?.triggerSpecialQ();
+  });
+  document.getElementById('btn-special-e')?.addEventListener('click', () => {
+    state.soulsEngine?.triggerSpecialE();
   });
   document.getElementById('btn-fatal-combo')?.addEventListener('click', () => {
     state.soulsEngine?.executeInstantBossCombo();
   });
 
-  // Multimodal WebAudio Synth Buttons
-  document.getElementById('btn-play-synth-a')?.addEventListener('click', () => {
-    playSynthChord([261.63, 329.63, 392.0, 523.25], 'sine', 0.55);
-  });
-  document.getElementById('btn-play-synth-b')?.addEventListener('click', () => {
-    playSynthChord([293.66, 349.23, 440.0, 587.33], 'sawtooth', 0.45);
-  });
-
-  // Play Again button
   document.getElementById('btn-play-again')?.addEventListener('click', () => {
-    loadCampaignInto3DArena(getActiveCampaign());
+    document.getElementById('victory-overlay')?.classList.add('hidden');
+    loadActiveCampaignIntoEngine();
   });
 
-  // Player Select & New Player Form
-  document.getElementById('player-select')?.addEventListener('change', (e) => {
-    state.activePlayerId = e.target.value;
-    renderPlayerWallet();
+  document.getElementById('btn-launch-native-engine')?.addEventListener('click', () => {
+    const camp = getActiveCampaign();
+    launchEngine(camp?.genre === 'reone_kotor' ? 'reone' : 'freeablo');
   });
 
-  document.getElementById('btn-toggle-new-player')?.addEventListener('click', () => {
-    document.getElementById('new-player-form')?.classList.toggle('hidden');
-  });
+  document.getElementById('btn-toggle-music')?.addEventListener('click', () => {
+    state.musicEnabled = !state.musicEnabled;
+    const btn = document.getElementById('btn-toggle-music');
+    if (btn) btn.textContent = state.musicEnabled ? '🎵 Music: ON' : '🔇 Music: OFF';
 
-  document.getElementById('new-player-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('new-player-name').value.trim();
-    const personaType = document.getElementById('new-player-persona').value;
-    if (!name) return;
-
-    const res = await fetch('/api/players', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, personaType })
-    });
-    const data = await res.json();
-    if (data.player) {
-      state.activePlayerId = data.player.id;
-      document.getElementById('new-player-name').value = '';
-      document.getElementById('new-player-form').classList.add('hidden');
-      await fetchState();
+    if (!state.musicEnabled && state.soulsEngine?.currentBgMusic) {
+      state.soulsEngine.currentBgMusic.pause();
+    } else if (state.musicEnabled && state.soulsEngine) {
+      const camp = getActiveCampaign();
+      if (camp?.genre === 'reone_kotor') {
+        state.soulsEngine.playBgMusic('/audio/kotor/mus_bat_malak.wav', 0.35);
+      }
     }
   });
+}
 
-  // Company Studio: Generate New 3D Souls Boss Game
-  document.getElementById('generate-game-form')?.addEventListener('submit', async (e) => {
+async function launchEngine(engineId) {
+  try {
+    const camp = getActiveCampaign();
+    const res = await fetch('/api/engines/launch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ engineId, campaignId: camp?.id })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      alert(`🎮 [${data.engine || engineId}]: ${data.message || 'Launched successfully!'}`);
+    } else {
+      alert(`Engine Notice: ${data.error || 'Check engine installation'}`);
+    }
+  } catch (err) {
+    alert(`Failed to launch engine: ${err.message}`);
+  }
+}
+window.launchEngine = launchEngine;
+
+function bindCustomizerForm() {
+  const form = document.getElementById('custom-game-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const btn = document.getElementById('btn-compile-game');
-    const origText = btn.textContent;
-    btn.textContent = '⏳ Generating 3D Boss & Shaders with AI (Gemma 4 / AMD)...';
+    const btn = document.getElementById('btn-save-custom-game');
+    const orig = btn.textContent;
+    btn.textContent = '⏳ Compiling into Engine...';
     btn.disabled = true;
 
     try {
-      const companyName = document.getElementById('comp-name-input').value.trim();
-      const industry = document.getElementById('comp-industry-input').value.trim();
-      const genre = document.getElementById('comp-genre-input').value;
-      const mediaType = document.getElementById('comp-media-input').value;
-      const durationMinutes = Number(document.getElementById('comp-duration-input').value) || 5;
+      const title = document.getElementById('cust-title').value.trim();
+      const genre = document.getElementById('cust-genre').value;
+      const setting = document.getElementById('cust-setting').value.trim();
+
+      const palette = {
+        accent: document.getElementById('cust-color-accent').value,
+        sky: document.getElementById('cust-color-sky').value,
+        fog: document.getElementById('cust-color-fog').value,
+        floor: document.getElementById('cust-color-floor').value
+      };
 
       const parseOpts = (id) =>
         document
@@ -398,161 +375,93 @@ function bindControls() {
 
       const questions = [
         {
-          id: 'q_custom_1',
-          category: 'Phase 1: Core Feature Priority',
-          text: document.getElementById('q1-text').value.trim(),
-          options: parseOpts('q1-opts')
+          id: 'q_cust_1',
+          category: 'Phase 1: Feature Priority',
+          text: document.getElementById('cust-q1-text').value.trim(),
+          options: parseOpts('cust-q1-opts')
         },
         {
-          id: 'q_custom_2',
-          category: 'Phase 2: Multimodal Audio / Vibe',
-          text: document.getElementById('q2-text').value.trim(),
-          options: parseOpts('q2-opts')
+          id: 'q_cust_2',
+          category: 'Phase 2: Audio & Vibe',
+          text: document.getElementById('cust-q2-text').value.trim(),
+          options: parseOpts('cust-q2-opts')
         },
         {
-          id: 'q_custom_3',
-          category: 'Phase 3: Price & Value Tier',
-          text: document.getElementById('q3-text').value.trim(),
-          options: parseOpts('q3-opts')
+          id: 'q_cust_3',
+          category: 'Phase 3: Value Tier',
+          text: document.getElementById('cust-q3-text').value.trim(),
+          options: parseOpts('cust-q3-opts')
         }
       ];
 
-      const res = await fetch('/api/campaigns/generate', {
+      const res = await fetch('/api/games/custom', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          companyName,
-          industry,
-          genre,
-          mediaType,
-          durationMinutes,
-          questions
-        })
+        body: JSON.stringify({ title, genre, setting, palette, questions })
       });
       const data = await res.json();
-      if (data.campaign) {
-        state.activeCampaignId = data.campaign.id;
-        await fetchState();
-        loadCampaignInto3DArena(data.campaign);
-        await refreshAnalyticsPanel();
 
-        // Update AI Generation Box
-        const tel = data.aiTelemetry || {};
-        const bossCfg = data.campaign.proceduralBossConfig || {};
-        document.getElementById('gen-source-chip').textContent = `Source: ${tel.activeInferenceSource || 'Gemma 4 + Procedural 3D'}`;
-        document.getElementById('gen-cost-chip').textContent = `Cost: $${tel.estimatedCostUsd || 0.00085} (${tel.totalTokens || 1300} tokens)`;
-        document.getElementById('gen-lore-output').textContent = bossCfg.generatedBossLore || data.campaign.title;
-        document.getElementById('gen-params-output').textContent =
-          `3D Boss Scale: ${bossCfg.bossScale || 1.28}x • Articulated Wings: ${bossCfg.wingCount || 4} • Halo Rings: ${bossCfg.haloRings || 2} • Shockwave Speed: ${bossCfg.shockwaveSpeed || 12}m/s`;
+      if (data.game) {
+        state.activeCampaignId = data.game.id;
+        state.activeGenre = data.game.genre;
+        await fetchState();
+
+        // Switch to Tab 1 to immediately play the customized game
+        document.querySelector('[data-tab="play-tab"]')?.click();
+        switchToGenre(data.game.genre);
       }
+    } catch (err) {
+      alert('Custom game save error: ' + err.message);
     } finally {
-      btn.textContent = origText;
+      btn.textContent = orig;
       btn.disabled = false;
     }
-  });
-
-  // Track 4 AMD Config & Live Gemma Test
-  document.getElementById('amd-config-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const logEl = document.getElementById('live-ping-log');
-    logEl.textContent = 'Connecting to AMD Token Factory (notebooks.amd.com/tokenfactory)...';
-
-    const amdEndpoint = document.getElementById('amd-endpoint-input').value.trim();
-    const amdApiKey = document.getElementById('amd-key-input').value.trim();
-    const amdModel = document.getElementById('amd-model-input').value.trim();
-
-    const res = await fetch('/api/ai/status', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amdEndpoint, amdApiKey, amdModel, runLiveTest: false })
-    });
-    const data = await res.json();
-    logEl.textContent = JSON.stringify(data, null, 2);
-    updateTopAiBadge(data);
-  });
-
-  document.getElementById('btn-test-local-gemma')?.addEventListener('click', async () => {
-    const logEl = document.getElementById('live-ping-log');
-    logEl.textContent = 'Running live inference on Local Google Gemma 4 (gemma4:latest via Ollama on CPU — takes ~15-25s)...';
-    const res = await fetch('/api/ai/status', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ runLiveTest: true })
-    });
-    const data = await res.json();
-    logEl.textContent = JSON.stringify(data, null, 2);
-    updateTopAiBadge(data);
   });
 }
 
 async function refreshAnalyticsPanel() {
-  const campaign = getActiveCampaign();
-  if (!campaign) return;
+  const camp = getActiveCampaign();
+  if (!camp) return;
 
-  const res = await fetch(`/api/campaigns/${campaign.id}/analytics`);
-  const data = await res.json();
-  const analytics = data.analytics;
-  if (!analytics) return;
-
-  document.getElementById('analytics-sessions-count').textContent =
-    `${analytics.totalCompletions} Completed Boss Raids`;
-
-  const listEl = document.getElementById('simple-analytics-list');
-  if (!listEl) return;
-
-  listEl.innerHTML = (analytics.questionBreakdown || [])
-    .map(
-      (q) => `
-      <div class="analytic-q-card">
-        <h4>${q.questionText}</h4>
-        ${(q.options || [])
-          .map(
-            (opt) => `
-          <div class="opt-bar-row">
-            <div class="opt-bar-label">
-              <span>${opt.option}</span>
-              <strong>${opt.convictionWeightedSharePct}% (${opt.rawCount} votes • ${opt.avgReactionTimeMs}ms)</strong>
-            </div>
-            <div class="opt-bar-track">
-              <div class="opt-bar-fill" style="width: ${opt.convictionWeightedSharePct}%;"></div>
-            </div>
-          </div>
-        `
-          )
-          .join('')}
-      </div>
-    `
-    )
-    .join('');
-}
-
-async function checkAiStatusFast() {
   try {
-    const res = await fetch('/api/ai/status', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ runLiveTest: false })
-    });
+    const res = await fetch(`/api/campaigns/${camp.id}/analytics`);
     const data = await res.json();
-    updateTopAiBadge(data);
-    const logEl = document.getElementById('live-ping-log');
-    if (logEl) {
-      logEl.textContent = JSON.stringify(data, null, 2);
-    }
-  } catch (e) {
-    console.warn('Status check error:', e);
+    const analytics = data.analytics;
+    const container = document.getElementById('analytics-breakdown-container');
+    if (!container || !analytics) return;
+
+    document.getElementById('analytics-header-desc').textContent =
+      `Displaying decisions from ${analytics.totalCompletions || 1} completed runs on "${camp.title}".`;
+
+    container.innerHTML = (analytics.questionBreakdown || [])
+      .map(
+        (q) => `
+        <div class="card" style="margin-bottom: 16px;">
+          <h3 style="color: var(--accent); margin-bottom: 8px;">${q.questionText}</h3>
+          <div class="breakdown-options-list">
+            ${(q.distribution || q.options || [])
+              .map(
+                (opt) => `
+              <div class="opt-bar-row">
+                <div class="opt-bar-label">
+                  <span>${opt.option}</span>
+                  <strong>${opt.convictionWeightedPct ?? opt.convictionWeightedSharePct ?? 0}% (${opt.count ?? opt.rawCount ?? 0} choices)</strong>
+                </div>
+                <div class="opt-bar-track">
+                  <div class="opt-bar-fill" style="width: ${opt.convictionWeightedPct ?? opt.convictionWeightedSharePct ?? 0}%;"></div>
+                </div>
+              </div>
+            `
+              )
+              .join('')}
+          </div>
+        </div>
+      `
+      )
+      .join('');
+  } catch (err) {
+    console.warn('Analytics note:', err);
   }
 }
 
-function updateTopAiBadge(data) {
-  const textEl = document.getElementById('ai-status-text');
-  if (!textEl) return;
-  if (data.amdOnline) {
-    textEl.textContent = `🟢 AMD Cloud (${data.amdModel}): LIVE • Gemma 4 Local: Ready`;
-  } else {
-    const gemmaPart = data.gemmaOnline ? 'Gemma 4 Local: Online' : 'Gemma 4: Standby';
-    textEl.textContent = `${gemmaPart} • AMD Key: Check Config`;
-  }
-}
-
-window.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', initApp);

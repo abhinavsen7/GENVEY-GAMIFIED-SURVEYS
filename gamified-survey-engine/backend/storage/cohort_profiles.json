@@ -1,0 +1,93 @@
+[
+  {
+    "user_id": "u_gz_01",
+    "age": 20,
+    "gender": "nonbinary",
+    "stated_liked_genres": [
+      "SOULSLIKE_ACTION",
+      "PSX_SURVIVAL_HORROR",
+      "HORDE_SURVIVOR_ARENA"
+    ]
+  },
+  {
+    "user_id": "u_gz_02",
+    "age": 22,
+    "gender": "female",
+    "stated_liked_genres": [
+      "HORDE_SURVIVOR_ARENA",
+      "BALDURS_GATE_CRPG"
+    ]
+  },
+  {
+    "user_id": "u_gz_03",
+    "age": 19,
+    "gender": "male",
+    "stated_liked_genres": [
+      "PSX_SURVIVAL_HORROR",
+      "SOULSLIKE_ACTION"
+    ]
+  },
+  {
+    "user_id": "u_gz_04",
+    "age": 21,
+    "gender": "male",
+    "stated_liked_genres": [
+      "SOULSLIKE_ACTION",
+      "CASTLE_SIEGE_WARFARE"
+    ]
+  },
+  {
+    "user_id": "u_mil_01",
+    "age": 34,
+    "gender": "male",
+    "stated_liked_genres": [
+      "BALDURS_GATE_CRPG",
+      "ULTIMA_IMMERSIVE_SANDBOX"
+    ]
+  },
+  {
+    "user_id": "u_mil_02",
+    "age": 31,
+    "gender": "female",
+    "stated_liked_genres": [
+      "ULTIMA_IMMERSIVE_SANDBOX",
+      "BALDURS_GATE_CRPG"
+    ]
+  },
+  {
+    "user_id": "u_mil_03",
+    "age": 38,
+    "gender": "male",
+    "stated_liked_genres": [
+      "BALDURS_GATE_CRPG",
+      "SOULSLIKE_ACTION"
+    ]
+  },
+  {
+    "user_id": "u_mil_04",
+    "age": 29,
+    "gender": "female",
+    "stated_liked_genres": [
+      "MYSTERY_INVESTIGATION",
+      "ULTIMA_IMMERSIVE_SANDBOX"
+    ]
+  },
+  {
+    "user_id": "u_teen_01",
+    "age": 16,
+    "gender": "male",
+    "stated_liked_genres": [
+      "HORDE_SURVIVOR_ARENA",
+      "SOULSLIKE_ACTION"
+    ]
+  },
+  {
+    "user_id": "u_teen_02",
+    "age": 15,
+    "gender": "female",
+    "stated_liked_genres": [
+      "HORDE_SURVIVOR_ARENA",
+      "ULTIMA_IMMERSIVE_SANDBOX"
+    ]
+  }
+]

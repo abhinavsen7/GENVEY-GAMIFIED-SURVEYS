@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "godot4-neurosymbolic-mcp": {
+      "command": "/home/me/Videos/AMDHACKTHREE/gamified-survey-engine/.venv/bin/python",
+      "args": [
+        "/home/me/Videos/AMDHACKTHREE/gamified-survey-engine/mcp/godot_mcp_server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/home/me/Videos/AMDHACKTHREE/gamified-survey-engine"
+      }
+    }
+  }
+}

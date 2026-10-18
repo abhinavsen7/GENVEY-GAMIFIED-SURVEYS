@@ -1,0 +1,47 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/GameLoader.gd" id="1_loader"]
+[ext_resource type="Script" path="res://scripts/UniversalPlayer.gd" id="2_player"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.4
+height = 1.8
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_loader")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 0, 10, 0)
+shadow_enabled = true
+
+[node name="UniversalPlayer" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("2_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="UniversalPlayer"]
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="IsoCamera3D" type="Camera3D" parent="UniversalPlayer"]
+transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 10, 10)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="UniversalPlayer"]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 1.6, 0)
+spring_length = 4.0
+
+[node name="ActionCamera3D" type="Camera3D" parent="UniversalPlayer/SpringArm3D"]
+current = true
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="UniversalPlayer"]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="UniversalPlayer"]
+
+[node name="Rig" type="Node3D" parent="UniversalPlayer"]
+
+[node name="Skeleton3D" type="Skeleton3D" parent="UniversalPlayer/Rig"]
+
+[node name="RightHandSocket" type="Node3D" parent="UniversalPlayer/Rig/Skeleton3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1, -0.3)
+
+[node name="HTTPConfigRequest" type="HTTPRequest" parent="."]
+
+[node name="HTTPGlbRequest" type="HTTPRequest" parent="."]

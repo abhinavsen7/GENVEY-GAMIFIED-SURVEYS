@@ -2,6 +2,96 @@
   "version": 3,
   "companies": [
     {
+      "id": "comp_1792182866625",
+      "name": "RazerNova Gaming",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T20:34:26.625Z"
+    },
+    {
+      "id": "comp_1792181684893",
+      "name": "RazerNova Gaming",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T20:14:44.893Z"
+    },
+    {
+      "id": "comp_1792178152286",
+      "name": "RazerNova Gaming",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T19:15:52.286Z"
+    },
+    {
+      "id": "comp_1792178073242",
+      "name": "jthism1233",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T19:14:33.242Z"
+    },
+    {
+      "id": "comp_1792178039449",
+      "name": "jthism1233",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T19:13:59.449Z"
+    },
+    {
+      "id": "comp_1792178005938",
+      "name": "jthism1233",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T19:13:25.938Z"
+    },
+    {
+      "id": "comp_1792176725983",
+      "name": "jthism",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T18:52:05.983Z"
+    },
+    {
+      "id": "comp_1792176672180",
+      "name": "jthism",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T18:51:12.180Z"
+    },
+    {
+      "id": "comp_1792176020281",
+      "name": "Blizzard North Classics",
+      "industry": "Dark Fantasy Action RPGs",
+      "createdAt": "2026-10-16T18:40:20.281Z"
+    },
+    {
+      "id": "comp_1792175996065",
+      "name": "BioWare LucasGames",
+      "industry": "Sci-Fi RPGs",
+      "createdAt": "2026-10-16T18:39:56.065Z"
+    },
+    {
+      "id": "comp_1792175371170",
+      "name": "RazerNova Gaming",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T18:29:31.170Z"
+    },
+    {
+      "id": "comp_1792175335134",
+      "name": "RazerNova Gaming",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T18:28:55.134Z"
+    },
+    {
+      "id": "comp_1792174584429",
+      "name": "jithinav",
+      "industry": "gaming",
+      "createdAt": "2026-10-16T18:16:24.429Z"
+    },
+    {
+      "id": "comp_1792174546407",
+      "name": "RazerNova Gaming",
+      "industry": "Next-Gen Peripherals & Audio",
+      "createdAt": "2026-10-16T18:15:46.407Z"
+    },
+    {
+      "id": "comp_1792174437829",
+      "name": "HyperDrive Audio",
+      "industry": "Audio Hardware",
+      "createdAt": "2026-10-16T18:13:57.829Z"
+    },
+    {
       "id": "comp_1792174067640",
       "name": "TestBrand",
       "industry": "Gaming",
@@ -44,11 +134,11 @@
       "ageGroup": "18-24",
       "personaType": "dark_fantasy_souls",
       "personaTitle": "Audience A: Elden / Dark Souls Fantasy Gamer",
-      "points": 2000,
-      "lifetimePoints": 3000,
-      "xp": 2250,
-      "level": 10,
-      "gamesWon": 6,
+      "points": 12260,
+      "lifetimePoints": 13260,
+      "xp": 7210,
+      "level": 29,
+      "gamesWon": 19,
       "badges": [
         "⚔️ Boss Slayer",
         "🔥 Dodge Roll Master",
@@ -88,37 +178,378 @@
   ],
   "campaigns": [
     {
-      "id": "camp_1792174073109",
-      "companyId": "comp_1792174067640",
-      "companyName": "TestBrand",
-      "industry": "Gaming",
-      "title": "SOULS OF TESTBRAND: TestBrand, Herald of the Shattered Brand",
-      "surveyObjective": "Discover consumer preferences for TestBrand via 3D Souls Boss combat.",
-      "genre": "cyber_souls",
-      "genreName": "Armored Core / Sekiro: Neon Mecha Boss Reactor",
-      "setting": "Cathedral of the Eternal Ledger",
-      "mediaType": "full_multimodal",
+      "id": "camp_1792184363383",
+      "title": "KOTOR",
+      "genre": "freeablo_diablo",
+      "genreName": "Diablo 1 & 2 Dark Gothic ARPG (Freeablo Engine)",
+      "setting": "Korriban Sith Academy & Star Forge Spire",
       "durationMinutes": 5,
       "rewardPoints": 600,
       "basePrice": 49,
-      "createdAt": "2026-10-16T18:07:53.109Z",
+      "createdAt": "2026-10-16T20:59:23.383Z",
       "proceduralBossConfig": {
-        "seed": 4557,
-        "bossScale": 1.35,
+        "genreKey": "freeablo_diablo",
+        "bossScale": 1.4,
         "wingCount": 4,
         "haloRings": 2,
         "shockwaveSpeed": 13,
-        "generatedBossLore": "TestBrand, Herald of the Shattered Brand: Kneel before the convergence of the four Relic Flames, for your spark is but a flicker in the void!"
+        "palette": {
+          "accent": "#00d4ff",
+          "sky": "#060914",
+          "fog": "#0e152d",
+          "floor": "#0f172a"
+        },
+        "freeabloConfig": {
+          "success": true,
+          "iniPath": "/home/me/Videos/AMDHACKTHREE/engines/freeablo/freeablo_v0.4/resources/settings-user.ini"
+        }
+      },
+      "questions": [
+        {
+          "id": "q_cust_1",
+          "category": "Phase 1: Feature Priority",
+          "text": "Which hardware feature provides the highest tactical advantage?",
+          "options": [
+            "Hall-Effect Zero-Drift Sticks",
+            "Optical Micro-Switch Triggers",
+            "8000Hz Polling Rate",
+            "Modular Swappable D-Pad"
+          ]
+        },
+        {
+          "id": "q_cust_2",
+          "category": "Phase 2: Audio & Vibe",
+          "text": "Which spatial acoustic signature best isolates enemy positions?",
+          "options": [
+            "Deep Sub-Bass Spatial Audio",
+            "3D Binaural Pinpoint Sound",
+            "Custom Flat Acoustic Tuning",
+            "Active Noise Cancellation"
+          ]
+        },
+        {
+          "id": "q_cust_3",
+          "category": "Phase 3: Value Tier",
+          "text": "Which price point represents fair value for tournament-grade gear?",
+          "options": [
+            "$59 Core Tournament Wired",
+            "$89 Pro Low-Latency Wireless",
+            "$119 Charging Dock Bundle",
+            "$149 Carbon Fiber Elite"
+          ]
+        }
+      ],
+      "stages": [
+        {
+          "stageNumber": 1,
+          "totalStages": 3,
+          "stageId": "stage_1",
+          "title": "Phase 1: Phase 1: Feature Priority",
+          "bossAttackPattern": "shockwave_rings",
+          "personaFramings": {
+            "dark_fantasy_souls": {
+              "personaLabel": "Tristram Barbarian",
+              "worldTitle": "Korriban Sith Academy & Star Forge Spire",
+              "bossName": "The Butcher (Skeleton Lord)",
+              "dialogue": "Cleanse the Cursed Shrine of: \"Which hardware feature provides the highest tactical advantage?\"!",
+              "arenaPalette": {
+                "accent": "#00d4ff",
+                "sky": "#060914",
+                "fog": "#0e152d",
+                "floor": "#0f172a"
+              }
+            }
+          },
+          "hiddenSurveyQuestion": {
+            "questionId": "q_cust_1",
+            "originalQuestionText": "Which hardware feature provides the highest tactical advantage?",
+            "category": "Phase 1: Feature Priority"
+          },
+          "choices": [
+            {
+              "id": "choice_0_0",
+              "relicName": "Crimson Core",
+              "relicIcon": "🔥",
+              "relicColor": "#00d4ff",
+              "relicBuff": "+40% Overdrive",
+              "gameActionLabel": "🔥 Hall-Effect Zero-Drift Sticks",
+              "flavorSubtext": "+40% Overdrive • Cleanses Phase 1",
+              "mappedOption": "Hall-Effect Zero-Drift Sticks",
+              "rewardXp": 100
+            },
+            {
+              "id": "choice_0_1",
+              "relicName": "Volt Core",
+              "relicIcon": "⚡",
+              "relicColor": "#00f5d4",
+              "relicBuff": "+45% Chain Spark",
+              "gameActionLabel": "⚡ Optical Micro-Switch Triggers",
+              "flavorSubtext": "+45% Chain Spark • Cleanses Phase 1",
+              "mappedOption": "Optical Micro-Switch Triggers",
+              "rewardXp": 100
+            },
+            {
+              "id": "choice_0_2",
+              "relicName": "Solar Core",
+              "relicIcon": "☀️",
+              "relicColor": "#f59e0b",
+              "relicBuff": "+50% Poise Break",
+              "gameActionLabel": "☀️ 8000Hz Polling Rate",
+              "flavorSubtext": "+50% Poise Break • Cleanses Phase 1",
+              "mappedOption": "8000Hz Polling Rate",
+              "rewardXp": 100
+            },
+            {
+              "id": "choice_0_3",
+              "relicName": "Abyssal Core",
+              "relicIcon": "🌌",
+              "relicColor": "#a855f7",
+              "relicBuff": "+45% Cleave",
+              "gameActionLabel": "🌌 Modular Swappable D-Pad",
+              "flavorSubtext": "+45% Cleave • Cleanses Phase 1",
+              "mappedOption": "Modular Swappable D-Pad",
+              "rewardXp": 100
+            }
+          ]
+        },
+        {
+          "stageNumber": 2,
+          "totalStages": 3,
+          "stageId": "stage_2",
+          "title": "Phase 2: Phase 2: Audio & Vibe",
+          "bossAttackPattern": "laser_sweep_and_meteors",
+          "personaFramings": {
+            "dark_fantasy_souls": {
+              "personaLabel": "Tristram Barbarian",
+              "worldTitle": "Korriban Sith Academy & Star Forge Spire",
+              "bossName": "The Butcher (Skeleton Lord)",
+              "dialogue": "Cleanse the Cursed Shrine of: \"Which spatial acoustic signature best isolates enemy positions?\"!",
+              "arenaPalette": {
+                "accent": "#00d4ff",
+                "sky": "#060914",
+                "fog": "#0e152d",
+                "floor": "#0f172a"
+              }
+            }
+          },
+          "hiddenSurveyQuestion": {
+            "questionId": "q_cust_2",
+            "originalQuestionText": "Which spatial acoustic signature best isolates enemy positions?",
+            "category": "Phase 2: Audio & Vibe"
+          },
+          "choices": [
+            {
+              "id": "choice_1_0",
+              "relicName": "Crimson Core",
+              "relicIcon": "🔥",
+              "relicColor": "#00d4ff",
+              "relicBuff": "+40% Overdrive",
+              "gameActionLabel": "🔥 Deep Sub-Bass Spatial Audio",
+              "flavorSubtext": "+40% Overdrive • Cleanses Phase 2",
+              "mappedOption": "Deep Sub-Bass Spatial Audio",
+              "rewardXp": 100
+            },
+            {
+              "id": "choice_1_1",
+              "relicName": "Volt Core",
+              "relicIcon": "⚡",
+              "relicColor": "#00f5d4",
+              "relicBuff": "+45% Chain Spark",
+              "gameActionLabel": "⚡ 3D Binaural Pinpoint Sound",
+              "flavorSubtext": "+45% Chain Spark • Cleanses Phase 2",
+              "mappedOption": "3D Binaural Pinpoint Sound",
+              "rewardXp": 100
+            },
+            {
+              "id": "choice_1_2",
+              "relicName": "Solar Core",
+              "relicIcon": "☀️",
+              "relicColor": "#f59e0b",
+              "relicBuff": "+50% Poise Break",
+              "gameActionLabel": "☀️ Custom Flat Acoustic Tuning",
+              "flavorSubtext": "+50% Poise Break • Cleanses Phase 2",
+              "mappedOption": "Custom Flat Acoustic Tuning",
+              "rewardXp": 100
+            },
+            {
+              "id": "choice_1_3",
+              "relicName": "Abyssal Core",
+              "relicIcon": "🌌",
+              "relicColor": "#a855f7",
+              "relicBuff": "+45% Cleave",
+              "gameActionLabel": "🌌 Active Noise Cancellation",
+              "flavorSubtext": "+45% Cleave • Cleanses Phase 2",
+              "mappedOption": "Active Noise Cancellation",
+              "rewardXp": 100
+            }
+          ]
+        },
+        {
+          "stageNumber": 3,
+          "totalStages": 3,
+          "stageId": "stage_3",
+          "title": "Phase 3: Phase 3: Value Tier",
+          "bossAttackPattern": "shockwave_rings",
+          "personaFramings": {
+            "dark_fantasy_souls": {
+              "personaLabel": "Tristram Barbarian",
+              "worldTitle": "Korriban Sith Academy & Star Forge Spire",
+              "bossName": "The Butcher (Skeleton Lord)",
+              "dialogue": "Cleanse the Cursed Shrine of: \"Which price point represents fair value for tournament-grade gear?\"!",
+              "arenaPalette": {
+                "accent": "#00d4ff",
+                "sky": "#060914",
+                "fog": "#0e152d",
+                "floor": "#0f172a"
+              }
+            }
+          },
+          "hiddenSurveyQuestion": {
+            "questionId": "q_cust_3",
+            "originalQuestionText": "Which price point represents fair value for tournament-grade gear?",
+            "category": "Phase 3: Value Tier"
+          },
+          "choices": [
+            {
+              "id": "choice_2_0",
+              "relicName": "Crimson Core",
+              "relicIcon": "🔥",
+              "relicColor": "#00d4ff",
+              "relicBuff": "+40% Overdrive",
+              "gameActionLabel": "🔥 $59 Core Tournament Wired",
+              "flavorSubtext": "+40% Overdrive • Cleanses Phase 3",
+              "mappedOption": "$59 Core Tournament Wired",
+              "rewardXp": 100
+            },
+            {
+              "id": "choice_2_1",
+              "relicName": "Volt Core",
+              "relicIcon": "⚡",
+              "relicColor": "#00f5d4",
+              "relicBuff": "+45% Chain Spark",
+              "gameActionLabel": "⚡ $89 Pro Low-Latency Wireless",
+              "flavorSubtext": "+45% Chain Spark • Cleanses Phase 3",
+              "mappedOption": "$89 Pro Low-Latency Wireless",
+              "rewardXp": 100
+            },
+            {
+              "id": "choice_2_2",
+              "relicName": "Solar Core",
+              "relicIcon": "☀️",
+              "relicColor": "#f59e0b",
+              "relicBuff": "+50% Poise Break",
+              "gameActionLabel": "☀️ $119 Charging Dock Bundle",
+              "flavorSubtext": "+50% Poise Break • Cleanses Phase 3",
+              "mappedOption": "$119 Charging Dock Bundle",
+              "rewardXp": 100
+            },
+            {
+              "id": "choice_2_3",
+              "relicName": "Abyssal Core",
+              "relicIcon": "🌌",
+              "relicColor": "#a855f7",
+              "relicBuff": "+45% Cleave",
+              "gameActionLabel": "🌌 $149 Carbon Fiber Elite",
+              "flavorSubtext": "+45% Cleave • Cleanses Phase 3",
+              "mappedOption": "$149 Carbon Fiber Elite",
+              "rewardXp": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "camp_1792183148940",
+      "title": "TEST KOTOR CUSTOM TRIAL",
+      "genre": "reone_kotor",
+      "genreName": "Star Wars: Knights of the Old Republic RPG (reone Engine)",
+      "setting": "Dantooine Enclave",
+      "durationMinutes": 5,
+      "rewardPoints": 600,
+      "basePrice": 49,
+      "createdAt": "2026-10-16T20:39:08.940Z",
+      "proceduralBossConfig": {
+        "genreKey": "reone_kotor",
+        "bossScale": 1.4,
+        "wingCount": 4,
+        "haloRings": 2,
+        "shockwaveSpeed": 13,
+        "palette": {
+          "sky": "#030712",
+          "fog": "#0f172a",
+          "accent": "#38bdf8",
+          "floor": "#1e293b"
+        },
+        "talkTableStatus": {
+          "available": true,
+          "signature": "TLK V3.0",
+          "totalStringsCount": 49266,
+          "stringsOffset": 1970660,
+          "loreSampleCount": 10,
+          "loreSamples": [
+            {
+              "strRef": 148,
+              "soundResRef": "",
+              "text": "Advanced Jedi Defense"
+            },
+            {
+              "strRef": 174,
+              "soundResRef": "",
+              "text": "Master Jedi Defense"
+            },
+            {
+              "strRef": 224,
+              "soundResRef": "",
+              "text": "Constitution represents health and resiliency. A high Constitution adds modifiers to the vitality points gained at each level-up. This is important for everyone, but essential for soldiers and Jedi guardians."
+            },
+            {
+              "strRef": 225,
+              "soundResRef": "",
+              "text": "Wisdom represents willpower and perception. A high Wisdom adds modifiers to Jedi Force Points and Force Power saving throws. The Force Powers of a Jedi with high Wisdom are also much harder to resist."
+            },
+            {
+              "strRef": 227,
+              "soundResRef": "",
+              "text": "Charisma represents personality and the ability to lead. A high Charisma adds modifiers to Force-related feats and powers that are very important to all the Jedi classes. It is also central to any persuasive talker."
+            },
+            {
+              "strRef": 381,
+              "soundResRef": "CARTH_EXT_09",
+              "text": "CARTH: Get back to the base! The Sith have attacked! Just follow the smoke! Hurry!"
+            },
+            {
+              "strRef": 385,
+              "soundResRef": "WAYTOP_18",
+              "text": "Okay, I've done my part. Now I'm out of here before the Sith catch me!"
+            },
+            {
+              "strRef": 391,
+              "soundResRef": "",
+              "text": "You cannot open this door until you deal with the Sith guards."
+            },
+            {
+              "strRef": 425,
+              "soundResRef": "",
+              "text": "DarkJedi Sound Set"
+            },
+            {
+              "strRef": 426,
+              "soundResRef": "",
+              "text": "Sith Trooper Sound Set"
+            }
+          ]
+        }
       },
       "questions": [
         {
           "id": "q1",
-          "text": "What controller feature matters most?",
+          "category": "Trial 1",
+          "text": "Choose your lightsaber crystal color?",
           "options": [
-            "Hall Sticks",
-            "Optical Triggers",
-            "80hr Battery",
-            "Back Paddles"
+            "Cyan Blue",
+            "Crimson Red",
+            "Emerald Green",
+            "Violet Purple"
           ]
         }
       ],
@@ -127,151 +558,102 @@
           "stageNumber": 1,
           "totalStages": 1,
           "stageId": "stage_1",
-          "title": "Boss Phase 1 of 1: Relic Trial",
+          "title": "Phase 1: Trial 1",
           "bossAttackPattern": "shockwave_rings",
-          "narrativePrompt": "Kneel before the convergence of the four Relic Flames, for your spark is but a flicker in the void!",
           "personaFramings": {
             "dark_fantasy_souls": {
-              "personaLabel": "Audience A: Elden / Dark Souls Fantasy Core Gamer",
-              "worldTitle": "Cathedral of the Eternal Ledger",
-              "bossName": "TestBrand, Herald of the Shattered Brand",
-              "dialogue": "Kneel before the convergence of the four Relic Flames, for your spark is but a flicker in the void!",
+              "personaLabel": "Jedi Guardian (Light Side)",
+              "worldTitle": "Dantooine Enclave",
+              "bossName": "Darth Malak (Sith Master)",
+              "dialogue": "Claim the Star Map coordinates for: \"Choose your lightsaber crystal color?\"!",
               "arenaPalette": {
-                "sky": "#0b0808",
-                "fog": "#1c110f",
-                "floor": "#181210",
-                "pillar": "#29201c",
-                "accent": "#f59e0b",
-                "bossColor": "#b91c1c",
-                "bossEmissive": "#f97316"
-              },
-              "bossStyle": "gothic_colossus"
-            },
-            "cyber_mecha_action": {
-              "personaLabel": "Audience B: Armored Core / Cyberpunk Sci-Fi Action Fan",
-              "worldTitle": "Quantum Flux Core Sector 7",
-              "bossName": "TB-01 'MARKET-CRASHER' EX",
-              "dialogue": "CRITICAL ALERT: Target identified as obsolete; initiating systemic liquidation protocol.",
-              "arenaPalette": {
-                "sky": "#050814",
-                "fog": "#09122c",
-                "floor": "#0b132b",
-                "pillar": "#162447",
-                "accent": "#00f5d4",
-                "bossColor": "#1e293b",
-                "bossEmissive": "#f72585"
-              },
-              "bossStyle": "mecha_seraph"
+                "sky": "#030712",
+                "fog": "#0f172a",
+                "accent": "#38bdf8",
+                "floor": "#1e293b"
+              }
             }
-          },
-          "stimulus": {
-            "type": "tactical_dilemma",
-            "title": "TestBrand Elemental Relic Forge",
-            "instruction": "Run to one of the 4 Glowing Relic Altars in the 3D arena (`E` or Click) to imbue your Greatsword with that feature and shatter the Boss shield!"
           },
           "hiddenSurveyQuestion": {
             "questionId": "q1",
-            "originalQuestionText": "What controller feature matters most?",
-            "category": "Consumer Preference",
-            "stealthMechanism": "3D Souls Relic Altar sword imbuement + spatial dwell time + Boss combat telemetry"
+            "originalQuestionText": "Choose your lightsaber crystal color?",
+            "category": "Trial 1"
           },
           "choices": [
             {
               "id": "choice_0_0",
-              "relicName": "Crimson Flame Blade",
+              "relicName": "Crimson Core",
               "relicIcon": "🔥",
-              "relicColor": "#ef4444",
-              "relicBuff": "+40% Fire Slash & Burn",
-              "gameActionLabel": "🔥 Imbue Crimson Flame Blade: \"Hall Sticks\"",
-              "flavorSubtext": "+40% Fire Slash & Burn • Shatters Phase 1 Boss Shield",
-              "mappedOption": "Hall Sticks",
-              "rewardXp": 75,
-              "impliedWTPMultiplier": 0.8
+              "relicColor": "#38bdf8",
+              "relicBuff": "+40% Overdrive",
+              "gameActionLabel": "🔥 Cyan Blue",
+              "flavorSubtext": "+40% Overdrive • Cleanses Phase 1",
+              "mappedOption": "Cyan Blue",
+              "rewardXp": 100
             },
             {
               "id": "choice_0_1",
-              "relicName": "Volt-Lightning Edge",
+              "relicName": "Volt Core",
               "relicIcon": "⚡",
               "relicColor": "#00f5d4",
-              "relicBuff": "+45% Chain Lightning Crit",
-              "gameActionLabel": "⚡ Imbue Volt-Lightning Edge: \"Optical Triggers\"",
-              "flavorSubtext": "+45% Chain Lightning Crit • Shatters Phase 1 Boss Shield",
-              "mappedOption": "Optical Triggers",
-              "rewardXp": 85,
-              "impliedWTPMultiplier": 0.9500000000000001
+              "relicBuff": "+45% Chain Spark",
+              "gameActionLabel": "⚡ Crimson Red",
+              "flavorSubtext": "+45% Chain Spark • Cleanses Phase 1",
+              "mappedOption": "Crimson Red",
+              "rewardXp": 100
             },
             {
               "id": "choice_0_2",
-              "relicName": "Solar Gold Greatsword",
+              "relicName": "Solar Core",
               "relicIcon": "☀️",
               "relicColor": "#f59e0b",
-              "relicBuff": "+50% Holy Poise Break",
-              "gameActionLabel": "☀️ Imbue Solar Gold Greatsword: \"80hr Battery\"",
-              "flavorSubtext": "+50% Holy Poise Break • Shatters Phase 1 Boss Shield",
-              "mappedOption": "80hr Battery",
-              "rewardXp": 95,
-              "impliedWTPMultiplier": 1.1
+              "relicBuff": "+50% Poise Break",
+              "gameActionLabel": "☀️ Emerald Green",
+              "flavorSubtext": "+50% Poise Break • Cleanses Phase 1",
+              "mappedOption": "Emerald Green",
+              "rewardXp": 100
             },
             {
               "id": "choice_0_3",
-              "relicName": "Abyssal Void Katana",
+              "relicName": "Abyssal Core",
               "relicIcon": "🌌",
               "relicColor": "#a855f7",
-              "relicBuff": "+45% Gravity Wave Cleave",
-              "gameActionLabel": "🌌 Imbue Abyssal Void Katana: \"Back Paddles\"",
-              "flavorSubtext": "+45% Gravity Wave Cleave • Shatters Phase 1 Boss Shield",
-              "mappedOption": "Back Paddles",
-              "rewardXp": 105,
-              "impliedWTPMultiplier": 1.25
+              "relicBuff": "+45% Cleave",
+              "gameActionLabel": "🌌 Violet Purple",
+              "flavorSubtext": "+45% Cleave • Cleanses Phase 1",
+              "mappedOption": "Violet Purple",
+              "rewardXp": 100
             }
           ]
         }
-      ],
-      "aiTelemetry": {
-        "amdPlatform": "AMD Token Factory (Radeon Cloud API v1)",
-        "amdAccelerator": "AMD Instinct™ / Radeon™ Cloud ROCm Cluster",
-        "amdModel": "self-dploy/Gemma-4-31B-IT",
-        "amdRequestId": "VBvSPhOQhTwFw1ForvXLMh3jaFsu9o7eBBoag1I0",
-        "gemmaModel": "gemma4:latest",
-        "gemmaLiveConnected": true,
-        "amdLiveConnected": true,
-        "liveGeneratedOutput": "TestBrand, Herald of the Shattered Brand: Kneel before the convergence of the four Relic Flames, for your spark is but a flicker in the void!",
-        "activeInferenceSource": "AMD Token Factory (self-dploy/Gemma-4-31B-IT on AMD Radeon Cloud)",
-        "compilationLatencyMs": 5469,
-        "promptTokens": 260,
-        "completionTokens": 204,
-        "totalTokens": 464,
-        "estimatedCostUsd": 0.000022,
-        "qualityGuardrails": {
-          "schemaValid": true,
-          "optionBijectionVerified": true,
-          "zeroLeadingBiasCheck": "PASSED (Symmetric 3D Relic Placement)",
-          "multimodalSyncVerified": true
-        }
-      }
+      ]
     },
     {
-      "id": "camp_1792173930911",
-      "companyId": "comp_1792173923734",
+      "id": "camp_1792182878712",
+      "companyId": "comp_1792182866625",
       "companyName": "RazerNova Gaming",
       "industry": "Next-Gen Peripherals & Audio",
-      "title": "SOULS OF RAZERNOVA GAMING: Aurelius, Sovereign of the RazerNova Echoes",
+      "title": "RAZERNOVA GAMING: Aethelgard the Razer-Sworn (3D Souls-Like Boss Raid)",
       "surveyObjective": "Discover consumer preferences for RazerNova Gaming via 3D Souls Boss combat.",
-      "genre": "cyber_souls",
-      "genreName": "Armored Core / Sekiro: Neon Mecha Boss Reactor",
-      "setting": "Cathedral of the Silent Resonance",
+      "genre": "elden_souls",
+      "genreName": "3D Souls-Like Boss Raid (Elden / Dark Souls)",
+      "setting": "The Cathedral of Haptic Silence",
       "mediaType": "full_multimodal",
       "durationMinutes": 5,
       "rewardPoints": 600,
       "basePrice": 49,
-      "createdAt": "2026-10-16T18:05:30.911Z",
+      "createdAt": "2026-10-16T20:34:38.712Z",
       "proceduralBossConfig": {
-        "seed": 19727,
-        "bossScale": 1.35,
-        "wingCount": 4,
-        "haloRings": 2,
-        "shockwaveSpeed": 13,
-        "generatedBossLore": "Aurelius, Sovereign of the RazerNova Echoes: Kneel before the convergence of the Four Relic Flames, for your spirit is but a flicker in the void!"
+        "seed": 20908,
+        "genreKey": "elden_souls",
+        "bossScale": 1.4,
+        "wingCount": 6,
+        "haloRings": 3,
+        "shockwaveSpeed": 14,
+        "monumentShape": "floating_obelisks",
+        "monumentCount": 8,
+        "generatedBossLore": "Aethelgard the Razer-Sworn: Prove thy precision or fall before the Eternal Input!",
+        "aiCustomThreeJsCode": "// ============================================================================\n// AI-GENERATED THREE.JS SCENE CODE (Synthesized by Gemma-4-31B-IT on AMD Cloud)\n// Brand: \"RazerNova Gaming\" | 3D Mode: \"elden_souls\" | Structure: \"floating_obelisks\"\n// ============================================================================\n(function spawnAICustomScene(THREE, customGroup, elapsed) {\n  const primaryMat = new THREE.MeshStandardMaterial({\n    color: \"#f59e0b\",\n    emissive: \"#f59e0b\",\n    emissiveIntensity: 0.75,\n    metalness: 0.85,\n    roughness: 0.2\n  });\n  const secondaryMat = new THREE.MeshBasicMaterial({\n    color: \"#f72585\",\n    wireframe: true,\n    transparent: true,\n    opacity: 0.55\n  });\n\n  // Spawn 8 AI-designed 3D \"floating_obelisks\" monuments around the world\n  for (let i = 0; i < 8; i++) {\n    const angle = (i / 8) * Math.PI * 2;\n    const radius = 15.5;\n    const holder = new THREE.Group();\n    holder.position.set(Math.cos(angle) * radius, 3.8 + (i % 2) * 1.4, Math.sin(angle) * radius);\n\n    const coreGeo = \"floating_obelisks\" === \"neon_arches\"\n      ? new THREE.TorusGeometry(1.3, 0.12, 8, 24)\n      : \"floating_obelisks\" === \"orbital_rings\"\n        ? new THREE.IcosahedronGeometry(1.1, 0)\n        : new THREE.OctahedronGeometry(1.15, 0);\n\n    const mesh = new THREE.Mesh(coreGeo, primaryMat);\n    const cage = new THREE.Mesh(new THREE.OctahedronGeometry(1.55, 0), secondaryMat);\n    holder.add(mesh);\n    holder.add(cage);\n    holder.userData = { rotSpeed: 1.2 + (i % 3) * 0.4, floatOffset: i };\n    customGroup.add(holder);\n  }\n})"
       },
       "questions": [
         {
@@ -313,35 +695,35 @@
           "stageNumber": 1,
           "totalStages": 3,
           "stageId": "stage_1",
-          "title": "Boss Phase 1 of 3: Phase 1: Core Feature Priority",
+          "title": "Phase 1 of 3: Phase 1: Core Feature Priority",
           "bossAttackPattern": "shockwave_rings",
-          "narrativePrompt": "Kneel before the convergence of the Four Relic Flames, for your spirit is but a flicker in the void!",
+          "narrativePrompt": "Prove thy precision or fall before the Eternal Input!",
           "personaFramings": {
             "dark_fantasy_souls": {
-              "personaLabel": "Audience A: Elden / Dark Souls Fantasy Core Gamer",
-              "worldTitle": "Cathedral of the Silent Resonance",
-              "bossName": "Aurelius, Sovereign of the RazerNova Echoes",
-              "dialogue": "Kneel before the convergence of the Four Relic Flames, for your spirit is but a flicker in the void!",
+              "personaLabel": "Audience A: Dark Fantasy / Souls Gamer",
+              "worldTitle": "The Cathedral of Haptic Silence",
+              "bossName": "Aethelgard the Razer-Sworn",
+              "dialogue": "Prove thy precision or fall before the Eternal Input!",
               "arenaPalette": {
-                "sky": "#0b0808",
-                "fog": "#1c110f",
-                "floor": "#181210",
-                "pillar": "#29201c",
+                "sky": "#0d060a",
+                "fog": "#240e14",
+                "floor": "#1c1014",
+                "pillar": "#2d211c",
                 "accent": "#f59e0b",
-                "bossColor": "#b91c1c",
-                "bossEmissive": "#f97316"
+                "bossColor": "#dc2626",
+                "bossEmissive": "#f59e0b"
               },
               "bossStyle": "gothic_colossus"
             },
             "cyber_mecha_action": {
-              "personaLabel": "Audience B: Armored Core / Cyberpunk Sci-Fi Action Fan",
-              "worldTitle": "Core-Sync Plasma Reactor",
-              "bossName": "RN-01 NOVA-STRIKE Vanguard",
-              "dialogue": "Tactical synchronization complete; initiating total erasure of all non-integrated biological signals.",
+              "personaLabel": "Audience B: Sci-Fi / Cyber-Action Gamer",
+              "worldTitle": "Neon-Latency Void Sector",
+              "bossName": "RN-X Nova-Core Interceptor",
+              "dialogue": "Sync-link established: Eliminate the latency anomaly immediately.",
               "arenaPalette": {
-                "sky": "#050814",
-                "fog": "#09122c",
-                "floor": "#0b132b",
+                "sky": "#040816",
+                "fog": "#091836",
+                "floor": "#0a142e",
                 "pillar": "#162447",
                 "accent": "#00f5d4",
                 "bossColor": "#1e293b",
@@ -352,62 +734,62 @@
           },
           "stimulus": {
             "type": "tactical_dilemma",
-            "title": "RazerNova Gaming Elemental Relic Forge",
-            "instruction": "Run to one of the 4 Glowing Relic Altars in the 3D arena (`E` or Click) to imbue your Greatsword with that feature and shatter the Boss shield!"
+            "title": "RazerNova Gaming 3D Relic Trial",
+            "instruction": "Claim one of the 4 Glowing Relics in the 3D world (`1-4` or physical collision) and defeat the phase!"
           },
           "hiddenSurveyQuestion": {
             "questionId": "q_custom_1",
             "originalQuestionText": "What feature matters most in our new flagship wireless controller?",
             "category": "Phase 1: Core Feature Priority",
-            "stealthMechanism": "3D Souls Relic Altar sword imbuement + spatial dwell time + Boss combat telemetry"
+            "stealthMechanism": "3D elden_souls interactive selection + reaction telemetry"
           },
           "choices": [
             {
               "id": "choice_0_0",
-              "relicName": "Crimson Flame Blade",
+              "relicName": "Crimson Flame Core",
               "relicIcon": "🔥",
               "relicColor": "#ef4444",
-              "relicBuff": "+40% Fire Slash & Burn",
-              "gameActionLabel": "🔥 Imbue Crimson Flame Blade: \"Hall-Effect Zero-Drift Sticks\"",
-              "flavorSubtext": "+40% Fire Slash & Burn • Shatters Phase 1 Boss Shield",
+              "relicBuff": "+40% Fire Overdrive",
+              "gameActionLabel": "🔥 Crimson Flame Core: \"Hall-Effect Zero-Drift Sticks\"",
+              "flavorSubtext": "+40% Fire Overdrive • Unlocks Phase 1 Victory",
               "mappedOption": "Hall-Effect Zero-Drift Sticks",
-              "rewardXp": 75,
+              "rewardXp": 80,
               "impliedWTPMultiplier": 0.8
             },
             {
               "id": "choice_0_1",
-              "relicName": "Volt-Lightning Edge",
+              "relicName": "Volt-Lightning Core",
               "relicIcon": "⚡",
               "relicColor": "#00f5d4",
-              "relicBuff": "+45% Chain Lightning Crit",
-              "gameActionLabel": "⚡ Imbue Volt-Lightning Edge: \"Optical Micro-Switch Triggers\"",
-              "flavorSubtext": "+45% Chain Lightning Crit • Shatters Phase 1 Boss Shield",
+              "relicBuff": "+45% Chain Lightning",
+              "gameActionLabel": "⚡ Volt-Lightning Core: \"Optical Micro-Switch Triggers\"",
+              "flavorSubtext": "+45% Chain Lightning • Unlocks Phase 1 Victory",
               "mappedOption": "Optical Micro-Switch Triggers",
-              "rewardXp": 85,
+              "rewardXp": 90,
               "impliedWTPMultiplier": 0.9500000000000001
             },
             {
               "id": "choice_0_2",
-              "relicName": "Solar Gold Greatsword",
+              "relicName": "Solar Gold Core",
               "relicIcon": "☀️",
               "relicColor": "#f59e0b",
-              "relicBuff": "+50% Holy Poise Break",
-              "gameActionLabel": "☀️ Imbue Solar Gold Greatsword: \"80-Hour Rapid Charge Battery\"",
-              "flavorSubtext": "+50% Holy Poise Break • Shatters Phase 1 Boss Shield",
+              "relicBuff": "+50% Solar Poise Break",
+              "gameActionLabel": "☀️ Solar Gold Core: \"80-Hour Rapid Charge Battery\"",
+              "flavorSubtext": "+50% Solar Poise Break • Unlocks Phase 1 Victory",
               "mappedOption": "80-Hour Rapid Charge Battery",
-              "rewardXp": 95,
+              "rewardXp": 100,
               "impliedWTPMultiplier": 1.1
             },
             {
               "id": "choice_0_3",
-              "relicName": "Abyssal Void Katana",
+              "relicName": "Abyssal Void Core",
               "relicIcon": "🌌",
               "relicColor": "#a855f7",
-              "relicBuff": "+45% Gravity Wave Cleave",
-              "gameActionLabel": "🌌 Imbue Abyssal Void Katana: \"Modular Swappable D-Pad\"",
-              "flavorSubtext": "+45% Gravity Wave Cleave • Shatters Phase 1 Boss Shield",
+              "relicBuff": "+45% Gravity Cleave",
+              "gameActionLabel": "🌌 Abyssal Void Core: \"Modular Swappable D-Pad\"",
+              "flavorSubtext": "+45% Gravity Cleave • Unlocks Phase 1 Victory",
               "mappedOption": "Modular Swappable D-Pad",
-              "rewardXp": 105,
+              "rewardXp": 110,
               "impliedWTPMultiplier": 1.25
             }
           ]
@@ -416,35 +798,35 @@
           "stageNumber": 2,
           "totalStages": 3,
           "stageId": "stage_2",
-          "title": "Boss Phase 2 of 3: Phase 2: Multimodal Audio / Vibe",
+          "title": "Phase 2 of 3: Phase 2: Multimodal Audio / Vibe",
           "bossAttackPattern": "laser_sweep_and_meteors",
-          "narrativePrompt": "\"Phase 2! My Aegis reforms around \"Which haptic & audio startup signature feels most exciting?\"! Imbue thy blade anew at the Relic Altars!\"",
+          "narrativePrompt": "\"Phase 2! My Aegis reforms around \"Which haptic & audio startup signature feels most exciting?\"! Claim your Relic Flame [1-4] and strike!\"",
           "personaFramings": {
             "dark_fantasy_souls": {
-              "personaLabel": "Audience A: Elden / Dark Souls Fantasy Core Gamer",
-              "worldTitle": "Cathedral of the Silent Resonance",
-              "bossName": "Aurelius, Sovereign of the RazerNova Echoes (Phase 2)",
-              "dialogue": "\"Phase 2! My Aegis reforms around \"Which haptic & audio startup signature feels most exciting?\"! Imbue thy blade anew at the Relic Altars!\"",
+              "personaLabel": "Audience A: Dark Fantasy / Souls Gamer",
+              "worldTitle": "The Cathedral of Haptic Silence",
+              "bossName": "Aethelgard the Razer-Sworn (Phase 2)",
+              "dialogue": "\"Phase 2! My Aegis reforms around \"Which haptic & audio startup signature feels most exciting?\"! Claim your Relic Flame [1-4] and strike!\"",
               "arenaPalette": {
-                "sky": "#0b0808",
-                "fog": "#1c110f",
-                "floor": "#181210",
-                "pillar": "#29201c",
+                "sky": "#0d060a",
+                "fog": "#240e14",
+                "floor": "#1c1014",
+                "pillar": "#2d211c",
                 "accent": "#f59e0b",
-                "bossColor": "#b91c1c",
-                "bossEmissive": "#f97316"
+                "bossColor": "#dc2626",
+                "bossEmissive": "#f59e0b"
               },
               "bossStyle": "gothic_colossus"
             },
             "cyber_mecha_action": {
-              "personaLabel": "Audience B: Armored Core / Cyberpunk Sci-Fi Action Fan",
-              "worldTitle": "Core-Sync Plasma Reactor",
-              "bossName": "RN-01 NOVA-STRIKE Vanguard [OVERDRIVE 2]",
-              "dialogue": "\"PHASE 2 PROTOCOL: Calibrating \"Which haptic & audio startup signature feels most exciting?\". Charge your Plasma Katana at a Terminal [1-4] to shatter the barrier!\"",
+              "personaLabel": "Audience B: Sci-Fi / Cyber-Action Gamer",
+              "worldTitle": "Neon-Latency Void Sector",
+              "bossName": "RN-X Nova-Core Interceptor [OVERDRIVE 2]",
+              "dialogue": "\"PHASE 2 TELEMETRY: \"Which haptic & audio startup signature feels most exciting?\". Lock in your Neural Node [1-4] and fire!\"",
               "arenaPalette": {
-                "sky": "#050814",
-                "fog": "#09122c",
-                "floor": "#0b132b",
+                "sky": "#040816",
+                "fog": "#091836",
+                "floor": "#0a142e",
                 "pillar": "#162447",
                 "accent": "#00f5d4",
                 "bossColor": "#1e293b",
@@ -456,11 +838,11 @@
           "stimulus": {
             "type": "audio_synth",
             "title": "RazerNova Gaming Spatial Sonic Relic Audition",
-            "instruction": "Approach the 3D Relic Altars or click below to hear their real-time WebAudio frequency signatures before imbuing your sword.",
+            "instruction": "Audition the real-time WebAudio frequency signatures or lock in your Relic directly in 3D.",
             "tracks": [
               {
                 "id": "track_alpha",
-                "label": "Relic A: Warm Acoustic Harmonic (432Hz)",
+                "label": "Relic A: Warm 432Hz Harmonic Choir",
                 "notes": [
                   261.63,
                   329.63,
@@ -472,7 +854,7 @@
               },
               {
                 "id": "track_beta",
-                "label": "Relic B: Cybernetic Bass Synth (528Hz)",
+                "label": "Relic B: 528Hz Cyber Overdrive Synth",
                 "notes": [
                   293.66,
                   349.23,
@@ -488,55 +870,55 @@
             "questionId": "q_custom_2",
             "originalQuestionText": "Which haptic & audio startup signature feels most exciting?",
             "category": "Phase 2: Multimodal Audio / Vibe",
-            "stealthMechanism": "3D Souls Relic Altar sword imbuement + spatial dwell time + Boss combat telemetry"
+            "stealthMechanism": "3D elden_souls interactive selection + reaction telemetry"
           },
           "choices": [
             {
               "id": "choice_1_0",
-              "relicName": "Crimson Flame Blade",
+              "relicName": "Crimson Flame Core",
               "relicIcon": "🔥",
               "relicColor": "#ef4444",
-              "relicBuff": "+40% Fire Slash & Burn",
-              "gameActionLabel": "🔥 Imbue Crimson Flame Blade: \"Deep Sub-Bass Orchestral Boom\"",
-              "flavorSubtext": "+40% Fire Slash & Burn • Shatters Phase 2 Boss Shield",
+              "relicBuff": "+40% Fire Overdrive",
+              "gameActionLabel": "🔥 Crimson Flame Core: \"Deep Sub-Bass Orchestral Boom\"",
+              "flavorSubtext": "+40% Fire Overdrive • Unlocks Phase 2 Victory",
               "mappedOption": "Deep Sub-Bass Orchestral Boom",
-              "rewardXp": 75,
+              "rewardXp": 80,
               "impliedWTPMultiplier": 0.8
             },
             {
               "id": "choice_1_1",
-              "relicName": "Volt-Lightning Edge",
+              "relicName": "Volt-Lightning Core",
               "relicIcon": "⚡",
               "relicColor": "#00f5d4",
-              "relicBuff": "+45% Chain Lightning Crit",
-              "gameActionLabel": "⚡ Imbue Volt-Lightning Edge: \"Crisp Cyber-Katana Metallic Zing\"",
-              "flavorSubtext": "+45% Chain Lightning Crit • Shatters Phase 2 Boss Shield",
+              "relicBuff": "+45% Chain Lightning",
+              "gameActionLabel": "⚡ Volt-Lightning Core: \"Crisp Cyber-Katana Metallic Zing\"",
+              "flavorSubtext": "+45% Chain Lightning • Unlocks Phase 2 Victory",
               "mappedOption": "Crisp Cyber-Katana Metallic Zing",
-              "rewardXp": 85,
+              "rewardXp": 90,
               "impliedWTPMultiplier": 0.9500000000000001
             },
             {
               "id": "choice_1_2",
-              "relicName": "Solar Gold Greatsword",
+              "relicName": "Solar Gold Core",
               "relicIcon": "☀️",
               "relicColor": "#f59e0b",
-              "relicBuff": "+50% Holy Poise Break",
-              "gameActionLabel": "☀️ Imbue Solar Gold Greatsword: \"Warm Harmonic Synth Chord\"",
-              "flavorSubtext": "+50% Holy Poise Break • Shatters Phase 2 Boss Shield",
+              "relicBuff": "+50% Solar Poise Break",
+              "gameActionLabel": "☀️ Solar Gold Core: \"Warm Harmonic Synth Chord\"",
+              "flavorSubtext": "+50% Solar Poise Break • Unlocks Phase 2 Victory",
               "mappedOption": "Warm Harmonic Synth Chord",
-              "rewardXp": 95,
+              "rewardXp": 100,
               "impliedWTPMultiplier": 1.1
             },
             {
               "id": "choice_1_3",
-              "relicName": "Abyssal Void Katana",
+              "relicName": "Abyssal Void Core",
               "relicIcon": "🌌",
               "relicColor": "#a855f7",
-              "relicBuff": "+45% Gravity Wave Cleave",
-              "gameActionLabel": "🌌 Imbue Abyssal Void Katana: \"Stealth Silent Tactile Pulse\"",
-              "flavorSubtext": "+45% Gravity Wave Cleave • Shatters Phase 2 Boss Shield",
+              "relicBuff": "+45% Gravity Cleave",
+              "gameActionLabel": "🌌 Abyssal Void Core: \"Stealth Silent Tactile Pulse\"",
+              "flavorSubtext": "+45% Gravity Cleave • Unlocks Phase 2 Victory",
               "mappedOption": "Stealth Silent Tactile Pulse",
-              "rewardXp": 105,
+              "rewardXp": 110,
               "impliedWTPMultiplier": 1.25
             }
           ]
@@ -545,35 +927,35 @@
           "stageNumber": 3,
           "totalStages": 3,
           "stageId": "stage_3",
-          "title": "Boss Phase 3 of 3: Phase 3: Price & Value Tier",
+          "title": "Phase 3 of 3: Phase 3: Price & Value Tier",
           "bossAttackPattern": "berserk_combo_slam",
-          "narrativePrompt": "\"Phase 3! My Aegis reforms around \"Which price tier feels like the best value for the Pro Controller?\"! Imbue thy blade anew at the Relic Altars!\"",
+          "narrativePrompt": "\"Phase 3! My Aegis reforms around \"Which price tier feels like the best value for the Pro Controller?\"! Claim your Relic Flame [1-4] and strike!\"",
           "personaFramings": {
             "dark_fantasy_souls": {
-              "personaLabel": "Audience A: Elden / Dark Souls Fantasy Core Gamer",
-              "worldTitle": "Cathedral of the Silent Resonance",
-              "bossName": "Aurelius, Sovereign of the RazerNova Echoes (Phase 3)",
-              "dialogue": "\"Phase 3! My Aegis reforms around \"Which price tier feels like the best value for the Pro Controller?\"! Imbue thy blade anew at the Relic Altars!\"",
+              "personaLabel": "Audience A: Dark Fantasy / Souls Gamer",
+              "worldTitle": "The Cathedral of Haptic Silence",
+              "bossName": "Aethelgard the Razer-Sworn (Phase 3)",
+              "dialogue": "\"Phase 3! My Aegis reforms around \"Which price tier feels like the best value for the Pro Controller?\"! Claim your Relic Flame [1-4] and strike!\"",
               "arenaPalette": {
-                "sky": "#0b0808",
-                "fog": "#1c110f",
-                "floor": "#181210",
-                "pillar": "#29201c",
+                "sky": "#0d060a",
+                "fog": "#240e14",
+                "floor": "#1c1014",
+                "pillar": "#2d211c",
                 "accent": "#f59e0b",
-                "bossColor": "#b91c1c",
-                "bossEmissive": "#f97316"
+                "bossColor": "#dc2626",
+                "bossEmissive": "#f59e0b"
               },
               "bossStyle": "gothic_colossus"
             },
             "cyber_mecha_action": {
-              "personaLabel": "Audience B: Armored Core / Cyberpunk Sci-Fi Action Fan",
-              "worldTitle": "Core-Sync Plasma Reactor",
-              "bossName": "RN-01 NOVA-STRIKE Vanguard [OVERDRIVE 3]",
-              "dialogue": "\"PHASE 3 PROTOCOL: Calibrating \"Which price tier feels like the best value for the Pro Controller?\". Charge your Plasma Katana at a Terminal [1-4] to shatter the barrier!\"",
+              "personaLabel": "Audience B: Sci-Fi / Cyber-Action Gamer",
+              "worldTitle": "Neon-Latency Void Sector",
+              "bossName": "RN-X Nova-Core Interceptor [OVERDRIVE 3]",
+              "dialogue": "\"PHASE 3 TELEMETRY: \"Which price tier feels like the best value for the Pro Controller?\". Lock in your Neural Node [1-4] and fire!\"",
               "arenaPalette": {
-                "sky": "#050814",
-                "fog": "#09122c",
-                "floor": "#0b132b",
+                "sky": "#040816",
+                "fog": "#091836",
+                "floor": "#0a142e",
                 "pillar": "#162447",
                 "accent": "#00f5d4",
                 "bossColor": "#1e293b",
@@ -585,7 +967,7 @@
           "stimulus": {
             "type": "interactive_video_canvas",
             "title": "RazerNova Gaming 3D Holo-Billboard Projection",
-            "instruction": "Inspect the 3D Holographic Video Monoliths in the arena and imbue the visual cut that hits hardest.",
+            "instruction": "Inspect the 3D Holographic Monoliths in the arena and lock in the visual cut that hits hardest.",
             "scenes": [
               {
                 "frame": "00:02",
@@ -612,55 +994,55 @@
             "questionId": "q_custom_3",
             "originalQuestionText": "Which price tier feels like the best value for the Pro Controller?",
             "category": "Phase 3: Price & Value Tier",
-            "stealthMechanism": "3D Souls Relic Altar sword imbuement + spatial dwell time + Boss combat telemetry"
+            "stealthMechanism": "3D elden_souls interactive selection + reaction telemetry"
           },
           "choices": [
             {
               "id": "choice_2_0",
-              "relicName": "Crimson Flame Blade",
+              "relicName": "Crimson Flame Core",
               "relicIcon": "🔥",
               "relicColor": "#ef4444",
-              "relicBuff": "+40% Fire Slash & Burn",
-              "gameActionLabel": "🔥 Imbue Crimson Flame Blade: \"$59 Core Wired Edition\"",
-              "flavorSubtext": "+40% Fire Slash & Burn • Shatters Phase 3 Boss Shield",
+              "relicBuff": "+40% Fire Overdrive",
+              "gameActionLabel": "🔥 Crimson Flame Core: \"$59 Core Wired Edition\"",
+              "flavorSubtext": "+40% Fire Overdrive • Unlocks Phase 3 Victory",
               "mappedOption": "$59 Core Wired Edition",
-              "rewardXp": 75,
+              "rewardXp": 80,
               "impliedWTPMultiplier": 0.8
             },
             {
               "id": "choice_2_1",
-              "relicName": "Volt-Lightning Edge",
+              "relicName": "Volt-Lightning Core",
               "relicIcon": "⚡",
               "relicColor": "#00f5d4",
-              "relicBuff": "+45% Chain Lightning Crit",
-              "gameActionLabel": "⚡ Imbue Volt-Lightning Edge: \"$89 Pro Wireless Edition\"",
-              "flavorSubtext": "+45% Chain Lightning Crit • Shatters Phase 3 Boss Shield",
+              "relicBuff": "+45% Chain Lightning",
+              "gameActionLabel": "⚡ Volt-Lightning Core: \"$89 Pro Wireless Edition\"",
+              "flavorSubtext": "+45% Chain Lightning • Unlocks Phase 3 Victory",
               "mappedOption": "$89 Pro Wireless Edition",
-              "rewardXp": 85,
+              "rewardXp": 90,
               "impliedWTPMultiplier": 0.9500000000000001
             },
             {
               "id": "choice_2_2",
-              "relicName": "Solar Gold Greatsword",
+              "relicName": "Solar Gold Core",
               "relicIcon": "☀️",
               "relicColor": "#f59e0b",
-              "relicBuff": "+50% Holy Poise Break",
-              "gameActionLabel": "☀️ Imbue Solar Gold Greatsword: \"$119 Charging Dock Bundle\"",
-              "flavorSubtext": "+50% Holy Poise Break • Shatters Phase 3 Boss Shield",
+              "relicBuff": "+50% Solar Poise Break",
+              "gameActionLabel": "☀️ Solar Gold Core: \"$119 Charging Dock Bundle\"",
+              "flavorSubtext": "+50% Solar Poise Break • Unlocks Phase 3 Victory",
               "mappedOption": "$119 Charging Dock Bundle",
-              "rewardXp": 95,
+              "rewardXp": 100,
               "impliedWTPMultiplier": 1.1
             },
             {
               "id": "choice_2_3",
-              "relicName": "Abyssal Void Katana",
+              "relicName": "Abyssal Void Core",
               "relicIcon": "🌌",
               "relicColor": "#a855f7",
-              "relicBuff": "+45% Gravity Wave Cleave",
-              "gameActionLabel": "🌌 Imbue Abyssal Void Katana: \"$149 Esports Tournament Carbon\"",
-              "flavorSubtext": "+45% Gravity Wave Cleave • Shatters Phase 3 Boss Shield",
+              "relicBuff": "+45% Gravity Cleave",
+              "gameActionLabel": "🌌 Abyssal Void Core: \"$149 Esports Tournament Carbon\"",
+              "flavorSubtext": "+45% Gravity Cleave • Unlocks Phase 3 Victory",
               "mappedOption": "$149 Esports Tournament Carbon",
-              "rewardXp": 105,
+              "rewardXp": 110,
               "impliedWTPMultiplier": 1.25
             }
           ]
@@ -670,17 +1052,18 @@
         "amdPlatform": "AMD Token Factory (Radeon Cloud API v1)",
         "amdAccelerator": "AMD Instinct™ / Radeon™ Cloud ROCm Cluster",
         "amdModel": "self-dploy/Gemma-4-31B-IT",
-        "amdRequestId": "bZg3rd0ONQcr3w6eIQS9KO4Oqcar27zsXNX5SuFA",
+        "amdRequestId": "2YsPRDUy0NF68HaXWp9fDmywyMPICXBkSii4ezvQ",
         "gemmaModel": "gemma4:latest",
         "gemmaLiveConnected": true,
         "amdLiveConnected": true,
-        "liveGeneratedOutput": "Aurelius, Sovereign of the RazerNova Echoes: Kneel before the convergence of the Four Relic Flames, for your spirit is but a flicker in the void!",
+        "liveGeneratedOutput": "Aethelgard the Razer-Sworn: Prove thy precision or fall before the Eternal Input!",
+        "aiCustomThreeJsCode": "// ============================================================================\n// AI-GENERATED THREE.JS SCENE CODE (Synthesized by Gemma-4-31B-IT on AMD Cloud)\n// Brand: \"RazerNova Gaming\" | 3D Mode: \"elden_souls\" | Structure: \"floating_obelisks\"\n// ============================================================================\n(function spawnAICustomScene(THREE, customGroup, elapsed) {\n  const primaryMat = new THREE.MeshStandardMaterial({\n    color: \"#f59e0b\",\n    emissive: \"#f59e0b\",\n    emissiveIntensity: 0.75,\n    metalness: 0.85,\n    roughness: 0.2\n  });\n  const secondaryMat = new THREE.MeshBasicMaterial({\n    color: \"#f72585\",\n    wireframe: true,\n    transparent: true,\n    opacity: 0.55\n  });\n\n  // Spawn 8 AI-designed 3D \"floating_obelisks\" monuments around the world\n  for (let i = 0; i < 8; i++) {\n    const angle = (i / 8) * Math.PI * 2;\n    const radius = 15.5;\n    const holder = new THREE.Group();\n    holder.position.set(Math.cos(angle) * radius, 3.8 + (i % 2) * 1.4, Math.sin(angle) * radius);\n\n    const coreGeo = \"floating_obelisks\" === \"neon_arches\"\n      ? new THREE.TorusGeometry(1.3, 0.12, 8, 24)\n      : \"floating_obelisks\" === \"orbital_rings\"\n        ? new THREE.IcosahedronGeometry(1.1, 0)\n        : new THREE.OctahedronGeometry(1.15, 0);\n\n    const mesh = new THREE.Mesh(coreGeo, primaryMat);\n    const cage = new THREE.Mesh(new THREE.OctahedronGeometry(1.55, 0), secondaryMat);\n    holder.add(mesh);\n    holder.add(cage);\n    holder.userData = { rotSpeed: 1.2 + (i % 3) * 0.4, floatOffset: i };\n    customGroup.add(holder);\n  }\n})",
         "activeInferenceSource": "AMD Token Factory (self-dploy/Gemma-4-31B-IT on AMD Radeon Cloud)",
-        "compilationLatencyMs": 7176,
-        "promptTokens": 275,
-        "completionTokens": 204,
-        "totalTokens": 479,
-        "estimatedCostUsd": 0.000024,
+        "compilationLatencyMs": 12087,
+        "promptTokens": 439,
+        "completionTokens": 327,
+        "totalTokens": 766,
+        "estimatedCostUsd": 0.000038,
         "qualityGuardrails": {
           "schemaValid": true,
           "optionBijectionVerified": true,
@@ -690,60 +1073,123 @@
       }
     },
     {
-      "id": "camp_aether_souls",
-      "companyId": "comp_aether",
-      "companyName": "AetherAudio Labs",
-      "industry": "Gaming Hardware & Spatial Audio",
-      "title": "SOULS OF AETHER: The Obsidian Warden (3D Boss Raid)",
-      "surveyObjective": "Discover which headset feature, sonic signature, trailer visual cut, and price tier gamers fight hardest for.",
-      "genre": "elden_souls",
-      "genreName": "Elden Ring / Dark Souls: Gothic Boss Cathedral",
-      "setting": "Sunken Cathedral of Ash & Gold",
+      "id": "camp_kotor_1792182248617",
+      "companyId": "comp_1792181684893",
+      "companyName": "RazerNova Gaming",
+      "industry": "Next-Gen Peripherals & Audio",
+      "title": "RAZERNOVA: Korriban Trial of the Star Map (Star Wars KotOR RPG)",
+      "surveyObjective": "Evaluate pro gamer input and acoustic preferences via Jedi vs. Sith combat on reone framework.",
+      "genre": "reone_kotor",
+      "genreName": "Star Wars: Knights of the Old Republic RPG (reone Engine)",
+      "setting": "The Echoes of Coruscant Ruins",
       "mediaType": "full_multimodal",
       "durationMinutes": 5,
-      "rewardPoints": 500,
-      "basePrice": 149,
-      "createdAt": "2026-10-16T11:00:00Z",
+      "rewardPoints": 600,
+      "basePrice": 89,
+      "createdAt": "2026-10-16T20:24:08.617Z",
       "proceduralBossConfig": {
-        "seed": 4821,
-        "bossScale": 1.32,
-        "wingCount": 4,
-        "haloRings": 2,
-        "shockwaveSpeed": 13,
-        "generatedBossLore": "Malakor, Sovereign of the Silent Abyss: \"Imbue thy Greatsword at the Relic Forges if thou darest shatter my Aegis!\""
+        "seed": 27718,
+        "genreKey": "reone_kotor",
+        "bossScale": 1.4,
+        "wingCount": 6,
+        "haloRings": 3,
+        "shockwaveSpeed": 14,
+        "monumentShape": "floating_obelisks",
+        "monumentCount": 8,
+        "generatedBossLore": "The RazerNova Void-Sovereign: Prove your reflexes against the Void-Sovereign to unlock the ultimate tactical edge!",
+        "aiCustomThreeJsCode": "// ============================================================================\n// AI-GENERATED THREE.JS SCENE CODE (Synthesized by Gemma-4-31B-IT on AMD Cloud)\n// Brand: \"RazerNova Gaming\" | 3D Mode: \"reone_kotor\" | Structure: \"floating_obelisks\"\n// ============================================================================\n(function spawnAICustomScene(THREE, customGroup, elapsed) {\n  const primaryMat = new THREE.MeshStandardMaterial({\n    color: \"#f59e0b\",\n    emissive: \"#f59e0b\",\n    emissiveIntensity: 0.75,\n    metalness: 0.85,\n    roughness: 0.2\n  });\n  const secondaryMat = new THREE.MeshBasicMaterial({\n    color: \"#f72585\",\n    wireframe: true,\n    transparent: true,\n    opacity: 0.55\n  });\n\n  // Spawn 8 AI-designed 3D \"floating_obelisks\" monuments around the world\n  for (let i = 0; i < 8; i++) {\n    const angle = (i / 8) * Math.PI * 2;\n    const radius = 15.5;\n    const holder = new THREE.Group();\n    holder.position.set(Math.cos(angle) * radius, 3.8 + (i % 2) * 1.4, Math.sin(angle) * radius);\n\n    const coreGeo = \"floating_obelisks\" === \"neon_arches\"\n      ? new THREE.TorusGeometry(1.3, 0.12, 8, 24)\n      : \"floating_obelisks\" === \"orbital_rings\"\n        ? new THREE.IcosahedronGeometry(1.1, 0)\n        : new THREE.OctahedronGeometry(1.15, 0);\n\n    const mesh = new THREE.Mesh(coreGeo, primaryMat);\n    const cage = new THREE.Mesh(new THREE.OctahedronGeometry(1.55, 0), secondaryMat);\n    holder.add(mesh);\n    holder.add(cage);\n    holder.userData = { rotSpeed: 1.2 + (i % 3) * 0.4, floatOffset: i };\n    customGroup.add(holder);\n  }\n})",
+        "talkTableStatus": {
+          "available": true,
+          "signature": "TLK V3.0",
+          "totalStringsCount": 49266,
+          "stringsOffset": 1970660,
+          "loreSampleCount": 10,
+          "loreSamples": [
+            {
+              "strRef": 148,
+              "soundResRef": "",
+              "text": "Advanced Jedi Defense"
+            },
+            {
+              "strRef": 174,
+              "soundResRef": "",
+              "text": "Master Jedi Defense"
+            },
+            {
+              "strRef": 224,
+              "soundResRef": "",
+              "text": "Constitution represents health and resiliency. A high Constitution adds modifiers to the vitality points gained at each level-up. This is important for everyone, but essential for soldiers and Jedi guardians."
+            },
+            {
+              "strRef": 225,
+              "soundResRef": "",
+              "text": "Wisdom represents willpower and perception. A high Wisdom adds modifiers to Jedi Force Points and Force Power saving throws. The Force Powers of a Jedi with high Wisdom are also much harder to resist."
+            },
+            {
+              "strRef": 227,
+              "soundResRef": "",
+              "text": "Charisma represents personality and the ability to lead. A high Charisma adds modifiers to Force-related feats and powers that are very important to all the Jedi classes. It is also central to any persuasive talker."
+            },
+            {
+              "strRef": 381,
+              "soundResRef": "CARTH_EXT_09",
+              "text": "CARTH: Get back to the base! The Sith have attacked! Just follow the smoke! Hurry!"
+            },
+            {
+              "strRef": 385,
+              "soundResRef": "WAYTOP_18",
+              "text": "Okay, I've done my part. Now I'm out of here before the Sith catch me!"
+            },
+            {
+              "strRef": 391,
+              "soundResRef": "",
+              "text": "You cannot open this door until you deal with the Sith guards."
+            },
+            {
+              "strRef": 425,
+              "soundResRef": "",
+              "text": "DarkJedi Sound Set"
+            },
+            {
+              "strRef": 426,
+              "soundResRef": "",
+              "text": "Sith Trooper Sound Set"
+            }
+          ]
+        }
       },
       "questions": [
         {
-          "id": "q_ae_1",
-          "text": "Which flagship hardware capability matters most in your gaming headset?",
-          "category": "Phase 1: Core Feature Priority",
+          "id": "q_kotor_1",
+          "category": "Phase 1: Hardware Responsiveness",
+          "text": "Which controller input technology provides the greatest tactical advantage in fast-paced combat?",
           "options": [
-            "Sub-5ms Lossless Wireless Latency",
-            "60-Hour Graphene Battery Life",
-            "AI Adaptive Neural Noise Cancellation",
-            "360° Spatial Footstep Radar Audio"
+            "Hall-Effect Zero-Drift Analog Sticks",
+            "Optical Micro-Switch Triggers",
+            "8000Hz Hyper-Polling Wireless Rate",
+            "Modular Swappable D-Pad Profiles"
           ]
         },
         {
-          "id": "q_ae_2",
-          "text": "Which sonic signature best fits our brand boot-up & trailer audio?",
-          "category": "Phase 2: Multimodal Audio Synth Test",
+          "id": "q_kotor_2",
+          "category": "Phase 2: Multimodal Spatial Audio",
+          "text": "Which acoustic sound profile best immerses you in cosmic sci-fi environments?",
           "options": [
-            "Warm Acoustic Harmonic (432Hz Choir)",
-            "Cybernetic Bass Synth (528Hz Overdrive)",
-            "Crystalline Minimalist Chime",
-            "Cinematic Sub-Bass Impact Drop"
+            "Deep Sub-Bass Cinematic Boom",
+            "Crisp Spatial Pinpoint Directionality",
+            "Balanced Natural Studio Acoustics",
+            "Warm Dynamic Ambient Surround"
           ]
         },
         {
-          "id": "q_ae_3",
-          "text": "What price tier feels right for the Aether-X9 Flagship Edition?",
-          "category": "Phase 3: Price & Value Calibration",
+          "id": "q_kotor_3",
+          "category": "Phase 3: Value & Pricing Tier",
+          "text": "Which price tier feels like the most compelling value for a tournament pro controller?",
           "options": [
-            "$119 Core Edition",
-            "$149 Pro Sweet-Spot Edition",
-            "$179 Streamer Dock Bundle",
-            "$219 Forged Carbon Collector Edition"
+            "$59 Core Tournament Wired",
+            "$89 Pro Wireless Low-Latency",
+            "$119 Magnetic Charging Dock Bundle",
+            "$149 Carbon Fiber Collector Edition"
           ]
         }
       ],
@@ -752,35 +1198,35 @@
           "stageNumber": 1,
           "totalStages": 3,
           "stageId": "stage_1",
-          "title": "Boss Phase 1 of 3: Core Feature Priority",
+          "title": "Phase 1 of 3: Phase 1: Hardware Responsiveness",
           "bossAttackPattern": "shockwave_rings",
-          "narrativePrompt": "\"Tarnished Challenger! My Phase 1 Aegis cannot be pierced by cold steel alone. Sprint to one of the 4 Relic Altars to imbue your Greatsword with your chosen capability, then strike me down!\"",
+          "narrativePrompt": "Prove your reflexes against the Void-Sovereign to unlock the ultimate tactical edge!",
           "personaFramings": {
             "dark_fantasy_souls": {
-              "personaLabel": "Audience A: Elden / Dark Souls Fantasy World",
-              "worldTitle": "Sunken Cathedral of Ash & Gold",
-              "bossName": "Malakor, Warden of the Aether Flame",
-              "dialogue": "\"Tarnished Challenger! Claim one of the 4 Relic Flames around my cathedral to imbue thy Greatsword, dodge my Crimson Shockwaves, and test thy blade against my shield!\"",
+              "personaLabel": "Audience A: Dark Fantasy / Souls Gamer",
+              "worldTitle": "The Echoes of Coruscant Ruins",
+              "bossName": "The RazerNova Void-Sovereign",
+              "dialogue": "Prove your reflexes against the Void-Sovereign to unlock the ultimate tactical edge!",
               "arenaPalette": {
-                "sky": "#0b0808",
-                "fog": "#1c110f",
-                "floor": "#181210",
-                "pillar": "#29201c",
+                "sky": "#0d060a",
+                "fog": "#240e14",
+                "floor": "#1c1014",
+                "pillar": "#2d211c",
                 "accent": "#f59e0b",
-                "bossColor": "#b91c1c",
-                "bossEmissive": "#f97316"
+                "bossColor": "#dc2626",
+                "bossEmissive": "#f59e0b"
               },
               "bossStyle": "gothic_colossus"
             },
             "cyber_mecha_action": {
-              "personaLabel": "Audience B: Armored Core / Cyber-Mecha World",
-              "worldTitle": "Neo-Veridia Orbital Reactor Core",
-              "bossName": "VALKYRIE-X9: Neural Defense Mech",
-              "dialogue": "\"ALERT: Phase 1 Aegis Shield active. Boost to one of the 4 Overclock Terminals to charge your Plasma Katana, evade the laser rings, and strike the core!\"",
+              "personaLabel": "Audience B: Sci-Fi / Cyber-Action Gamer",
+              "worldTitle": "Neon-Spires of the Outer Rim",
+              "bossName": "Nova-Core Interceptor X-1",
+              "dialogue": "Tactical alert: Neural-link synchronized, engage the Nova-Core with maximum precision!",
               "arenaPalette": {
-                "sky": "#050814",
-                "fog": "#09122c",
-                "floor": "#0b132b",
+                "sky": "#040816",
+                "fog": "#091836",
+                "floor": "#0a142e",
                 "pillar": "#162447",
                 "accent": "#00f5d4",
                 "bossColor": "#1e293b",
@@ -791,63 +1237,63 @@
           },
           "stimulus": {
             "type": "tactical_dilemma",
-            "title": "Phase 1: 3D Relic Forge Imbuement",
-            "instruction": "Move with WASD, SPACE to Dodge Roll through Boss shockwaves, and press E (or click a Relic below) to imbue your sword and slash the Boss!"
+            "title": "RazerNova Gaming 3D Relic Trial",
+            "instruction": "Claim one of the 4 Glowing Relics in the 3D world (`1-4` or physical collision) and defeat the phase!"
           },
           "hiddenSurveyQuestion": {
-            "questionId": "q_ae_1",
-            "originalQuestionText": "Which flagship hardware capability matters most in your gaming headset?",
-            "category": "Phase 1: Core Feature Priority",
-            "stealthMechanism": "3D Relic Altar physical navigation + Sword Imbuement + Boss combat completion"
+            "questionId": "q_kotor_1",
+            "originalQuestionText": "Which controller input technology provides the greatest tactical advantage in fast-paced combat?",
+            "category": "Phase 1: Hardware Responsiveness",
+            "stealthMechanism": "3D reone_kotor interactive selection + reaction telemetry"
           },
           "choices": [
             {
-              "id": "c_1_0",
-              "relicName": "Crimson Flame Blade",
+              "id": "choice_0_0",
+              "relicName": "Crimson Flame Core",
               "relicIcon": "🔥",
               "relicColor": "#ef4444",
-              "relicBuff": "+40% Fire Speed Slash",
-              "gameActionLabel": "🔥 Imbue Crimson Flame: \"Sub-5ms Lossless Wireless Latency\"",
-              "flavorSubtext": "+40% Attack Speed • Breaks Boss Shield",
-              "mappedOption": "Sub-5ms Lossless Wireless Latency",
+              "relicBuff": "+40% Fire Overdrive",
+              "gameActionLabel": "🔥 Crimson Flame Core: \"Hall-Effect Zero-Drift Analog Sticks\"",
+              "flavorSubtext": "+40% Fire Overdrive • Unlocks Phase 1 Victory",
+              "mappedOption": "Hall-Effect Zero-Drift Analog Sticks",
               "rewardXp": 80,
-              "impliedWTPMultiplier": 1.05
+              "impliedWTPMultiplier": 0.8
             },
             {
-              "id": "c_1_1",
-              "relicName": "Volt-Lightning Edge",
+              "id": "choice_0_1",
+              "relicName": "Volt-Lightning Core",
               "relicIcon": "⚡",
               "relicColor": "#00f5d4",
-              "relicBuff": "+45% Stamina & Shock",
-              "gameActionLabel": "⚡ Imbue Volt-Lightning: \"60-Hour Graphene Battery Life\"",
-              "flavorSubtext": "+45% Stamina Recovery • Breaks Boss Shield",
-              "mappedOption": "60-Hour Graphene Battery Life",
-              "rewardXp": 80,
-              "impliedWTPMultiplier": 0.95
+              "relicBuff": "+45% Chain Lightning",
+              "gameActionLabel": "⚡ Volt-Lightning Core: \"Optical Micro-Switch Triggers\"",
+              "flavorSubtext": "+45% Chain Lightning • Unlocks Phase 1 Victory",
+              "mappedOption": "Optical Micro-Switch Triggers",
+              "rewardXp": 90,
+              "impliedWTPMultiplier": 0.9500000000000001
             },
             {
-              "id": "c_1_2",
-              "relicName": "Solar Gold Greatsword",
+              "id": "choice_0_2",
+              "relicName": "Solar Gold Core",
               "relicIcon": "☀️",
               "relicColor": "#f59e0b",
-              "relicBuff": "+50% Holy Poise Break",
-              "gameActionLabel": "☀️ Imbue Solar Gold: \"AI Adaptive Neural Noise Cancellation\"",
-              "flavorSubtext": "+50% Boss Poise Stagger • Breaks Boss Shield",
-              "mappedOption": "AI Adaptive Neural Noise Cancellation",
-              "rewardXp": 85,
-              "impliedWTPMultiplier": 1.15
+              "relicBuff": "+50% Solar Poise Break",
+              "gameActionLabel": "☀️ Solar Gold Core: \"8000Hz Hyper-Polling Wireless Rate\"",
+              "flavorSubtext": "+50% Solar Poise Break • Unlocks Phase 1 Victory",
+              "mappedOption": "8000Hz Hyper-Polling Wireless Rate",
+              "rewardXp": 100,
+              "impliedWTPMultiplier": 1.1
             },
             {
-              "id": "c_1_3",
-              "relicName": "Abyssal Void Katana",
+              "id": "choice_0_3",
+              "relicName": "Abyssal Void Core",
               "relicIcon": "🌌",
               "relicColor": "#a855f7",
-              "relicBuff": "+45% Spatial Gravity Wave",
-              "gameActionLabel": "🌌 Imbue Abyssal Void: \"360° Spatial Footstep Radar Audio\"",
-              "flavorSubtext": "+45% Critical Range • Breaks Boss Shield",
-              "mappedOption": "360° Spatial Footstep Radar Audio",
-              "rewardXp": 85,
-              "impliedWTPMultiplier": 1.1
+              "relicBuff": "+45% Gravity Cleave",
+              "gameActionLabel": "🌌 Abyssal Void Core: \"Modular Swappable D-Pad Profiles\"",
+              "flavorSubtext": "+45% Gravity Cleave • Unlocks Phase 1 Victory",
+              "mappedOption": "Modular Swappable D-Pad Profiles",
+              "rewardXp": 110,
+              "impliedWTPMultiplier": 1.25
             }
           ]
         },
@@ -855,35 +1301,35 @@
           "stageNumber": 2,
           "totalStages": 3,
           "stageId": "stage_2",
-          "title": "Boss Phase 2 of 3: Multimodal Audio Synth Trial",
+          "title": "Phase 2 of 3: Phase 2: Multimodal Spatial Audio",
           "bossAttackPattern": "laser_sweep_and_meteors",
-          "narrativePrompt": "\"Phase 2 Awakens! My Sonic Resonance Barrier blocks unattuned blades. Audition the Spatial Sonic Relics and imbue the frequency that rings truest!\"",
+          "narrativePrompt": "\"Phase 2! My Aegis reforms around \"Which acoustic sound profile best immerses you in cosmic sci-fi environments?\"! Claim your Relic Flame [1-4] and strike!\"",
           "personaFramings": {
             "dark_fantasy_souls": {
-              "personaLabel": "Audience A: Elden / Dark Souls Fantasy World",
-              "worldTitle": "Sunken Cathedral of Ash & Gold",
-              "bossName": "Malakor, Warden of the Aether Flame (Enraged)",
-              "dialogue": "\"Hear the Cathedral Choirs! Attune thy blade to one of the 4 Sonic Relics and strike through my meteor storm!\"",
+              "personaLabel": "Audience A: Dark Fantasy / Souls Gamer",
+              "worldTitle": "The Echoes of Coruscant Ruins",
+              "bossName": "The RazerNova Void-Sovereign (Phase 2)",
+              "dialogue": "\"Phase 2! My Aegis reforms around \"Which acoustic sound profile best immerses you in cosmic sci-fi environments?\"! Claim your Relic Flame [1-4] and strike!\"",
               "arenaPalette": {
-                "sky": "#0b0808",
-                "fog": "#1c110f",
-                "floor": "#181210",
-                "pillar": "#29201c",
+                "sky": "#0d060a",
+                "fog": "#240e14",
+                "floor": "#1c1014",
+                "pillar": "#2d211c",
                 "accent": "#f59e0b",
-                "bossColor": "#b91c1c",
-                "bossEmissive": "#f97316"
+                "bossColor": "#dc2626",
+                "bossEmissive": "#f59e0b"
               },
               "bossStyle": "gothic_colossus"
             },
             "cyber_mecha_action": {
-              "personaLabel": "Audience B: Armored Core / Cyber-Mecha World",
-              "worldTitle": "Neo-Veridia Orbital Reactor Core",
-              "bossName": "VALKYRIE-X9: Overdrive Mode",
-              "dialogue": "\"WARNING: Acoustic Barrier deployed. Sample the frequency synth nodes and lock your weapon harmonic to pierce the barrier!\"",
+              "personaLabel": "Audience B: Sci-Fi / Cyber-Action Gamer",
+              "worldTitle": "Neon-Spires of the Outer Rim",
+              "bossName": "Nova-Core Interceptor X-1 [OVERDRIVE 2]",
+              "dialogue": "\"PHASE 2 TELEMETRY: \"Which acoustic sound profile best immerses you in cosmic sci-fi environments?\". Lock in your Neural Node [1-4] and fire!\"",
               "arenaPalette": {
-                "sky": "#050814",
-                "fog": "#09122c",
-                "floor": "#0b132b",
+                "sky": "#040816",
+                "fog": "#091836",
+                "floor": "#0a142e",
                 "pillar": "#162447",
                 "accent": "#00f5d4",
                 "bossColor": "#1e293b",
@@ -894,12 +1340,12 @@
           },
           "stimulus": {
             "type": "audio_synth",
-            "title": "Phase 2: Live WebAudio Sonic Relic Audition",
-            "instruction": "Click to preview the real-time WebAudio synth signatures or run to a Sonic Altar in 3D to imbue your weapon!",
+            "title": "RazerNova Gaming Spatial Sonic Relic Audition",
+            "instruction": "Audition the real-time WebAudio frequency signatures or lock in your Relic directly in 3D.",
             "tracks": [
               {
                 "id": "track_alpha",
-                "label": "Sonic Relic A: Warm 432Hz Harmonic Choir",
+                "label": "Relic A: Warm 432Hz Harmonic Choir",
                 "notes": [
                   261.63,
                   329.63,
@@ -911,7 +1357,7 @@
               },
               {
                 "id": "track_beta",
-                "label": "Sonic Relic B: 528Hz Cyber Overdrive Synth",
+                "label": "Relic B: 528Hz Cyber Overdrive Synth",
                 "notes": [
                   293.66,
                   349.23,
@@ -924,59 +1370,59 @@
             ]
           },
           "hiddenSurveyQuestion": {
-            "questionId": "q_ae_2",
-            "originalQuestionText": "Which sonic signature best fits our brand boot-up & trailer audio?",
-            "category": "Phase 2: Multimodal Audio Synth Test",
-            "stealthMechanism": "Real-time WebAudio synthesis audition + 3D Relic Altar weapon imbuement"
+            "questionId": "q_kotor_2",
+            "originalQuestionText": "Which acoustic sound profile best immerses you in cosmic sci-fi environments?",
+            "category": "Phase 2: Multimodal Spatial Audio",
+            "stealthMechanism": "3D reone_kotor interactive selection + reaction telemetry"
           },
           "choices": [
             {
-              "id": "c_2_0",
-              "relicName": "Crimson Flame Blade",
+              "id": "choice_1_0",
+              "relicName": "Crimson Flame Core",
               "relicIcon": "🔥",
               "relicColor": "#ef4444",
-              "relicBuff": "432Hz Harmonic Resonance",
-              "gameActionLabel": "🔥 Imbue Harmonic Flame: \"Warm Acoustic Harmonic (432Hz Choir)\"",
-              "flavorSubtext": "Pure resonant wave • Shatters Phase 2 Shield",
-              "mappedOption": "Warm Acoustic Harmonic (432Hz Choir)",
-              "rewardXp": 90,
-              "impliedWTPMultiplier": 1
+              "relicBuff": "+40% Fire Overdrive",
+              "gameActionLabel": "🔥 Crimson Flame Core: \"Deep Sub-Bass Cinematic Boom\"",
+              "flavorSubtext": "+40% Fire Overdrive • Unlocks Phase 2 Victory",
+              "mappedOption": "Deep Sub-Bass Cinematic Boom",
+              "rewardXp": 80,
+              "impliedWTPMultiplier": 0.8
             },
             {
-              "id": "c_2_1",
-              "relicName": "Volt-Lightning Edge",
+              "id": "choice_1_1",
+              "relicName": "Volt-Lightning Core",
               "relicIcon": "⚡",
               "relicColor": "#00f5d4",
-              "relicBuff": "528Hz Cyber Synth",
-              "gameActionLabel": "⚡ Imbue Synth Lightning: \"Cybernetic Bass Synth (528Hz Overdrive)\"",
-              "flavorSubtext": "High-voltage pulse • Shatters Phase 2 Shield",
-              "mappedOption": "Cybernetic Bass Synth (528Hz Overdrive)",
-              "rewardXp": 95,
+              "relicBuff": "+45% Chain Lightning",
+              "gameActionLabel": "⚡ Volt-Lightning Core: \"Crisp Spatial Pinpoint Directionality\"",
+              "flavorSubtext": "+45% Chain Lightning • Unlocks Phase 2 Victory",
+              "mappedOption": "Crisp Spatial Pinpoint Directionality",
+              "rewardXp": 90,
+              "impliedWTPMultiplier": 0.9500000000000001
+            },
+            {
+              "id": "choice_1_2",
+              "relicName": "Solar Gold Core",
+              "relicIcon": "☀️",
+              "relicColor": "#f59e0b",
+              "relicBuff": "+50% Solar Poise Break",
+              "gameActionLabel": "☀️ Solar Gold Core: \"Balanced Natural Studio Acoustics\"",
+              "flavorSubtext": "+50% Solar Poise Break • Unlocks Phase 2 Victory",
+              "mappedOption": "Balanced Natural Studio Acoustics",
+              "rewardXp": 100,
               "impliedWTPMultiplier": 1.1
             },
             {
-              "id": "c_2_2",
-              "relicName": "Solar Gold Greatsword",
-              "relicIcon": "☀️",
-              "relicColor": "#f59e0b",
-              "relicBuff": "Crystalline Bell",
-              "gameActionLabel": "☀️ Imbue Solar Chime: \"Crystalline Minimalist Chime\"",
-              "flavorSubtext": "Zero-distortion edge • Shatters Phase 2 Shield",
-              "mappedOption": "Crystalline Minimalist Chime",
-              "rewardXp": 85,
-              "impliedWTPMultiplier": 0.95
-            },
-            {
-              "id": "c_2_3",
-              "relicName": "Abyssal Void Katana",
+              "id": "choice_1_3",
+              "relicName": "Abyssal Void Core",
               "relicIcon": "🌌",
               "relicColor": "#a855f7",
-              "relicBuff": "Sub-Bass Impact",
-              "gameActionLabel": "🌌 Imbue Void Sub-Drop: \"Cinematic Sub-Bass Impact Drop\"",
-              "flavorSubtext": "Seismic shockwave • Shatters Phase 2 Shield",
-              "mappedOption": "Cinematic Sub-Bass Impact Drop",
-              "rewardXp": 95,
-              "impliedWTPMultiplier": 1.15
+              "relicBuff": "+45% Gravity Cleave",
+              "gameActionLabel": "🌌 Abyssal Void Core: \"Warm Dynamic Ambient Surround\"",
+              "flavorSubtext": "+45% Gravity Cleave • Unlocks Phase 2 Victory",
+              "mappedOption": "Warm Dynamic Ambient Surround",
+              "rewardXp": 110,
+              "impliedWTPMultiplier": 1.25
             }
           ]
         },
@@ -984,35 +1430,35 @@
           "stageNumber": 3,
           "totalStages": 3,
           "stageId": "stage_3",
-          "title": "Final Boss Phase 3 of 3: Tribute & Value Forge",
+          "title": "Phase 3 of 3: Phase 3: Value & Pricing Tier",
           "bossAttackPattern": "berserk_combo_slam",
-          "narrativePrompt": "\"FINAL PHASE! My Sovereign Core is exposed! Forge thy final Tribute Tier at the Relic Altars and deliver the finishing blow!\"",
+          "narrativePrompt": "\"Phase 3! My Aegis reforms around \"Which price tier feels like the most compelling value for a tournament pro controller?\"! Claim your Relic Flame [1-4] and strike!\"",
           "personaFramings": {
             "dark_fantasy_souls": {
-              "personaLabel": "Audience A: Elden / Dark Souls Fantasy World",
-              "worldTitle": "Sunken Cathedral of Ash & Gold",
-              "bossName": "Malakor, Ascended Lord of Cinder",
-              "dialogue": "\"Final Phase! Choose thy Sovereign Tribute Relic and strike my heart to claim victory and thy Gold Coins!\"",
+              "personaLabel": "Audience A: Dark Fantasy / Souls Gamer",
+              "worldTitle": "The Echoes of Coruscant Ruins",
+              "bossName": "The RazerNova Void-Sovereign (Phase 3)",
+              "dialogue": "\"Phase 3! My Aegis reforms around \"Which price tier feels like the most compelling value for a tournament pro controller?\"! Claim your Relic Flame [1-4] and strike!\"",
               "arenaPalette": {
-                "sky": "#0b0808",
-                "fog": "#1c110f",
-                "floor": "#181210",
-                "pillar": "#29201c",
+                "sky": "#0d060a",
+                "fog": "#240e14",
+                "floor": "#1c1014",
+                "pillar": "#2d211c",
                 "accent": "#f59e0b",
-                "bossColor": "#b91c1c",
-                "bossEmissive": "#f97316"
+                "bossColor": "#dc2626",
+                "bossEmissive": "#f59e0b"
               },
               "bossStyle": "gothic_colossus"
             },
             "cyber_mecha_action": {
-              "personaLabel": "Audience B: Armored Core / Cyber-Mecha World",
-              "worldTitle": "Neo-Veridia Orbital Reactor Core",
-              "bossName": "VALKYRIE-X9: Core Meltdown Phase",
-              "dialogue": "\"FINAL PHASE: Select your Contract Requisition Terminal, imbue maximum output, and destroy the Boss Core!\"",
+              "personaLabel": "Audience B: Sci-Fi / Cyber-Action Gamer",
+              "worldTitle": "Neon-Spires of the Outer Rim",
+              "bossName": "Nova-Core Interceptor X-1 [OVERDRIVE 3]",
+              "dialogue": "\"PHASE 3 TELEMETRY: \"Which price tier feels like the most compelling value for a tournament pro controller?\". Lock in your Neural Node [1-4] and fire!\"",
               "arenaPalette": {
-                "sky": "#050814",
-                "fog": "#09122c",
-                "floor": "#0b132b",
+                "sky": "#040816",
+                "fog": "#091836",
+                "floor": "#0a142e",
                 "pillar": "#162447",
                 "accent": "#00f5d4",
                 "bossColor": "#1e293b",
@@ -1022,85 +1468,553 @@
             }
           },
           "stimulus": {
-            "type": "resource_allocator",
-            "title": "Phase 3: Final Tribute Calibration",
-            "instruction": "Imbue your final Relic Tier and land the fatal sword combo on the Boss!",
-            "minCredits": 99,
-            "maxCredits": 229,
-            "defaultCredits": 149
+            "type": "interactive_video_canvas",
+            "title": "RazerNova Gaming 3D Holo-Billboard Projection",
+            "instruction": "Inspect the 3D Holographic Monoliths in the arena and lock in the visual cut that hits hardest.",
+            "scenes": [
+              {
+                "frame": "00:02",
+                "label": "Cinematic Lore Cut",
+                "accent": "#00f5d4",
+                "badge": "STORY HOOK"
+              },
+              {
+                "frame": "00:05",
+                "label": "3D X-Ray Spec Breakdown",
+                "accent": "#f72585",
+                "badge": "TECH X-RAY"
+              },
+              {
+                "frame": "00:08",
+                "label": "Creator Hype Reel",
+                "accent": "#f59e0b",
+                "badge": "COMMUNITY"
+              }
+            ],
+            "durationSec": 10
           },
           "hiddenSurveyQuestion": {
-            "questionId": "q_ae_3",
-            "originalQuestionText": "What price tier feels right for the Aether-X9 Flagship Edition?",
-            "category": "Phase 3: Price & Value Calibration",
-            "stealthMechanism": "Final Boss Tribute Relic selection + willingness-to-pay calibration"
+            "questionId": "q_kotor_3",
+            "originalQuestionText": "Which price tier feels like the most compelling value for a tournament pro controller?",
+            "category": "Phase 3: Value & Pricing Tier",
+            "stealthMechanism": "3D reone_kotor interactive selection + reaction telemetry"
           },
           "choices": [
             {
-              "id": "c_3_0",
-              "relicName": "Crimson Flame Blade",
+              "id": "choice_2_0",
+              "relicName": "Crimson Flame Core",
               "relicIcon": "🔥",
               "relicColor": "#ef4444",
-              "relicBuff": "Starter Pact",
-              "gameActionLabel": "🔥 Imbue Crimson Pact: \"$119 Core Edition\"",
-              "flavorSubtext": "Lean & lethal • Final Boss Finisher",
-              "mappedOption": "$119 Core Edition",
-              "rewardXp": 100,
+              "relicBuff": "+40% Fire Overdrive",
+              "gameActionLabel": "🔥 Crimson Flame Core: \"$59 Core Tournament Wired\"",
+              "flavorSubtext": "+40% Fire Overdrive • Unlocks Phase 3 Victory",
+              "mappedOption": "$59 Core Tournament Wired",
+              "rewardXp": 80,
               "impliedWTPMultiplier": 0.8
             },
             {
-              "id": "c_3_1",
-              "relicName": "Volt-Lightning Edge",
+              "id": "choice_2_1",
+              "relicName": "Volt-Lightning Core",
               "relicIcon": "⚡",
               "relicColor": "#00f5d4",
-              "relicBuff": "Pro Vanguard Pact",
-              "gameActionLabel": "⚡ Imbue Lightning Pact: \"$149 Pro Sweet-Spot Edition\"",
-              "flavorSubtext": "Balanced flagship power • Final Boss Finisher",
-              "mappedOption": "$149 Pro Sweet-Spot Edition",
-              "rewardXp": 110,
-              "impliedWTPMultiplier": 1
+              "relicBuff": "+45% Chain Lightning",
+              "gameActionLabel": "⚡ Volt-Lightning Core: \"$89 Pro Wireless Low-Latency\"",
+              "flavorSubtext": "+45% Chain Lightning • Unlocks Phase 3 Victory",
+              "mappedOption": "$89 Pro Wireless Low-Latency",
+              "rewardXp": 90,
+              "impliedWTPMultiplier": 0.9500000000000001
             },
             {
-              "id": "c_3_2",
-              "relicName": "Solar Gold Greatsword",
+              "id": "choice_2_2",
+              "relicName": "Solar Gold Core",
               "relicIcon": "☀️",
               "relicColor": "#f59e0b",
-              "relicBuff": "Creator Guild Pact",
-              "gameActionLabel": "☀️ Imbue Solar Pact: \"$179 Streamer Dock Bundle\"",
-              "flavorSubtext": "Full transmitter suite • Final Boss Finisher",
-              "mappedOption": "$179 Streamer Dock Bundle",
-              "rewardXp": 115,
-              "impliedWTPMultiplier": 1.2
+              "relicBuff": "+50% Solar Poise Break",
+              "gameActionLabel": "☀️ Solar Gold Core: \"$119 Magnetic Charging Dock Bundle\"",
+              "flavorSubtext": "+50% Solar Poise Break • Unlocks Phase 3 Victory",
+              "mappedOption": "$119 Magnetic Charging Dock Bundle",
+              "rewardXp": 100,
+              "impliedWTPMultiplier": 1.1
             },
             {
-              "id": "c_3_3",
-              "relicName": "Abyssal Void Katana",
+              "id": "choice_2_3",
+              "relicName": "Abyssal Void Core",
               "relicIcon": "🌌",
               "relicColor": "#a855f7",
-              "relicBuff": "Collector Sovereign Pact",
-              "gameActionLabel": "🌌 Imbue Void Pact: \"$219 Forged Carbon Collector Edition\"",
-              "flavorSubtext": "Prestige collector tier • Final Boss Finisher",
-              "mappedOption": "$219 Forged Carbon Collector Edition",
-              "rewardXp": 120,
-              "impliedWTPMultiplier": 1.45
+              "relicBuff": "+45% Gravity Cleave",
+              "gameActionLabel": "🌌 Abyssal Void Core: \"$149 Carbon Fiber Collector Edition\"",
+              "flavorSubtext": "+45% Gravity Cleave • Unlocks Phase 3 Victory",
+              "mappedOption": "$149 Carbon Fiber Collector Edition",
+              "rewardXp": 110,
+              "impliedWTPMultiplier": 1.25
             }
           ]
         }
       ],
       "aiTelemetry": {
-        "amdPlatform": "AMD Token Factory (notebooks.amd.com/tokenfactory)",
-        "amdAccelerator": "AMD Instinct™ MI300X (ROCm™ 6.3)",
-        "amdModel": "meta-llama/Llama-3.3-70B-Instruct-ROCm",
-        "gemmaModel": "gemma4:latest (Local Ollama)",
+        "amdPlatform": "AMD Token Factory (Radeon Cloud API v1)",
+        "amdAccelerator": "AMD Instinct™ / Radeon™ Cloud ROCm Cluster",
+        "amdModel": "self-dploy/Gemma-4-31B-IT",
+        "amdRequestId": "rhMPxYMl0sxxL2MRluwkPvzqKwYDUiQDsxdhnRGB",
+        "gemmaModel": "gemma4:latest",
         "gemmaLiveConnected": true,
-        "amdLiveConnected": false,
-        "liveGeneratedOutput": "Malakor, Sovereign of the Silent Abyss: \"Imbue thy Greatsword at the Relic Forges if thou darest shatter my Aegis!\"",
-        "activeInferenceSource": "Google Gemma 4 (Local Ollama) + AMD Token Factory Ready",
-        "compilationLatencyMs": 640,
-        "promptTokens": 495,
-        "completionTokens": 810,
-        "totalTokens": 1305,
-        "estimatedCostUsd": 0.00085,
+        "amdLiveConnected": true,
+        "liveGeneratedOutput": "The RazerNova Void-Sovereign: Prove your reflexes against the Void-Sovereign to unlock the ultimate tactical edge!",
+        "aiCustomThreeJsCode": "// ============================================================================\n// AI-GENERATED THREE.JS SCENE CODE (Synthesized by Gemma-4-31B-IT on AMD Cloud)\n// Brand: \"RazerNova Gaming\" | 3D Mode: \"reone_kotor\" | Structure: \"floating_obelisks\"\n// ============================================================================\n(function spawnAICustomScene(THREE, customGroup, elapsed) {\n  const primaryMat = new THREE.MeshStandardMaterial({\n    color: \"#f59e0b\",\n    emissive: \"#f59e0b\",\n    emissiveIntensity: 0.75,\n    metalness: 0.85,\n    roughness: 0.2\n  });\n  const secondaryMat = new THREE.MeshBasicMaterial({\n    color: \"#f72585\",\n    wireframe: true,\n    transparent: true,\n    opacity: 0.55\n  });\n\n  // Spawn 8 AI-designed 3D \"floating_obelisks\" monuments around the world\n  for (let i = 0; i < 8; i++) {\n    const angle = (i / 8) * Math.PI * 2;\n    const radius = 15.5;\n    const holder = new THREE.Group();\n    holder.position.set(Math.cos(angle) * radius, 3.8 + (i % 2) * 1.4, Math.sin(angle) * radius);\n\n    const coreGeo = \"floating_obelisks\" === \"neon_arches\"\n      ? new THREE.TorusGeometry(1.3, 0.12, 8, 24)\n      : \"floating_obelisks\" === \"orbital_rings\"\n        ? new THREE.IcosahedronGeometry(1.1, 0)\n        : new THREE.OctahedronGeometry(1.15, 0);\n\n    const mesh = new THREE.Mesh(coreGeo, primaryMat);\n    const cage = new THREE.Mesh(new THREE.OctahedronGeometry(1.55, 0), secondaryMat);\n    holder.add(mesh);\n    holder.add(cage);\n    holder.userData = { rotSpeed: 1.2 + (i % 3) * 0.4, floatOffset: i };\n    customGroup.add(holder);\n  }\n})",
+        "activeInferenceSource": "AMD Token Factory (self-dploy/Gemma-4-31B-IT on AMD Radeon Cloud)",
+        "compilationLatencyMs": 11993,
+        "promptTokens": 443,
+        "completionTokens": 345,
+        "totalTokens": 788,
+        "estimatedCostUsd": 0.00004,
+        "qualityGuardrails": {
+          "schemaValid": true,
+          "optionBijectionVerified": true,
+          "zeroLeadingBiasCheck": "PASSED (Symmetric 3D Relic Placement)",
+          "multimodalSyncVerified": true
+        }
+      }
+    },
+    {
+      "id": "camp_diablo_1792182259234",
+      "companyId": "comp_hyperion",
+      "companyName": "Hyperion Energy & Beverages",
+      "industry": "D2C Craft Energy & Esports Nutrition",
+      "title": "HYPERION: Tristram Catacombs of Despair (Diablo 1 & 2 Dark Gothic ARPG)",
+      "surveyObjective": "Gather functional beverage and energy preferences via Barbarian hack-and-slash on Freeablo framework.",
+      "genre": "freeablo_diablo",
+      "genreName": "Diablo 1 & 2 Dark Gothic ARPG (Freeablo Engine)",
+      "setting": "The Cathedral of Eternal Fatigue",
+      "mediaType": "full_multimodal",
+      "durationMinutes": 5,
+      "rewardPoints": 600,
+      "basePrice": 30,
+      "createdAt": "2026-10-16T20:24:19.233Z",
+      "proceduralBossConfig": {
+        "seed": 25556,
+        "genreKey": "freeablo_diablo",
+        "bossScale": 1.4,
+        "wingCount": 6,
+        "haloRings": 3,
+        "shockwaveSpeed": 14,
+        "monumentShape": "floating_obelisks",
+        "monumentCount": 8,
+        "generatedBossLore": "Malphas, the Void-Thirst Architect: Drink deep of the Hyperion Essence or succumb to the slumber of the forgotten!",
+        "aiCustomThreeJsCode": "// ============================================================================\n// AI-GENERATED THREE.JS SCENE CODE (Synthesized by Gemma-4-31B-IT on AMD Cloud)\n// Brand: \"Hyperion Energy & Beverages\" | 3D Mode: \"freeablo_diablo\" | Structure: \"floating_obelisks\"\n// ============================================================================\n(function spawnAICustomScene(THREE, customGroup, elapsed) {\n  const primaryMat = new THREE.MeshStandardMaterial({\n    color: \"#f59e0b\",\n    emissive: \"#f59e0b\",\n    emissiveIntensity: 0.75,\n    metalness: 0.85,\n    roughness: 0.2\n  });\n  const secondaryMat = new THREE.MeshBasicMaterial({\n    color: \"#f72585\",\n    wireframe: true,\n    transparent: true,\n    opacity: 0.55\n  });\n\n  // Spawn 8 AI-designed 3D \"floating_obelisks\" monuments around the world\n  for (let i = 0; i < 8; i++) {\n    const angle = (i / 8) * Math.PI * 2;\n    const radius = 15.5;\n    const holder = new THREE.Group();\n    holder.position.set(Math.cos(angle) * radius, 3.8 + (i % 2) * 1.4, Math.sin(angle) * radius);\n\n    const coreGeo = \"floating_obelisks\" === \"neon_arches\"\n      ? new THREE.TorusGeometry(1.3, 0.12, 8, 24)\n      : \"floating_obelisks\" === \"orbital_rings\"\n        ? new THREE.IcosahedronGeometry(1.1, 0)\n        : new THREE.OctahedronGeometry(1.15, 0);\n\n    const mesh = new THREE.Mesh(coreGeo, primaryMat);\n    const cage = new THREE.Mesh(new THREE.OctahedronGeometry(1.55, 0), secondaryMat);\n    holder.add(mesh);\n    holder.add(cage);\n    holder.userData = { rotSpeed: 1.2 + (i % 3) * 0.4, floatOffset: i };\n    customGroup.add(holder);\n  }\n})",
+        "freeabloConfig": {
+          "success": true,
+          "iniPath": "/home/me/Videos/AMDHACKTHREE/engines/freeablo/freeablo_v0.4/resources/settings-user.ini"
+        }
+      },
+      "questions": [
+        {
+          "id": "q_diablo_1",
+          "category": "Phase 1: Dark Fantasy Elixir Flavor",
+          "text": "Which potion flavor profile sustains your focus through the darkest dungeon raids?",
+          "options": [
+            "Crimson Blood-Orange Health Potion",
+            "Abyssal Blue-Raspberry Mana Surge",
+            "Solar Gold Citrus Stamina Brew",
+            "Shadow Blackberry Elixir of the Ancients"
+          ]
+        },
+        {
+          "id": "q_diablo_2",
+          "category": "Phase 2: Functional Energy Ingredients",
+          "text": "Which functional health & energy formulation do you prioritize most?",
+          "options": [
+            "Zero Sugar Clean Natural Caffeine",
+            "L-Theanine & Nootropic Cognitive Focus",
+            "Rapid-Absorption Electrolytes",
+            "Immunity & Anti-Oxidant Herbal Extracts"
+          ]
+        },
+        {
+          "id": "q_diablo_3",
+          "category": "Phase 3: Packaging & Raid Format",
+          "text": "Which supply tier represents the best daily value for your gaming setup?",
+          "options": [
+            "$2.49 Single Cold Can Drop",
+            "$29.99 40-Serving Powder Tub",
+            "$39.99 Shaker & Trial Flavour Bundle",
+            "$59.99 Guild Vault Season Pass"
+          ]
+        }
+      ],
+      "stages": [
+        {
+          "stageNumber": 1,
+          "totalStages": 3,
+          "stageId": "stage_1",
+          "title": "Phase 1 of 3: Phase 1: Dark Fantasy Elixir Flavor",
+          "bossAttackPattern": "shockwave_rings",
+          "narrativePrompt": "Drink deep of the Hyperion Essence or succumb to the slumber of the forgotten!",
+          "personaFramings": {
+            "dark_fantasy_souls": {
+              "personaLabel": "Audience A: Dark Fantasy / Souls Gamer",
+              "worldTitle": "The Cathedral of Eternal Fatigue",
+              "bossName": "Malphas, the Void-Thirst Architect",
+              "dialogue": "Drink deep of the Hyperion Essence or succumb to the slumber of the forgotten!",
+              "arenaPalette": {
+                "sky": "#0d060a",
+                "fog": "#240e14",
+                "floor": "#1c1014",
+                "pillar": "#2d211c",
+                "accent": "#f59e0b",
+                "bossColor": "#dc2626",
+                "bossEmissive": "#f59e0b"
+              },
+              "bossStyle": "gothic_colossus"
+            },
+            "cyber_mecha_action": {
+              "personaLabel": "Audience B: Sci-Fi / Cyber-Action Gamer",
+              "worldTitle": "The Neon Synapse Nexus",
+              "bossName": "HYPER-ION Prime: Neural Overload",
+              "dialogue": "Tactical Alert: Sync your focus profile to the Hyperion frequency or face total system crash!",
+              "arenaPalette": {
+                "sky": "#040816",
+                "fog": "#091836",
+                "floor": "#0a142e",
+                "pillar": "#162447",
+                "accent": "#00f5d4",
+                "bossColor": "#1e293b",
+                "bossEmissive": "#f72585"
+              },
+              "bossStyle": "mecha_seraph"
+            }
+          },
+          "stimulus": {
+            "type": "tactical_dilemma",
+            "title": "Hyperion Energy & Beverages 3D Relic Trial",
+            "instruction": "Claim one of the 4 Glowing Relics in the 3D world (`1-4` or physical collision) and defeat the phase!"
+          },
+          "hiddenSurveyQuestion": {
+            "questionId": "q_diablo_1",
+            "originalQuestionText": "Which potion flavor profile sustains your focus through the darkest dungeon raids?",
+            "category": "Phase 1: Dark Fantasy Elixir Flavor",
+            "stealthMechanism": "3D freeablo_diablo interactive selection + reaction telemetry"
+          },
+          "choices": [
+            {
+              "id": "choice_0_0",
+              "relicName": "Crimson Flame Core",
+              "relicIcon": "🔥",
+              "relicColor": "#ef4444",
+              "relicBuff": "+40% Fire Overdrive",
+              "gameActionLabel": "🔥 Crimson Flame Core: \"Crimson Blood-Orange Health Potion\"",
+              "flavorSubtext": "+40% Fire Overdrive • Unlocks Phase 1 Victory",
+              "mappedOption": "Crimson Blood-Orange Health Potion",
+              "rewardXp": 80,
+              "impliedWTPMultiplier": 0.8
+            },
+            {
+              "id": "choice_0_1",
+              "relicName": "Volt-Lightning Core",
+              "relicIcon": "⚡",
+              "relicColor": "#00f5d4",
+              "relicBuff": "+45% Chain Lightning",
+              "gameActionLabel": "⚡ Volt-Lightning Core: \"Abyssal Blue-Raspberry Mana Surge\"",
+              "flavorSubtext": "+45% Chain Lightning • Unlocks Phase 1 Victory",
+              "mappedOption": "Abyssal Blue-Raspberry Mana Surge",
+              "rewardXp": 90,
+              "impliedWTPMultiplier": 0.9500000000000001
+            },
+            {
+              "id": "choice_0_2",
+              "relicName": "Solar Gold Core",
+              "relicIcon": "☀️",
+              "relicColor": "#f59e0b",
+              "relicBuff": "+50% Solar Poise Break",
+              "gameActionLabel": "☀️ Solar Gold Core: \"Solar Gold Citrus Stamina Brew\"",
+              "flavorSubtext": "+50% Solar Poise Break • Unlocks Phase 1 Victory",
+              "mappedOption": "Solar Gold Citrus Stamina Brew",
+              "rewardXp": 100,
+              "impliedWTPMultiplier": 1.1
+            },
+            {
+              "id": "choice_0_3",
+              "relicName": "Abyssal Void Core",
+              "relicIcon": "🌌",
+              "relicColor": "#a855f7",
+              "relicBuff": "+45% Gravity Cleave",
+              "gameActionLabel": "🌌 Abyssal Void Core: \"Shadow Blackberry Elixir of the Ancients\"",
+              "flavorSubtext": "+45% Gravity Cleave • Unlocks Phase 1 Victory",
+              "mappedOption": "Shadow Blackberry Elixir of the Ancients",
+              "rewardXp": 110,
+              "impliedWTPMultiplier": 1.25
+            }
+          ]
+        },
+        {
+          "stageNumber": 2,
+          "totalStages": 3,
+          "stageId": "stage_2",
+          "title": "Phase 2 of 3: Phase 2: Functional Energy Ingredients",
+          "bossAttackPattern": "laser_sweep_and_meteors",
+          "narrativePrompt": "\"Phase 2! My Aegis reforms around \"Which functional health & energy formulation do you prioritize most?\"! Claim your Relic Flame [1-4] and strike!\"",
+          "personaFramings": {
+            "dark_fantasy_souls": {
+              "personaLabel": "Audience A: Dark Fantasy / Souls Gamer",
+              "worldTitle": "The Cathedral of Eternal Fatigue",
+              "bossName": "Malphas, the Void-Thirst Architect (Phase 2)",
+              "dialogue": "\"Phase 2! My Aegis reforms around \"Which functional health & energy formulation do you prioritize most?\"! Claim your Relic Flame [1-4] and strike!\"",
+              "arenaPalette": {
+                "sky": "#0d060a",
+                "fog": "#240e14",
+                "floor": "#1c1014",
+                "pillar": "#2d211c",
+                "accent": "#f59e0b",
+                "bossColor": "#dc2626",
+                "bossEmissive": "#f59e0b"
+              },
+              "bossStyle": "gothic_colossus"
+            },
+            "cyber_mecha_action": {
+              "personaLabel": "Audience B: Sci-Fi / Cyber-Action Gamer",
+              "worldTitle": "The Neon Synapse Nexus",
+              "bossName": "HYPER-ION Prime: Neural Overload [OVERDRIVE 2]",
+              "dialogue": "\"PHASE 2 TELEMETRY: \"Which functional health & energy formulation do you prioritize most?\". Lock in your Neural Node [1-4] and fire!\"",
+              "arenaPalette": {
+                "sky": "#040816",
+                "fog": "#091836",
+                "floor": "#0a142e",
+                "pillar": "#162447",
+                "accent": "#00f5d4",
+                "bossColor": "#1e293b",
+                "bossEmissive": "#f72585"
+              },
+              "bossStyle": "mecha_seraph"
+            }
+          },
+          "stimulus": {
+            "type": "audio_synth",
+            "title": "Hyperion Energy & Beverages Spatial Sonic Relic Audition",
+            "instruction": "Audition the real-time WebAudio frequency signatures or lock in your Relic directly in 3D.",
+            "tracks": [
+              {
+                "id": "track_alpha",
+                "label": "Relic A: Warm 432Hz Harmonic Choir",
+                "notes": [
+                  261.63,
+                  329.63,
+                  392,
+                  523.25
+                ],
+                "waveform": "sine",
+                "tempoBpm": 96
+              },
+              {
+                "id": "track_beta",
+                "label": "Relic B: 528Hz Cyber Overdrive Synth",
+                "notes": [
+                  293.66,
+                  349.23,
+                  440,
+                  587.33
+                ],
+                "waveform": "sawtooth",
+                "tempoBpm": 132
+              }
+            ]
+          },
+          "hiddenSurveyQuestion": {
+            "questionId": "q_diablo_2",
+            "originalQuestionText": "Which functional health & energy formulation do you prioritize most?",
+            "category": "Phase 2: Functional Energy Ingredients",
+            "stealthMechanism": "3D freeablo_diablo interactive selection + reaction telemetry"
+          },
+          "choices": [
+            {
+              "id": "choice_1_0",
+              "relicName": "Crimson Flame Core",
+              "relicIcon": "🔥",
+              "relicColor": "#ef4444",
+              "relicBuff": "+40% Fire Overdrive",
+              "gameActionLabel": "🔥 Crimson Flame Core: \"Zero Sugar Clean Natural Caffeine\"",
+              "flavorSubtext": "+40% Fire Overdrive • Unlocks Phase 2 Victory",
+              "mappedOption": "Zero Sugar Clean Natural Caffeine",
+              "rewardXp": 80,
+              "impliedWTPMultiplier": 0.8
+            },
+            {
+              "id": "choice_1_1",
+              "relicName": "Volt-Lightning Core",
+              "relicIcon": "⚡",
+              "relicColor": "#00f5d4",
+              "relicBuff": "+45% Chain Lightning",
+              "gameActionLabel": "⚡ Volt-Lightning Core: \"L-Theanine & Nootropic Cognitive Focus\"",
+              "flavorSubtext": "+45% Chain Lightning • Unlocks Phase 2 Victory",
+              "mappedOption": "L-Theanine & Nootropic Cognitive Focus",
+              "rewardXp": 90,
+              "impliedWTPMultiplier": 0.9500000000000001
+            },
+            {
+              "id": "choice_1_2",
+              "relicName": "Solar Gold Core",
+              "relicIcon": "☀️",
+              "relicColor": "#f59e0b",
+              "relicBuff": "+50% Solar Poise Break",
+              "gameActionLabel": "☀️ Solar Gold Core: \"Rapid-Absorption Electrolytes\"",
+              "flavorSubtext": "+50% Solar Poise Break • Unlocks Phase 2 Victory",
+              "mappedOption": "Rapid-Absorption Electrolytes",
+              "rewardXp": 100,
+              "impliedWTPMultiplier": 1.1
+            },
+            {
+              "id": "choice_1_3",
+              "relicName": "Abyssal Void Core",
+              "relicIcon": "🌌",
+              "relicColor": "#a855f7",
+              "relicBuff": "+45% Gravity Cleave",
+              "gameActionLabel": "🌌 Abyssal Void Core: \"Immunity & Anti-Oxidant Herbal Extracts\"",
+              "flavorSubtext": "+45% Gravity Cleave • Unlocks Phase 2 Victory",
+              "mappedOption": "Immunity & Anti-Oxidant Herbal Extracts",
+              "rewardXp": 110,
+              "impliedWTPMultiplier": 1.25
+            }
+          ]
+        },
+        {
+          "stageNumber": 3,
+          "totalStages": 3,
+          "stageId": "stage_3",
+          "title": "Phase 3 of 3: Phase 3: Packaging & Raid Format",
+          "bossAttackPattern": "berserk_combo_slam",
+          "narrativePrompt": "\"Phase 3! My Aegis reforms around \"Which supply tier represents the best daily value for your gaming setup?\"! Claim your Relic Flame [1-4] and strike!\"",
+          "personaFramings": {
+            "dark_fantasy_souls": {
+              "personaLabel": "Audience A: Dark Fantasy / Souls Gamer",
+              "worldTitle": "The Cathedral of Eternal Fatigue",
+              "bossName": "Malphas, the Void-Thirst Architect (Phase 3)",
+              "dialogue": "\"Phase 3! My Aegis reforms around \"Which supply tier represents the best daily value for your gaming setup?\"! Claim your Relic Flame [1-4] and strike!\"",
+              "arenaPalette": {
+                "sky": "#0d060a",
+                "fog": "#240e14",
+                "floor": "#1c1014",
+                "pillar": "#2d211c",
+                "accent": "#f59e0b",
+                "bossColor": "#dc2626",
+                "bossEmissive": "#f59e0b"
+              },
+              "bossStyle": "gothic_colossus"
+            },
+            "cyber_mecha_action": {
+              "personaLabel": "Audience B: Sci-Fi / Cyber-Action Gamer",
+              "worldTitle": "The Neon Synapse Nexus",
+              "bossName": "HYPER-ION Prime: Neural Overload [OVERDRIVE 3]",
+              "dialogue": "\"PHASE 3 TELEMETRY: \"Which supply tier represents the best daily value for your gaming setup?\". Lock in your Neural Node [1-4] and fire!\"",
+              "arenaPalette": {
+                "sky": "#040816",
+                "fog": "#091836",
+                "floor": "#0a142e",
+                "pillar": "#162447",
+                "accent": "#00f5d4",
+                "bossColor": "#1e293b",
+                "bossEmissive": "#f72585"
+              },
+              "bossStyle": "mecha_seraph"
+            }
+          },
+          "stimulus": {
+            "type": "interactive_video_canvas",
+            "title": "Hyperion Energy & Beverages 3D Holo-Billboard Projection",
+            "instruction": "Inspect the 3D Holographic Monoliths in the arena and lock in the visual cut that hits hardest.",
+            "scenes": [
+              {
+                "frame": "00:02",
+                "label": "Cinematic Lore Cut",
+                "accent": "#00f5d4",
+                "badge": "STORY HOOK"
+              },
+              {
+                "frame": "00:05",
+                "label": "3D X-Ray Spec Breakdown",
+                "accent": "#f72585",
+                "badge": "TECH X-RAY"
+              },
+              {
+                "frame": "00:08",
+                "label": "Creator Hype Reel",
+                "accent": "#f59e0b",
+                "badge": "COMMUNITY"
+              }
+            ],
+            "durationSec": 10
+          },
+          "hiddenSurveyQuestion": {
+            "questionId": "q_diablo_3",
+            "originalQuestionText": "Which supply tier represents the best daily value for your gaming setup?",
+            "category": "Phase 3: Packaging & Raid Format",
+            "stealthMechanism": "3D freeablo_diablo interactive selection + reaction telemetry"
+          },
+          "choices": [
+            {
+              "id": "choice_2_0",
+              "relicName": "Crimson Flame Core",
+              "relicIcon": "🔥",
+              "relicColor": "#ef4444",
+              "relicBuff": "+40% Fire Overdrive",
+              "gameActionLabel": "🔥 Crimson Flame Core: \"$2.49 Single Cold Can Drop\"",
+              "flavorSubtext": "+40% Fire Overdrive • Unlocks Phase 3 Victory",
+              "mappedOption": "$2.49 Single Cold Can Drop",
+              "rewardXp": 80,
+              "impliedWTPMultiplier": 0.8
+            },
+            {
+              "id": "choice_2_1",
+              "relicName": "Volt-Lightning Core",
+              "relicIcon": "⚡",
+              "relicColor": "#00f5d4",
+              "relicBuff": "+45% Chain Lightning",
+              "gameActionLabel": "⚡ Volt-Lightning Core: \"$29.99 40-Serving Powder Tub\"",
+              "flavorSubtext": "+45% Chain Lightning • Unlocks Phase 3 Victory",
+              "mappedOption": "$29.99 40-Serving Powder Tub",
+              "rewardXp": 90,
+              "impliedWTPMultiplier": 0.9500000000000001
+            },
+            {
+              "id": "choice_2_2",
+              "relicName": "Solar Gold Core",
+              "relicIcon": "☀️",
+              "relicColor": "#f59e0b",
+              "relicBuff": "+50% Solar Poise Break",
+              "gameActionLabel": "☀️ Solar Gold Core: \"$39.99 Shaker & Trial Flavour Bundle\"",
+              "flavorSubtext": "+50% Solar Poise Break • Unlocks Phase 3 Victory",
+              "mappedOption": "$39.99 Shaker & Trial Flavour Bundle",
+              "rewardXp": 100,
+              "impliedWTPMultiplier": 1.1
+            },
+            {
+              "id": "choice_2_3",
+              "relicName": "Abyssal Void Core",
+              "relicIcon": "🌌",
+              "relicColor": "#a855f7",
+              "relicBuff": "+45% Gravity Cleave",
+              "gameActionLabel": "🌌 Abyssal Void Core: \"$59.99 Guild Vault Season Pass\"",
+              "flavorSubtext": "+45% Gravity Cleave • Unlocks Phase 3 Victory",
+              "mappedOption": "$59.99 Guild Vault Season Pass",
+              "rewardXp": 110,
+              "impliedWTPMultiplier": 1.25
+            }
+          ]
+        }
+      ],
+      "aiTelemetry": {
+        "amdPlatform": "AMD Token Factory (Radeon Cloud API v1)",
+        "amdAccelerator": "AMD Instinct™ / Radeon™ Cloud ROCm Cluster",
+        "amdModel": "self-dploy/Gemma-4-31B-IT",
+        "amdRequestId": "JHNGWITPUMOFgKWlD2Cw0LdwYSTLb52RfZM0haqO",
+        "gemmaModel": "gemma4:latest",
+        "gemmaLiveConnected": true,
+        "amdLiveConnected": true,
+        "liveGeneratedOutput": "Malphas, the Void-Thirst Architect: Drink deep of the Hyperion Essence or succumb to the slumber of the forgotten!",
+        "aiCustomThreeJsCode": "// ============================================================================\n// AI-GENERATED THREE.JS SCENE CODE (Synthesized by Gemma-4-31B-IT on AMD Cloud)\n// Brand: \"Hyperion Energy & Beverages\" | 3D Mode: \"freeablo_diablo\" | Structure: \"floating_obelisks\"\n// ============================================================================\n(function spawnAICustomScene(THREE, customGroup, elapsed) {\n  const primaryMat = new THREE.MeshStandardMaterial({\n    color: \"#f59e0b\",\n    emissive: \"#f59e0b\",\n    emissiveIntensity: 0.75,\n    metalness: 0.85,\n    roughness: 0.2\n  });\n  const secondaryMat = new THREE.MeshBasicMaterial({\n    color: \"#f72585\",\n    wireframe: true,\n    transparent: true,\n    opacity: 0.55\n  });\n\n  // Spawn 8 AI-designed 3D \"floating_obelisks\" monuments around the world\n  for (let i = 0; i < 8; i++) {\n    const angle = (i / 8) * Math.PI * 2;\n    const radius = 15.5;\n    const holder = new THREE.Group();\n    holder.position.set(Math.cos(angle) * radius, 3.8 + (i % 2) * 1.4, Math.sin(angle) * radius);\n\n    const coreGeo = \"floating_obelisks\" === \"neon_arches\"\n      ? new THREE.TorusGeometry(1.3, 0.12, 8, 24)\n      : \"floating_obelisks\" === \"orbital_rings\"\n        ? new THREE.IcosahedronGeometry(1.1, 0)\n        : new THREE.OctahedronGeometry(1.15, 0);\n\n    const mesh = new THREE.Mesh(coreGeo, primaryMat);\n    const cage = new THREE.Mesh(new THREE.OctahedronGeometry(1.55, 0), secondaryMat);\n    holder.add(mesh);\n    holder.add(cage);\n    holder.userData = { rotSpeed: 1.2 + (i % 3) * 0.4, floatOffset: i };\n    customGroup.add(holder);\n  }\n})",
+        "activeInferenceSource": "AMD Token Factory (self-dploy/Gemma-4-31B-IT on AMD Radeon Cloud)",
+        "compilationLatencyMs": 10610,
+        "promptTokens": 451,
+        "completionTokens": 341,
+        "totalTokens": 792,
+        "estimatedCostUsd": 0.00004,
         "qualityGuardrails": {
           "schemaValid": true,
           "optionBijectionVerified": true,
@@ -1112,128 +2026,38 @@
   ],
   "sessions": [
     {
-      "id": "sess_1792172418318",
-      "campaignId": "camp_aether_souls",
+      "id": "sess_1792182884793",
+      "campaignId": "camp_1792182878712",
       "playerId": "usr_alex",
       "playerName": "Alex \"AshenBlade\" Chen",
       "personaType": "dark_fantasy_souls",
-      "completedAt": "2026-10-16T17:40:18.318Z",
-      "impliedWTP": 147,
-      "score": 979,
-      "answers": [
-        {
-          "questionId": "q_ae_1",
-          "questionIndex": 0,
-          "mappedOption": "AI Adaptive Neural Noise Cancellation",
-          "reactionTimeMs": 13196,
-          "convictionScore": 25,
-          "cognitiveState": "High Hesitation / Friction Detected"
-        },
-        {
-          "questionId": "q_ae_2",
-          "questionIndex": 1,
-          "mappedOption": "Warm Acoustic Harmonic (432Hz Choir)",
-          "reactionTimeMs": 4388,
-          "convictionScore": 67.4,
-          "cognitiveState": "Deliberate Trade-Off Evaluation (System 2)"
-        },
-        {
-          "questionId": "q_ae_3",
-          "questionIndex": 2,
-          "mappedOption": "$119 Core Edition",
-          "reactionTimeMs": 8311,
-          "convictionScore": 33.3,
-          "cognitiveState": "High Hesitation / Friction Detected"
-        }
-      ]
-    },
-    {
-      "id": "sess_1",
-      "campaignId": "camp_aether_souls",
-      "playerId": "usr_alex",
-      "playerName": "Alex \"AshenBlade\" Chen",
-      "personaType": "dark_fantasy_souls",
-      "completedAt": "2026-10-16T09:10:00Z",
-      "impliedWTP": 149,
-      "score": 960,
-      "answers": [
-        {
-          "questionId": "q_ae_1",
-          "questionIndex": 0,
-          "mappedOption": "AI Adaptive Neural Noise Cancellation",
-          "reactionTimeMs": 1420
-        },
-        {
-          "questionId": "q_ae_2",
-          "questionIndex": 1,
-          "mappedOption": "Cybernetic Bass Synth (528Hz Overdrive)",
-          "reactionTimeMs": 1680
-        },
-        {
-          "questionId": "q_ae_3",
-          "questionIndex": 2,
-          "mappedOption": "$149 Pro Sweet-Spot Edition",
-          "reactionTimeMs": 1890
-        }
-      ]
-    },
-    {
-      "id": "sess_2",
-      "campaignId": "camp_aether_souls",
-      "playerId": "usr_maya",
-      "playerName": "Maya \"Valkyrie-09\" Lin",
-      "personaType": "cyber_mecha_action",
-      "completedAt": "2026-10-16T10:15:00Z",
-      "impliedWTP": 179,
-      "score": 940,
-      "answers": [
-        {
-          "questionId": "q_ae_1",
-          "questionIndex": 0,
-          "mappedOption": "Sub-5ms Lossless Wireless Latency",
-          "reactionTimeMs": 1350
-        },
-        {
-          "questionId": "q_ae_2",
-          "questionIndex": 1,
-          "mappedOption": "Warm Acoustic Harmonic (432Hz Choir)",
-          "reactionTimeMs": 1920
-        },
-        {
-          "questionId": "q_ae_3",
-          "questionIndex": 2,
-          "mappedOption": "$179 Streamer Dock Bundle",
-          "reactionTimeMs": 1740
-        }
-      ]
-    },
-    {
-      "id": "sess_3",
-      "campaignId": "camp_aether_souls",
-      "playerId": "usr_alex",
-      "playerName": "Kai \"TwinBlade\" Vance",
-      "personaType": "dark_fantasy_souls",
-      "completedAt": "2026-10-16T11:00:00Z",
-      "impliedWTP": 149,
+      "completedAt": "2026-10-16T20:34:44.793Z",
+      "impliedWTP": 39,
       "score": 910,
       "answers": [
         {
-          "questionId": "q_ae_1",
+          "questionId": "q_custom_1",
           "questionIndex": 0,
-          "mappedOption": "AI Adaptive Neural Noise Cancellation",
-          "reactionTimeMs": 1290
+          "mappedOption": "Hall-Effect Zero-Drift Sticks",
+          "reactionTimeMs": 4495,
+          "convictionScore": 66.2,
+          "cognitiveState": "Deliberate Trade-Off Evaluation (System 2)"
         },
         {
-          "questionId": "q_ae_2",
+          "questionId": "q_custom_2",
           "questionIndex": 1,
-          "mappedOption": "Cybernetic Bass Synth (528Hz Overdrive)",
-          "reactionTimeMs": 1340
+          "mappedOption": "Deep Sub-Bass Orchestral Boom",
+          "reactionTimeMs": 1017,
+          "convictionScore": 100,
+          "cognitiveState": "High Conviction (System 1 Instinctive)"
         },
         {
-          "questionId": "q_ae_3",
+          "questionId": "q_custom_3",
           "questionIndex": 2,
-          "mappedOption": "$149 Pro Sweet-Spot Edition",
-          "reactionTimeMs": 1620
+          "mappedOption": "$59 Core Wired Edition",
+          "reactionTimeMs": 549,
+          "convictionScore": 100,
+          "cognitiveState": "High Conviction (System 1 Instinctive)"
         }
       ]
     }

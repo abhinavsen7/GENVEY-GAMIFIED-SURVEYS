@@ -1,0 +1,41 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/CompiledGameRuntime.gd" id="1_runtime"]
+
+[sub_resource type="Environment" id="Environment_aces"]
+background_mode = 1
+background_color = Color(0.04, 0.05, 0.08, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.18, 0.16, 0.26, 1)
+ambient_light_energy = 0.72
+tonemap_mode = 3
+glow_enabled = true
+glow_intensity = 0.85
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.02
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_main"]
+vertices = PackedVector3Array(-32, 0, -120, 32, 0, -120, 32, 0, 32, -32, 0, 32)
+polygons = [PackedInt32Array(0, 1, 2, 3)]
+agent_height = 1.8
+agent_radius = 0.45
+
+[node name="CompiledGameRoot" type="Node3D"]
+script = ExtResource("1_runtime")
+metadata/build_id = "27fcaa08-bbd4-48b1-a611-c1f6cc432f05"
+metadata/campaign_title = "Ashen Covenant of Aetherium Systems"
+metadata/player_asset = "res://assets/custom_asset_packs/characters/Knight.glb"
+metadata/floor_asset = "res://assets/custom_asset_packs/environments/ModularCastle_AssetPack/Floors&Ramps/Floors/Floor_2x2.glb"
+metadata/fog_hex = "#0b0e17"
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_aces")
+
+[node name="DirectionalRimLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.819152, -0.42625, 0.383798, 0, 0.669131, 0.743145, -0.573576, -0.608749, 0.54812, 0, 8, 0)
+light_color = Color(0.62, 0.68, 0.98, 1)
+light_energy = 1.25
+shadow_enabled = true
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("NavigationMesh_main")

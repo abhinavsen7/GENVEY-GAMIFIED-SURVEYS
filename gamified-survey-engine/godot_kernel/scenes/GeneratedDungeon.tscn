@@ -1,0 +1,70 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/kaykit/dungeon/floor_tile_large.gltf.glb" id="1_oe28r"]
+[ext_resource type="PackedScene" path="res://assets/kaykit/adventurers/Knight.glb" id="2_3cks7"]
+[ext_resource type="PackedScene" path="res://assets/kaykit/skeletons/Skeleton_Warrior.glb" id="3_dnija"]
+
+[sub_resource type="Environment" id="Environment_se8vs"]
+background_mode = 1
+background_color = Color(0.03137255, 0.02745098, 0.047058824, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.11764706, 0.105882354, 0.18039216, 1)
+ambient_light_energy = 0.6
+tonemap_mode = 3
+glow_enabled = true
+glow_intensity = 0.8
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.025
+volumetric_fog_albedo = Color(0.08627451, 0.07058824, 0.14117648, 1)
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_och0j"]
+vertices = PackedVector3Array(-24, 0, -24, 24, 0, -24, 24, 0, 24, -24, 0, 24)
+polygons = [PackedInt32Array(0, 1, 2, 3)]
+agent_height = 1.8
+agent_radius = 0.45
+
+[node name="CompiledDungeonScene" type="Node3D" unique_id=1760946735]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1163723863]
+environment = SubResource("Environment_se8vs")
+
+[node name="MoonRimLight" type="DirectionalLight3D" parent="." unique_id=16502815]
+transform = Transform3D(0.81915206, -0.4262504, 0.38379753, 0, 0.66913056, 0.74314487, -0.57357645, -0.6087487, 0.54811966, 0, 0, 0)
+light_color = Color(0.5058824, 0.54901963, 0.972549, 1)
+light_energy = 1.15
+shadow_enabled = true
+
+[node name="DungeonNavigationRegion" type="NavigationRegion3D" parent="." unique_id=1408728873]
+navigation_mesh = SubResource("NavigationMesh_och0j")
+
+[node name="FloorTile_-1_-1" type="Node3D" parent="DungeonNavigationRegion" unique_id=1339719885 instance=ExtResource("1_oe28r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -4)
+
+[node name="FloorTile_-1_0" type="Node3D" parent="DungeonNavigationRegion" unique_id=1673622915 instance=ExtResource("1_oe28r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 0)
+
+[node name="FloorTile_-1_1" type="Node3D" parent="DungeonNavigationRegion" unique_id=1763607279 instance=ExtResource("1_oe28r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 4)
+
+[node name="FloorTile_0_-1" type="Node3D" parent="DungeonNavigationRegion" unique_id=188157628 instance=ExtResource("1_oe28r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -4)
+
+[node name="FloorTile_0_0" type="Node3D" parent="DungeonNavigationRegion" unique_id=436589401 instance=ExtResource("1_oe28r")]
+
+[node name="FloorTile_0_1" type="Node3D" parent="DungeonNavigationRegion" unique_id=1551927140 instance=ExtResource("1_oe28r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+
+[node name="FloorTile_1_-1" type="Node3D" parent="DungeonNavigationRegion" unique_id=782178947 instance=ExtResource("1_oe28r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -4)
+
+[node name="FloorTile_1_0" type="Node3D" parent="DungeonNavigationRegion" unique_id=1791682837 instance=ExtResource("1_oe28r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 0)
+
+[node name="FloorTile_1_1" type="Node3D" parent="DungeonNavigationRegion" unique_id=1124660430 instance=ExtResource("1_oe28r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 4)
+
+[node name="HeroKnight" type="Node3D" parent="." unique_id=828057973 instance=ExtResource("2_3cks7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.5)
+
+[node name="SkeletonBoss" type="Node3D" parent="." unique_id=620532729 instance=ExtResource("3_dnija")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.5)

@@ -1,73 +1,75 @@
 /**
- * GENVEY 3D SOULS-LIKE & ACTION BOSS ENGINE (Three.js WebGL)
- * ----------------------------------------------------------
- * Features:
- *  - Third-Person 3D Articulated Character Controller (WASD Move, SPACE Dodge Roll with i-frames,
- *    Left-Click / J 3-Hit Greatsword Slash Combo with 3D glowing weapon trails)
- *  - Colossal Procedural 3D Multi-Part Boss (Animated Wings, Rotating Halo Rings, Aegis Shield,
- *    Expanding 3D Shockwave Rings & Sweeping Beams that players dodge roll through)
- *  - 4 Physical 3D Elemental Relic Altars in the arena (North, East, South, West) with 3D-projected
- *    floating labels. Players run to a Relic Altar (or click 1-4 / E) to imbue their 3D Greatsword
- *    with their preferred product feature/option, shattering the Boss's shield, then slash the Boss
- *    to defeat each Phase!
- *  - Real-time Track 4 Audience World Switcher:
- *      * Audience A: Elden / Dark Souls Gothic Cathedral (Crimson/Gold/Obsidian)
- *      * Audience B: Armored Core / Cyber-Mecha Reactor (Cyan/Magenta/Neon Grid)
+ * GENVEY UNIFIED 3D ACTION GAME ENGINES (Three.js WebGL)
+ * ------------------------------------------------------
+ * Supports 5 DISTINCT 3D GAMEPLAY WORLDS:
+ *  1. `reone_kotor`     -> Star Wars: Knights of the Old Republic Style (reone Odyssey Engine)
+ *                          Over-the-shoulder 3rd person, Glowing Plasma Lightsaber, Force Push (Q),
+ *                          Force Lightning (E), Star Map & Force Alignment Consoles.
+ *  2. `freeablo_diablo` -> Diablo 1 & 2 Dark Gothic ARPG (Freeablo Engine)
+ *                          Isometric 50° camera, Tristram Catacombs, Health & Mana Orbs,
+ *                          Melee Cleave, Cast Fireball (Right-Click / E), 4 Cursed Shrines.
+ *  3. `elden_souls`     -> 3D Souls-Like Boss Colosseum (Dark Souls / Elden Ring)
+ *                          Knight character, Dodge Roll i-frames (SPACE), 3-hit Greatsword combo,
+ *                          Boss Shockwaves, 4 Elemental Relic Altars.
+ *  4. `cyber_racer`     -> 3D Outrun Cyberpunk Highway (Hover Interceptor, 4-Lane Warp Gates, Nitro)
+ *  5. `mecha_shooter`   -> 3D Armored Core Space Dogfight (Flying Mecha, Twin Plasma Cannons, Beacons)
  */
 
 (function () {
-  class Souls3DArenaEngine {
+  class Genvey3DGameDirector {
     constructor(canvas, hudContainer, callbacks) {
       this.canvas = canvas;
       this.hudContainer = hudContainer;
       this.callbacks = callbacks || {};
       this.running = true;
+      this.currentGenre = 'reone_kotor';
+      this.audienceMode = 'dark_fantasy_souls';
       this.stage = null;
-      this.audienceMode = 'dark_fantasy_souls'; // or 'cyber_mecha_action'
-      this.bossConfig = { bossScale: 1.25, wingCount: 4, haloRings: 2, shockwaveSpeed: 12 };
+      this.bossConfig = {};
+      this.clock = new THREE.Clock();
+      this.keys = {};
 
-      // Player state
+      // Player general state
       this.player = {
         x: 0,
         y: 0,
-        z: 13,
-        vx: 0,
-        vz: 0,
+        z: 12,
         rotY: Math.PI,
+        lane: 1,
+        targetLaneX: 0,
         hp: 100,
-        maxHp: 100,
+        mana: 100,
         stamina: 100,
-        maxStamina: 100,
-        dodgeTimer: 0,
-        dodgeCooldown: 0,
         isInvincible: false,
+        dodgeTimer: 0,
         attackTimer: 0,
-        comboStep: 0,
         imbuedChoiceIndex: -1,
-        imbuedColor: 0xffffff,
+        imbuedColor: 0x00f5d4,
         nearRelicIndex: -1,
         perfectDodges: 0
       };
 
-      // Boss state
       this.boss = {
         x: 0,
         y: 0,
-        z: -4,
+        z: -6,
         hp: 100,
-        maxHp: 100,
-        poise: 100,
         shieldActive: true,
-        hitFlash: 0,
-        attackCooldown: 2.2,
-        shockwaves: [],
-        staggeredTimer: 0
+        attackCooldown: 2.5,
+        shockwaves: []
       };
 
-      this.keys = {};
       this.particles = [];
+      this.projectiles = [];
       this.floatingLabels = [];
-      this.clock = new THREE.Clock();
+
+      // GLTF 3D Character & Animation System
+      this.gltfLoader = (window.THREE && window.THREE.GLTFLoader) ? new window.THREE.GLTFLoader() : null;
+      this.modelCache = new Map();
+      this.playerActor = null;
+      this.bossActor = null;
+      this.saberBladeMat = null;
+      this.saberLight = null;
 
       this.initThree();
       this.bindInput();
@@ -75,16 +77,155 @@
       requestAnimationFrame(this.animate);
     }
 
+    loadGltf(url) {
+      if (this.modelCache.has(url)) {
+        return Promise.resolve(this.modelCache.get(url));
+      }
+      if (!this.gltfLoader && window.THREE && window.THREE.GLTFLoader) {
+        this.gltfLoader = new window.THREE.GLTFLoader();
+      }
+      if (!this.gltfLoader) {
+        return Promise.reject(new Error('GLTFLoader not available'));
+      }
+      return new Promise((resolve, reject) => {
+        this.gltfLoader.load(
+          url,
+          (gltf) => {
+            this.modelCache.set(url, gltf);
+            resolve(gltf);
+          },
+          undefined,
+          reject
+        );
+      });
+    }
+
+    createAnimatedActor(gltf, options = {}) {
+      let root;
+      if (window.THREE && window.THREE.SkeletonUtils) {
+        root = window.THREE.SkeletonUtils.clone(gltf.scene);
+      } else {
+        root = gltf.scene.clone();
+      }
+
+      const scale = options.scale || 1.6;
+      root.scale.set(scale, scale, scale);
+
+      let handRightBone = null;
+      let handLeftBone = null;
+
+      root.traverse((child) => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+          if (child.material) {
+            child.material.roughness = options.roughness !== undefined ? options.roughness : 0.65;
+            child.material.metalness = options.metalness !== undefined ? options.metalness : 0.25;
+          }
+        }
+        const lower = (child.name || '').toLowerCase();
+        if (!handRightBone && (lower.includes('handslot.r') || lower.includes('hand.r') || lower.includes('righthand') || lower.includes('hand_r'))) {
+          handRightBone = child;
+        }
+        if (!handLeftBone && (lower.includes('handslot.l') || lower.includes('hand.l') || lower.includes('lefthand') || lower.includes('hand_l'))) {
+          handLeftBone = child;
+        }
+      });
+
+      const mixer = new THREE.AnimationMixer(root);
+      const actions = {};
+
+      (gltf.animations || []).forEach((clip) => {
+        actions[clip.name] = mixer.clipAction(clip);
+      });
+
+      const defaultAnim = actions['Idle'] ? 'Idle' : (actions['2H_Melee_Idle'] ? '2H_Melee_Idle' : Object.keys(actions)[0]);
+      if (defaultAnim && actions[defaultAnim]) {
+        actions[defaultAnim].play();
+      }
+
+      return {
+        root,
+        mixer,
+        actions,
+        handRightBone,
+        handLeftBone,
+        currentAnim: defaultAnim || 'Idle',
+        animTimeout: null
+      };
+    }
+
+    playAnimation(actor, animName, loop = true, duration = 0.2) {
+      if (!actor || !actor.actions || !actor.actions[animName]) return;
+      if (actor.currentAnim === animName && loop) return;
+
+      const current = actor.actions[actor.currentAnim];
+      const next = actor.actions[animName];
+
+      if (actor.animTimeout) {
+        clearTimeout(actor.animTimeout);
+        actor.animTimeout = null;
+      }
+
+      next.reset();
+      if (!loop) {
+        next.setLoop(THREE.LoopOnce);
+        next.clampWhenFinished = true;
+      } else {
+        next.setLoop(THREE.LoopRepeat);
+      }
+
+      if (current && current !== next) {
+        current.crossFadeTo(next, duration, true);
+      }
+      next.play();
+      actor.currentAnim = animName;
+
+      if (!loop) {
+        const clip = next.getClip();
+        actor.animTimeout = setTimeout(() => {
+          if (actor.currentAnim === animName) {
+            const idleName = actor.actions['Idle'] ? 'Idle' : (actor.actions['2H_Melee_Idle'] ? '2H_Melee_Idle' : 'Idle');
+            this.playAnimation(actor, idleName, true, 0.25);
+          }
+        }, Math.max(100, (clip.duration * 1000) - 60));
+      }
+    }
+
+    playSound(path, volume = 0.5) {
+      try {
+        const audio = new Audio(path);
+        audio.volume = volume;
+        audio.play().catch(() => {});
+      } catch (e) {}
+    }
+
+    playBgMusic(path, volume = 0.35) {
+      try {
+        if (this.currentBgMusic) {
+          this.currentBgMusic.pause();
+          this.currentBgMusic = null;
+        }
+        if (path) {
+          const audio = new Audio(path);
+          audio.volume = volume;
+          audio.loop = true;
+          audio.play().catch(() => {});
+          this.currentBgMusic = audio;
+        }
+      } catch (e) {}
+    }
+
     initThree() {
       const w = this.canvas.clientWidth || 900;
       const h = this.canvas.clientHeight || 540;
 
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0x0b0808);
-      this.scene.fog = new THREE.FogExp2(0x180f0d, 0.022);
+      this.scene.background = new THREE.Color(0x080a14);
+      this.scene.fog = new THREE.FogExp2(0x101428, 0.02);
 
-      this.camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 200);
-      this.camera.position.set(0, 7.5, 21);
+      this.camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 300);
+      this.camera.position.set(0, 7.5, 20);
 
       this.renderer = new THREE.WebGLRenderer({
         canvas: this.canvas,
@@ -94,357 +235,33 @@
       this.renderer.setSize(w, h, false);
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
-      // Lights
-      this.ambientLight = new THREE.AmbientLight(0xffffff, 0.55);
+      // Global Lights
+      this.ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
       this.scene.add(this.ambientLight);
 
-      this.dirLight = new THREE.DirectionalLight(0xffdcb5, 1.3);
-      this.dirLight.position.set(12, 25, 15);
+      this.dirLight = new THREE.DirectionalLight(0xffecd2, 1.3);
+      this.dirLight.position.set(15, 30, 20);
       this.scene.add(this.dirLight);
 
-      this.bossLight = new THREE.PointLight(0xf97316, 2.8, 32);
-      this.bossLight.position.set(0, 5, -4);
-      this.scene.add(this.bossLight);
+      this.pointLight = new THREE.PointLight(0x00f5d4, 2.5, 35);
+      this.pointLight.position.set(0, 5, 0);
+      this.scene.add(this.pointLight);
 
-      this.swordLight = new THREE.PointLight(0xffffff, 0, 10);
-      this.scene.add(this.swordLight);
+      // Groups for genre-specific actors
+      this.worldGroup = new THREE.Group();
+      this.scene.add(this.worldGroup);
 
-      this.buildArenaGeometry();
-      this.buildPlayerMesh();
-      this.buildBossMesh();
-      this.buildRelicAltars();
-    }
-
-    buildArenaGeometry() {
-      this.arenaGroup = new THREE.Group();
-      this.scene.add(this.arenaGroup);
-
-      // Arena circular floor
-      const floorGeo = new THREE.CylinderGeometry(24, 25, 1, 48);
-      this.floorMat = new THREE.MeshStandardMaterial({
-        color: 0x181210,
-        roughness: 0.75,
-        metalness: 0.25
-      });
-      const floor = new THREE.Mesh(floorGeo, this.floorMat);
-      floor.position.y = -0.5;
-      this.arenaGroup.add(floor);
-
-      // Runic / Cyber Concentric Rings on Floor
-      const ringGeo1 = new THREE.RingGeometry(11.5, 12.0, 64);
-      this.ringMat1 = new THREE.MeshBasicMaterial({
-        color: 0xf59e0b,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.45
-      });
-      const ring1 = new THREE.Mesh(ringGeo1, this.ringMat1);
-      ring1.rotation.x = -Math.PI / 2;
-      ring1.position.y = 0.03;
-      this.arenaGroup.add(ring1);
-
-      const ringGeo2 = new THREE.RingGeometry(18.5, 18.9, 64);
-      const ring2 = new THREE.Mesh(ringGeo2, this.ringMat1);
-      ring2.rotation.x = -Math.PI / 2;
-      ring2.position.y = 0.03;
-      this.arenaGroup.add(ring2);
-
-      // 12 Cathedral Pillars / Reactor Pylons around perimeter
-      this.pillars = [];
-      this.pillarMat = new THREE.MeshStandardMaterial({
-        color: 0x29201c,
-        roughness: 0.6,
-        metalness: 0.4
-      });
-      this.brazierMat = new THREE.MeshBasicMaterial({ color: 0xf97316 });
-
-      for (let i = 0; i < 12; i++) {
-        const angle = (i / 12) * Math.PI * 2;
-        const radius = 21.5;
-        const pGroup = new THREE.Group();
-        pGroup.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-
-        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.1, 11, 8), this.pillarMat);
-        col.position.y = 5.5;
-        pGroup.add(col);
-
-        const brazier = new THREE.Mesh(new THREE.OctahedronGeometry(0.65, 0), this.brazierMat);
-        brazier.position.y = 11.6;
-        pGroup.add(brazier);
-
-        this.arenaGroup.add(pGroup);
-        this.pillars.push({ group: pGroup, brazier });
-      }
-
-      // Floating Ember / Cyber Particles
-      const partCount = 160;
-      const partGeo = new THREE.BufferGeometry();
-      const positions = new Float32Array(partCount * 3);
-      for (let i = 0; i < partCount; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * 42;
-        positions[i * 3 + 1] = Math.random() * 14;
-        positions[i * 3 + 2] = (Math.random() - 0.5) * 42;
-      }
-      partGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-      this.ambientParticlesMat = new THREE.PointsMaterial({
-        color: 0xf59e0b,
-        size: 0.22,
-        transparent: true,
-        opacity: 0.75
-      });
-      this.ambientParticles = new THREE.Points(partGeo, this.ambientParticlesMat);
-      this.scene.add(this.ambientParticles);
-    }
-
-    buildPlayerMesh() {
       this.playerGroup = new THREE.Group();
-      this.playerBody = new THREE.Group();
-      this.playerGroup.add(this.playerBody);
-
-      const armorMat = new THREE.MeshStandardMaterial({
-        color: 0x94a3b8,
-        metalness: 0.75,
-        roughness: 0.3
-      });
-      const darkMat = new THREE.MeshStandardMaterial({
-        color: 0x1e293b,
-        metalness: 0.5,
-        roughness: 0.5
-      });
-      this.capeMat = new THREE.MeshStandardMaterial({
-        color: 0x991b1b,
-        side: THREE.DoubleSide,
-        roughness: 0.8
-      });
-
-      // Torso
-      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.95, 1.25, 0.55), armorMat);
-      torso.position.y = 1.45;
-      this.playerBody.add(torso);
-
-      // Head / Knight Helm
-      const helm = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.75, 6), armorMat);
-      helm.position.y = 2.45;
-      this.playerBody.add(helm);
-
-      const visor = new THREE.Mesh(
-        new THREE.BoxGeometry(0.5, 0.14, 0.45),
-        new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
-      );
-      visor.position.set(0, 2.35, -0.18);
-      this.playerBody.add(visor);
-
-      // Flowing Cape
-      const cape = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 1.55), this.capeMat);
-      cape.position.set(0, 1.3, 0.34);
-      cape.rotation.x = 0.18;
-      this.playerBody.add(cape);
-
-      // Legs
-      this.leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.85, 0.35), darkMat);
-      this.leftLeg.position.set(-0.26, 0.45, 0);
-      this.playerBody.add(this.leftLeg);
-
-      this.rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.85, 0.35), darkMat);
-      this.rightLeg.position.set(0.26, 0.45, 0);
-      this.playerBody.add(this.rightLeg);
-
-      // Shield Arm (Left)
-      const shield = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.45, 0.12, 6), armorMat);
-      shield.rotation.z = Math.PI / 2;
-      shield.position.set(-0.68, 1.45, -0.1);
-      this.playerBody.add(shield);
-
-      // Sword Arm + Oversized Runed Greatsword (Right)
-      this.swordPivot = new THREE.Group();
-      this.swordPivot.position.set(0.65, 1.5, -0.1);
-      this.playerBody.add(this.swordPivot);
-
-      const hilt = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.6, 8), darkMat);
-      hilt.rotation.x = Math.PI / 2;
-      this.swordPivot.add(hilt);
-
-      const crossguard = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.14, 0.18), armorMat);
-      crossguard.position.set(0, 0, -0.3);
-      this.swordPivot.add(crossguard);
-
-      this.swordBladeMat = new THREE.MeshStandardMaterial({
-        color: 0xe2e8f0,
-        emissive: 0x334155,
-        emissiveIntensity: 0.6,
-        metalness: 0.9,
-        roughness: 0.15
-      });
-      this.swordBlade = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 2.7), this.swordBladeMat);
-      this.swordBlade.position.set(0, 0, -1.65);
-      this.swordPivot.add(this.swordBlade);
-
-      // 3D Slash Arc Trail (Visible during sword swing)
-      const slashGeo = new THREE.RingGeometry(1.6, 3.3, 24, 1, 0, Math.PI * 1.15);
-      this.slashTrailMat = new THREE.MeshBasicMaterial({
-        color: 0xf59e0b,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.0
-      });
-      this.slashTrail = new THREE.Mesh(slashGeo, this.slashTrailMat);
-      this.slashTrail.rotation.x = -Math.PI / 2;
-      this.slashTrail.position.set(0, 1.35, -0.6);
-      this.playerGroup.add(this.slashTrail);
-
-      // Dodge Roll I-Frame Aura Sphere
-      this.iframeSphereMat = new THREE.MeshBasicMaterial({
-        color: 0x38bdf8,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.0
-      });
-      this.iframeSphere = new THREE.Mesh(new THREE.SphereGeometry(1.45, 12, 12), this.iframeSphereMat);
-      this.iframeSphere.position.y = 1.3;
-      this.playerGroup.add(this.iframeSphere);
-
-      this.playerGroup.position.set(this.player.x, 0, this.player.z);
       this.scene.add(this.playerGroup);
-    }
 
-    buildBossMesh() {
-      if (this.bossGroup) {
-        this.scene.remove(this.bossGroup);
-      }
       this.bossGroup = new THREE.Group();
-      this.bossGroup.position.set(this.boss.x, 0, this.boss.z);
-
-      const scale = this.bossConfig.bossScale || 1.25;
-      this.bossGroup.scale.set(scale, scale, scale);
-
-      this.bossArmorMat = new THREE.MeshStandardMaterial({
-        color: 0x991b1b,
-        emissive: 0x450a0a,
-        roughness: 0.35,
-        metalness: 0.75
-      });
-      this.bossCoreMat = new THREE.MeshBasicMaterial({
-        color: 0xf97316
-      });
-
-      // Boss Armored Core Torso
-      const torso = new THREE.Mesh(new THREE.OctahedronGeometry(1.65, 1), this.bossArmorMat);
-      torso.position.y = 3.2;
-      torso.scale.set(1.1, 1.45, 0.85);
-      this.bossGroup.add(torso);
-
-      // Glowing Boss Reactor Heart
-      this.bossHeart = new THREE.Mesh(new THREE.OctahedronGeometry(0.75, 0), this.bossCoreMat);
-      this.bossHeart.position.set(0, 3.3, 0.75);
-      this.bossGroup.add(this.bossHeart);
-
-      // Boss Crown / Horned Head
-      const head = new THREE.Mesh(new THREE.ConeGeometry(0.85, 1.8, 5), this.bossArmorMat);
-      head.position.y = 5.4;
-      this.bossGroup.add(head);
-
-      // Rotating Sacred / Cyber Halo Rings behind Boss
-      this.bossHalos = [];
-      const haloCount = this.bossConfig.haloRings || 2;
-      for (let i = 0; i < haloCount; i++) {
-        const hGeo = new THREE.TorusGeometry(2.6 + i * 0.75, 0.09, 8, 36);
-        const hMesh = new THREE.Mesh(hGeo, this.bossCoreMat);
-        hMesh.position.set(0, 3.8, -0.7);
-        this.bossGroup.add(hMesh);
-        this.bossHalos.push(hMesh);
-      }
-
-      // Articulated Floating Boss Wing-Blades
-      this.bossWings = [];
-      const wingPairs = Math.max(2, Math.min(6, this.bossConfig.wingCount || 4));
-      for (let i = 0; i < wingPairs; i++) {
-        const side = i % 2 === 0 ? 1 : -1;
-        const row = Math.floor(i / 2);
-        const wing = new THREE.Mesh(new THREE.BoxGeometry(0.25, 2.8, 0.65), this.bossArmorMat);
-        wing.position.set(side * (2.2 + row * 0.9), 3.6 + row * 0.6, -0.4);
-        wing.rotation.z = side * (0.45 + row * 0.2);
-        this.bossGroup.add(wing);
-        this.bossWings.push({ mesh: wing, side, baseRotZ: wing.rotation.z, offset: i });
-      }
-
-      // Boss Giant Halberd / Greatsword Arm
-      this.bossWeapon = new THREE.Group();
-      this.bossWeapon.position.set(2.1, 3.2, 0.5);
-      const bBlade = new THREE.Mesh(new THREE.BoxGeometry(0.35, 4.6, 0.55), this.bossCoreMat);
-      bBlade.position.y = 1.2;
-      this.bossWeapon.add(bBlade);
-      this.bossGroup.add(this.bossWeapon);
-
-      // Boss Impervious Aegis Shield Sphere (Must imbue Relic at Altar to shatter!)
-      const shieldGeo = new THREE.SphereGeometry(3.4, 20, 20);
-      this.bossShieldMat = new THREE.MeshBasicMaterial({
-        color: 0xf59e0b,
-        wireframe: true,
-        transparent: true,
-        opacity: 0.35
-      });
-      this.bossShieldMesh = new THREE.Mesh(shieldGeo, this.bossShieldMat);
-      this.bossShieldMesh.position.y = 3.2;
-      this.bossGroup.add(this.bossShieldMesh);
-
       this.scene.add(this.bossGroup);
-    }
 
-    buildRelicAltars() {
-      if (this.relicGroup) {
-        this.scene.remove(this.relicGroup);
-      }
       this.relicGroup = new THREE.Group();
       this.scene.add(this.relicGroup);
-      this.relicMeshes = [];
 
-      // 4 Relic Altars placed in a semicircle around the arena so player can easily see & run to them
-      const positions = [
-        { x: -11.5, z: 6.5 },
-        { x: -4.8, z: 9.5 },
-        { x: 4.8, z: 9.5 },
-        { x: 11.5, z: 6.5 }
-      ];
-      const colors = [0xef4444, 0x00f5d4, 0xf59e0b, 0xa855f7];
-
-      for (let i = 0; i < 4; i++) {
-        const pos = positions[i];
-        const col = colors[i];
-        const altar = new THREE.Group();
-        altar.position.set(pos.x, 0, pos.z);
-
-        // Stone Pedestal
-        const base = new THREE.Mesh(
-          new THREE.CylinderGeometry(1.1, 1.35, 1.1, 8),
-          new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.5, metalness: 0.5 })
-        );
-        base.position.y = 0.55;
-        altar.add(base);
-
-        // Floating Elemental Relic Crystal
-        const crystalMat = new THREE.MeshStandardMaterial({
-          color: col,
-          emissive: col,
-          emissiveIntensity: 0.85,
-          roughness: 0.1,
-          metalness: 0.9
-        });
-        const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(0.75, 0), crystalMat);
-        crystal.position.y = 2.1;
-        altar.add(crystal);
-
-        // Ground Aura Ring
-        const ring = new THREE.Mesh(
-          new THREE.RingGeometry(1.5, 1.85, 32),
-          new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide, transparent: true, opacity: 0.7 })
-        );
-        ring.rotation.x = -Math.PI / 2;
-        ring.position.y = 0.06;
-        altar.add(ring);
-
-        this.relicGroup.add(altar);
-        this.relicMeshes.push({ group: altar, crystal, ring, x: pos.x, z: pos.z, color: col, index: i });
-      }
+      this.customAiGroup = new THREE.Group();
+      this.scene.add(this.customAiGroup);
     }
 
     bindInput() {
@@ -459,18 +276,21 @@
           this.triggerDodgeRoll();
         } else if (code === 'KeyJ' || code === 'KeyF') {
           if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
-          this.triggerSwordSlash();
+          this.triggerPrimaryAttack();
+        } else if (code === 'KeyQ') {
+          if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+          this.triggerSpecialQ();
         } else if (code === 'KeyE') {
           if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
-          if (this.player.nearRelicIndex >= 0) {
-            this.imbueRelic(this.player.nearRelicIndex);
-          } else {
-            this.triggerSwordSlash();
-          }
+          this.triggerSpecialE();
         } else if (['Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(code)) {
           if (document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
           const idx = parseInt(code.replace('Digit', ''), 10) - 1;
           this.imbueRelic(idx);
+        } else if (code === 'KeyA' || code === 'ArrowLeft') {
+          if (this.currentGenre === 'cyber_racer') this.shiftRacerLane(-1);
+        } else if (code === 'KeyD' || code === 'ArrowRight') {
+          if (this.currentGenre === 'cyber_racer') this.shiftRacerLane(1);
         }
       };
 
@@ -478,71 +298,800 @@
         this.keys[e.code] = false;
       };
 
-      this._onCanvasClick = () => {
+      this._onCanvasClick = (e) => {
         if (!this.running) return;
-        if (this.player.nearRelicIndex >= 0 && this.player.imbuedChoiceIndex !== this.player.nearRelicIndex) {
-          this.imbueRelic(this.player.nearRelicIndex);
+        if (e.button === 2) {
+          // Right click
+          this.triggerSpecialE();
         } else {
-          this.triggerSwordSlash();
+          if (this.player.nearRelicIndex >= 0 && this.player.imbuedChoiceIndex !== this.player.nearRelicIndex) {
+            this.imbueRelic(this.player.nearRelicIndex);
+          } else {
+            this.triggerPrimaryAttack();
+          }
         }
+      };
+
+      this._onContextMenu = (e) => {
+        e.preventDefault();
+        this.triggerSpecialE();
       };
 
       window.addEventListener('keydown', this._onKeyDown);
       window.addEventListener('keyup', this._onKeyUp);
       this.canvas.addEventListener('mousedown', this._onCanvasClick);
+      this.canvas.addEventListener('contextmenu', this._onContextMenu);
     }
 
-    setAudienceWorld(audienceKey) {
-      this.audienceMode = audienceKey || 'dark_fantasy_souls';
-      if (!this.stage) return;
+    shiftRacerLane(delta) {
+      this.player.lane = Math.max(0, Math.min(3, this.player.lane + delta));
+      const laneXCoords = [-9.0, -3.0, 3.0, 9.0];
+      this.player.targetLaneX = laneXCoords[this.player.lane];
+      this.imbueRelic(this.player.lane);
+    }
 
-      const framing =
-        this.stage.personaFramings?.[this.audienceMode] ||
-        this.stage.personaFramings?.dark_fantasy_souls;
+    loadCampaign(campaign, stageIndex = 0, audienceMode = 'dark_fantasy_souls') {
+      if (!campaign) return;
+      this.currentGenre = campaign.genre || 'reone_kotor';
+      this.audienceMode = audienceMode;
+      this.bossConfig = campaign.proceduralBossConfig || {};
+      const stages = campaign.stages || [];
+      this.stage = stages[stageIndex] || stages[0];
 
-      if (framing && framing.arenaPalette) {
-        const pal = framing.arenaPalette;
-        this.scene.background = new THREE.Color(pal.sky);
-        this.scene.fog.color = new THREE.Color(pal.fog);
-        this.floorMat.color = new THREE.Color(pal.floor);
-        this.pillarMat.color = new THREE.Color(pal.pillar);
-        this.ringMat1.color = new THREE.Color(pal.accent);
-        this.brazierMat.color = new THREE.Color(pal.bossEmissive);
-        this.ambientParticlesMat.color = new THREE.Color(pal.accent);
-        this.bossArmorMat.color = new THREE.Color(pal.bossColor);
-        this.bossCoreMat.color = new THREE.Color(pal.bossEmissive);
-        this.bossLight.color = new THREE.Color(pal.bossEmissive);
-        this.capeMat.color = new THREE.Color(
-          this.audienceMode === 'cyber_mecha_action' ? 0x0284c7 : 0x991b1b
+      this.rebuild3DWorldForGenre();
+      this.loadStage(this.stage, this.audienceMode, this.bossConfig);
+    }
+
+    rebuild3DWorldForGenre() {
+      [this.worldGroup, this.playerGroup, this.bossGroup, this.relicGroup, this.customAiGroup].forEach((grp) => {
+        while (grp.children.length > 0) grp.remove(grp.children[0]);
+      });
+      this.particles.forEach((p) => this.scene.remove(p.mesh));
+      this.particles = [];
+      this.projectiles.forEach((p) => this.scene.remove(p.mesh));
+      this.projectiles = [];
+
+      if (this.currentGenre === 'reone_kotor') {
+        this.playBgMusic('/audio/kotor/mus_bat_malak.wav', 0.35);
+        this.buildKotorWorld();
+      } else if (this.currentGenre === 'freeablo_diablo') {
+        this.playBgMusic(null);
+        this.buildDiabloWorld();
+      } else if (this.currentGenre === 'cyber_racer') {
+        this.playBgMusic(null);
+        this.buildCyberRacerWorld();
+      } else if (this.currentGenre === 'mecha_shooter') {
+        this.playBgMusic(null);
+        this.buildMechaShooterWorld();
+      } else {
+        this.playBgMusic(null);
+        this.buildSoulsColosseumWorld();
+      }
+    }
+
+    // =========================================================================
+    // 1. STAR WARS: KNIGHTS OF THE OLD REPUBLIC (reone Odyssey Engine Mode)
+    // =========================================================================
+    buildKotorWorld() {
+      this.scene.background = new THREE.Color(0x060914);
+      this.scene.fog = new THREE.FogExp2(0x0e152d, 0.018);
+      this.camera.position.set(0, 6.2, 17);
+
+      // Star Forge / Sith Academy Corridor Floor
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(42, 42),
+        new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.25, metalness: 0.85 })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      this.worldGroup.add(floor);
+
+      // Glowing Neon Power Conduits on Floor
+      [-8, 0, 8].forEach((cx) => {
+        const conduit = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.5, 42),
+          new THREE.MeshBasicMaterial({ color: 0x00d4ff, transparent: true, opacity: 0.75 })
         );
+        conduit.rotation.x = -Math.PI / 2;
+        conduit.position.set(cx, 0.02, 0);
+        this.worldGroup.add(conduit);
+      });
+
+      // Ancient Sith Pillars & Holocron Pedestals
+      [-14, 14].forEach((px) => {
+        for (let pz = -12; pz <= 12; pz += 12) {
+          const p = new THREE.Mesh(
+            new THREE.BoxGeometry(1.6, 12, 1.6),
+            new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9, roughness: 0.2 })
+          );
+          p.position.set(px, 6, pz);
+          this.worldGroup.add(p);
+
+          const holocron = new THREE.Mesh(
+            new THREE.OctahedronGeometry(0.65, 0),
+            new THREE.MeshBasicMaterial({ color: 0xef4444 })
+          );
+          holocron.position.set(px * 0.85, 3.5, pz);
+          this.worldGroup.add(holocron);
+        }
+      });
+
+      // 3D Jedi Knight Player (Actual Rigged & Animated Character)
+      this.player.x = 0;
+      this.player.z = 10;
+      this.player.rotY = Math.PI;
+
+      this.loadGltf('/models/characters/Knight.glb').then((gltf) => {
+        if (this.currentGenre !== 'reone_kotor') return;
+        this.playerActor = this.createAnimatedActor(gltf, { scale: 1.65 });
+
+        // Glowing 3D Lightsaber attached to handslot.r
+        const saberGroup = new THREE.Group();
+        const hilt = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.045, 0.05, 0.38, 12),
+          new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 })
+        );
+        hilt.rotation.x = Math.PI / 2;
+        saberGroup.add(hilt);
+
+        const core = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.025, 0.025, 2.7, 12),
+          new THREE.MeshBasicMaterial({ color: 0xffffff })
+        );
+        core.position.set(0, 0, -1.4);
+        core.rotation.x = Math.PI / 2;
+        saberGroup.add(core);
+
+        this.saberBladeMat = new THREE.MeshBasicMaterial({
+          color: 0x00f5d4,
+          transparent: true,
+          opacity: 0.85,
+          blending: THREE.AdditiveBlending
+        });
+        const aura = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.08, 0.08, 2.75, 12),
+          this.saberBladeMat
+        );
+        aura.position.set(0, 0, -1.4);
+        aura.rotation.x = Math.PI / 2;
+        saberGroup.add(aura);
+
+        this.saberLight = new THREE.PointLight(0x00f5d4, 2.5, 8);
+        this.saberLight.position.set(0, 0, -1.4);
+        saberGroup.add(this.saberLight);
+
+        if (this.playerActor.handRightBone) {
+          this.playerActor.handRightBone.add(saberGroup);
+        } else {
+          saberGroup.position.set(0.65, 1.4, 0);
+          this.playerActor.root.add(saberGroup);
+        }
+
+        this.playerGroup.add(this.playerActor.root);
+      }).catch((e) => console.warn('Knight.glb load note:', e));
+
+      // 3D Sith Master Boss (Skeleton_Mage.glb with dual crimson Sith lightsaber)
+      this.boss.x = 0;
+      this.boss.z = -5;
+
+      this.loadGltf('/models/characters/Skeleton_Mage.glb').then((gltf) => {
+        if (this.currentGenre !== 'reone_kotor') return;
+        this.bossActor = this.createAnimatedActor(gltf, { scale: 3.0 });
+
+        const sithSaber = new THREE.Group();
+        const sHilt = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.06, 0.06, 0.65, 12),
+          new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.9 })
+        );
+        sithSaber.add(sHilt);
+
+        const sCore = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.03, 0.03, 5.0, 12),
+          new THREE.MeshBasicMaterial({ color: 0xffffff })
+        );
+        sithSaber.add(sCore);
+
+        const sAura = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.09, 0.09, 5.1, 12),
+          new THREE.MeshBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending })
+        );
+        sithSaber.add(sAura);
+
+        if (this.bossActor.handRightBone) {
+          this.bossActor.handRightBone.add(sithSaber);
+        } else {
+          sithSaber.position.set(1.2, 2.5, 0);
+          this.bossActor.root.add(sithSaber);
+        }
+
+        this.bossGroup.position.set(0, 0, -5);
+        this.bossGroup.add(this.bossActor.root);
+      }).catch((e) => console.warn('Skeleton_Mage.glb load note:', e));
+
+      // 4 Star Map & Force Alignment Consoles (Survey choices)
+      this.buildKotorConsoles();
+    }
+
+    buildKotorConsoles() {
+      const positions = [
+        { x: -10.5, z: 4.0 },
+        { x: -3.8, z: 7.5 },
+        { x: 3.8, z: 7.5 },
+        { x: 10.5, z: 4.0 }
+      ];
+      const colors = [0x00d4ff, 0xf59e0b, 0xef4444, 0xa855f7];
+      this.relicMeshes = [];
+
+      for (let i = 0; i < 4; i++) {
+        const p = positions[i];
+        const col = colors[i];
+        const consoleGroup = new THREE.Group();
+        consoleGroup.position.set(p.x, 0, p.z);
+
+        const base = new THREE.Mesh(
+          new THREE.BoxGeometry(1.4, 1.2, 1.0),
+          new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.9 })
+        );
+        base.position.y = 0.6;
+        consoleGroup.add(base);
+
+        const screen = new THREE.Mesh(
+          new THREE.PlaneGeometry(1.2, 0.8),
+          new THREE.MeshBasicMaterial({ color: col, side: THREE.DoubleSide })
+        );
+        screen.position.set(0, 1.5, 0);
+        screen.rotation.x = -0.3;
+        consoleGroup.add(screen);
+
+        const beam = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.04, 0.04, 3.5, 6),
+          new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.6 })
+        );
+        beam.position.y = 3.2;
+        consoleGroup.add(beam);
+
+        this.relicGroup.add(consoleGroup);
+        this.relicMeshes.push({ group: consoleGroup, crystal: screen, x: p.x, z: p.z, color: col, index: i });
+      }
+    }
+
+    // =========================================================================
+    // 2. DIABLO 1 & 2 DARK GOTHIC ARPG (Freeablo Engine Mode)
+    // =========================================================================
+    buildDiabloWorld() {
+      this.scene.background = new THREE.Color(0x060303);
+      this.scene.fog = new THREE.FogExp2(0x140707, 0.022);
+      this.camera.position.set(0, 16.5, 14.5);
+      this.camera.lookAt(0, 0, -2);
+
+      // Dark Tristram Catacombs Flagstones
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(42, 42),
+        new THREE.MeshStandardMaterial({ color: 0x140808, roughness: 0.9 })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      this.worldGroup.add(floor);
+
+      // Demonic Pentagram Blood Circle in Center
+      const circle = new THREE.Mesh(
+        new THREE.RingGeometry(5.0, 5.4, 32),
+        new THREE.MeshBasicMaterial({ color: 0xb91c1c, side: THREE.DoubleSide })
+      );
+      circle.rotation.x = -Math.PI / 2;
+      circle.position.y = 0.03;
+      this.worldGroup.add(circle);
+
+      // Gothic stone perimeter walls with iron sconces & flickering torches
+      [-18, 18].forEach((wx) => {
+        for (let wz = -16; wz <= 16; wz += 8) {
+          const wall = new THREE.Mesh(
+            new THREE.BoxGeometry(2.0, 8.0, 7.8),
+            new THREE.MeshStandardMaterial({ color: 0x26201e, roughness: 0.95 })
+          );
+          wall.position.set(wx, 4.0, wz);
+          this.worldGroup.add(wall);
+
+          const torch = new THREE.PointLight(0xf59e0b, 1.8, 14);
+          torch.position.set(wx * 0.9, 4.5, wz);
+          this.worldGroup.add(torch);
+        }
+      });
+
+      // 3D Diablo Barbarian Hero (Barbarian.glb with 2H Battle Axe)
+      this.player.x = 0;
+      this.player.z = 8;
+      this.player.rotY = Math.PI;
+
+      this.loadGltf('/models/characters/Barbarian.glb').then((gltf) => {
+        if (this.currentGenre !== 'freeablo_diablo') return;
+        this.playerActor = this.createAnimatedActor(gltf, { scale: 1.65 });
+
+        // Load and attach 2-handed battleaxe
+        this.loadGltf('/models/weapons/axe_2handed.gltf').then((wGltf) => {
+          const axe = wGltf.scene.clone();
+          axe.scale.set(1.4, 1.4, 1.4);
+          if (this.playerActor && this.playerActor.handRightBone) {
+            this.playerActor.handRightBone.add(axe);
+          }
+        }).catch(() => {});
+
+        this.playerGroup.add(this.playerActor.root);
+      }).catch((e) => console.warn('Barbarian.glb load note:', e));
+
+      // 3D Diablo Boss (Skeleton_Warrior.glb Giant with Skeleton Axe)
+      this.boss.x = 0;
+      this.boss.z = -6;
+
+      this.loadGltf('/models/characters/Skeleton_Warrior.glb').then((gltf) => {
+        if (this.currentGenre !== 'freeablo_diablo') return;
+        this.bossActor = this.createAnimatedActor(gltf, { scale: 3.2 });
+
+        this.loadGltf('/models/weapons/Skeleton_Axe.gltf').then((wGltf) => {
+          const axe = wGltf.scene.clone();
+          axe.scale.set(1.8, 1.8, 1.8);
+          if (this.bossActor && this.bossActor.handRightBone) {
+            this.bossActor.handRightBone.add(axe);
+          }
+        }).catch(() => {});
+
+        this.bossGroup.position.set(0, 0, -6);
+        this.bossGroup.add(this.bossActor.root);
+      }).catch((e) => console.warn('Skeleton_Warrior.glb load note:', e));
+
+      // 4 Cursed Diablo Shrines / Tomes of Knowledge (Survey choices)
+      this.buildDiabloShrines();
+    }
+
+    buildDiabloShrines() {
+      const positions = [
+        { x: -9.5, z: -2.0 },
+        { x: -3.5, z: 2.0 },
+        { x: 3.5, z: 2.0 },
+        { x: 9.5, z: -2.0 }
+      ];
+      const colors = [0xdc2626, 0x0284c7, 0xf59e0b, 0x10b981];
+      this.relicMeshes = [];
+
+      for (let i = 0; i < 4; i++) {
+        const p = positions[i];
+        const col = colors[i];
+        const shrine = new THREE.Group();
+        shrine.position.set(p.x, 0, p.z);
+
+        const pedestal = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.9, 1.2, 1.8, 8),
+          new THREE.MeshStandardMaterial({ color: 0x292524, roughness: 0.9 })
+        );
+        pedestal.position.y = 0.9;
+        shrine.add(pedestal);
+
+        const holyFlame = new THREE.Mesh(
+          new THREE.OctahedronGeometry(0.55, 0),
+          new THREE.MeshBasicMaterial({ color: col })
+        );
+        holyFlame.position.y = 2.4;
+        shrine.add(holyFlame);
+
+        this.relicGroup.add(shrine);
+        this.relicMeshes.push({ group: shrine, crystal: holyFlame, x: p.x, z: p.z, color: col, index: i });
+      }
+    }
+
+    // =========================================================================
+    // 3. 3D SOULS-LIKE BOSS COLOSSEUM (Elden Ring / Dark Souls)
+    // =========================================================================
+    buildSoulsColosseumWorld() {
+      this.scene.background = new THREE.Color(0x0c0a09);
+      this.scene.fog = new THREE.FogExp2(0x181210, 0.022);
+      this.camera.position.set(0, 7.5, 21);
+
+      const floorGeo = new THREE.CylinderGeometry(24, 25, 1, 48);
+      const floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({ color: 0x181210, roughness: 0.9 }));
+      floor.position.y = -0.5;
+      this.worldGroup.add(floor);
+
+      this.player.x = 0;
+      this.player.z = 13;
+      this.player.rotY = Math.PI;
+
+      this.loadGltf('/models/characters/Knight.glb').then((gltf) => {
+        if (this.currentGenre !== 'elden_souls') return;
+        this.playerActor = this.createAnimatedActor(gltf, { scale: 1.65 });
+        this.loadGltf('/models/weapons/sword_2handed.gltf').then((wGltf) => {
+          const sword = wGltf.scene.clone();
+          sword.scale.set(1.3, 1.3, 1.3);
+          if (this.playerActor && this.playerActor.handRightBone) {
+            this.playerActor.handRightBone.add(sword);
+          }
+        }).catch(() => {});
+        this.playerGroup.add(this.playerActor.root);
+      }).catch(() => {});
+
+      this.boss.x = 0;
+      this.boss.z = -4;
+
+      this.loadGltf('/models/characters/Skeleton_Warrior.glb').then((gltf) => {
+        if (this.currentGenre !== 'elden_souls') return;
+        this.bossActor = this.createAnimatedActor(gltf, { scale: 3.2 });
+        this.bossGroup.position.set(0, 0, -4);
+        this.bossGroup.add(this.bossActor.root);
+      }).catch(() => {});
+
+      const positions = [{ x: -11.5, z: 6.5 }, { x: -4.8, z: 9.5 }, { x: 4.8, z: 9.5 }, { x: 11.5, z: 6.5 }];
+      const colors = [0xef4444, 0x00f5d4, 0xf59e0b, 0xa855f7];
+      this.relicMeshes = [];
+      for (let i = 0; i < 4; i++) {
+        const p = positions[i];
+        const col = colors[i];
+        const altar = new THREE.Group();
+        altar.position.set(p.x, 0, p.z);
+        const cry = new THREE.Mesh(new THREE.OctahedronGeometry(0.75, 0), new THREE.MeshBasicMaterial({ color: col }));
+        cry.position.y = 2.0;
+        altar.add(cry);
+        this.relicGroup.add(altar);
+        this.relicMeshes.push({ group: altar, crystal: cry, x: p.x, z: p.z, color: col, index: i });
+      }
+    }
+
+    // =========================================================================
+    // 4. CYBER RACER & MECHA SHOOTER WORLDS
+    // =========================================================================
+    buildCyberRacerWorld() {
+      this.scene.background = new THREE.Color(0x050414);
+      this.scene.fog = new THREE.FogExp2(0x100828, 0.015);
+      this.camera.position.set(0, 5.2, 13);
+
+      const road = new THREE.Mesh(new THREE.PlaneGeometry(28, 120), new THREE.MeshStandardMaterial({ color: 0x0a081c }));
+      road.rotation.x = -Math.PI / 2;
+      road.position.set(0, 0, -30);
+      this.worldGroup.add(road);
+
+      this.playerVehicle = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.75, 4.2), new THREE.MeshStandardMaterial({ color: 0x0284c7 }));
+      this.playerVehicle.position.y = 0.55;
+      this.player.x = 0;
+      this.player.z = 6;
+      this.playerGroup.add(this.playerVehicle);
+
+      const laneXCoords = [-9.0, -3.0, 3.0, 9.0];
+      const colors = [0xef4444, 0x00f5d4, 0xf59e0b, 0xa855f7];
+      this.relicMeshes = [];
+      for (let i = 0; i < 4; i++) {
+        const lx = laneXCoords[i];
+        const col = colors[i];
+        const gate = new THREE.Group();
+        gate.position.set(lx, 0, -22);
+        const portal = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 3.8), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.4 }));
+        portal.position.y = 2.0;
+        gate.add(portal);
+        this.relicGroup.add(gate);
+        this.relicMeshes.push({ group: gate, crystal: portal, x: lx, z: -22, color: col, index: i });
+      }
+    }
+
+    buildMechaShooterWorld() {
+      this.scene.background = new THREE.Color(0x040816);
+      this.scene.fog = new THREE.FogExp2(0x081630, 0.012);
+      this.camera.position.set(0, 6.5, 18);
+
+      const core = new THREE.Mesh(new THREE.IcosahedronGeometry(7.5, 1), new THREE.MeshStandardMaterial({ color: 0x1e1b4b, emissive: 0x4338ca }));
+      core.position.set(0, 4, -28);
+      this.worldGroup.add(core);
+
+      this.mechaModel = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.2, 1.2), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+      this.mechaModel.position.y = 2.0;
+      this.player.x = 0;
+      this.player.z = 10;
+      this.playerGroup.add(this.mechaModel);
+
+      const positions = [{ x: -12.0, z: -10 }, { x: -4.0, z: -15 }, { x: 4.0, z: -15 }, { x: 12.0, z: -10 }];
+      const colors = [0xef4444, 0x00f5d4, 0xf59e0b, 0xa855f7];
+      this.relicMeshes = [];
+      for (let i = 0; i < 4; i++) {
+        const p = positions[i];
+        const col = colors[i];
+        const beacon = new THREE.Group();
+        beacon.position.set(p.x, 3.5, p.z);
+        const orb = new THREE.Mesh(new THREE.OctahedronGeometry(1.2, 0), new THREE.MeshBasicMaterial({ color: col }));
+        beacon.add(orb);
+        this.relicGroup.add(beacon);
+        this.relicMeshes.push({ group: beacon, crystal: orb, x: p.x, z: p.z, color: col, index: i });
+      }
+    }
+
+    // =========================================================================
+    // GAMEPLAY ABILITIES & ACTIONS
+    // =========================================================================
+    triggerPrimaryAttack() {
+      if (this.currentGenre === 'reone_kotor') {
+        this.triggerLightsaberFlurry();
+      } else if (this.currentGenre === 'freeablo_diablo') {
+        this.triggerDiabloCleave();
+      } else {
+        this.triggerGenericAttack();
+      }
+    }
+
+    triggerSpecialQ() {
+      if (this.currentGenre === 'reone_kotor') {
+        // Force Push
+        this.spawnForcePushWave();
+        if (this.callbacks.onCombatMessage) {
+          this.callbacks.onCombatMessage('🌌 FORCE PUSH! Staggered enemies & consoles with telekinetic wave!');
+        }
+      } else if (this.currentGenre === 'freeablo_diablo') {
+        // Health Potion
+        this.player.hp = Math.min(100, this.player.hp + 40);
+        this.spawnSparkBurst(this.player.x, 1.5, this.player.z, 0xdc2626, 20);
+        if (this.callbacks.onCombatMessage) {
+          this.callbacks.onCombatMessage('🧪 DRANK HEALTH POTION! (+40 HP)');
+        }
       }
       this.updateHud();
     }
 
+    triggerSpecialE() {
+      if (this.currentGenre === 'reone_kotor') {
+        // Force Lightning
+        this.spawnForceLightning();
+        if (this.callbacks.onCombatMessage) {
+          this.callbacks.onCombatMessage('⚡ FORCE LIGHTNING! Branching electrical arcs strike target!');
+        }
+      } else if (this.currentGenre === 'freeablo_diablo') {
+        // Cast Fireball
+        this.spawnDiabloFireball();
+        if (this.callbacks.onCombatMessage) {
+          this.callbacks.onCombatMessage('🔥 CAST FIREBALL! Launched explosive flame orb!');
+        }
+      }
+      this.updateHud();
+    }
+
+    triggerLightsaberFlurry() {
+      if (this.playerActor) {
+        const anim = this.playerActor.actions['1H_Melee_Attack_Slice_Diagonal'] ? '1H_Melee_Attack_Slice_Diagonal' : '1H_Melee_Attack_Chop';
+        this.playAnimation(this.playerActor, anim, false, 0.08);
+      }
+      this.playSound('/audio/U7BG_SFX_adlib_001.wav', 0.65);
+
+      this.spawnSparkBurst(this.boss.x, 2.0, this.boss.z, 0x00f5d4, 25);
+      this.boss.hp = Math.max(0, this.boss.hp - 35);
+
+      if (this.bossActor) {
+        this.playAnimation(this.bossActor, 'Hit_A', false, 0.1);
+      }
+      this.playSound('/audio/U7BG_SFX_adlib_007.wav', 0.5);
+
+      if (this.boss.hp <= 0) this.completePhaseVictory();
+      this.updateHud();
+    }
+
+    triggerDiabloCleave() {
+      if (this.playerActor) {
+        const anim = this.playerActor.actions['2H_Melee_Attack_Spin'] ? '2H_Melee_Attack_Spin' : '2H_Melee_Attack_Slice';
+        this.playAnimation(this.playerActor, anim, false, 0.08);
+      }
+      this.playSound('/audio/U7BG_SFX_adlib_001.wav', 0.7);
+
+      this.spawnSparkBurst(this.boss.x, 2.0, this.boss.z, 0xdc2626, 35);
+      this.boss.hp = Math.max(0, this.boss.hp - 35);
+
+      if (this.bossActor) {
+        this.playAnimation(this.bossActor, 'Hit_A', false, 0.1);
+      }
+      this.playSound('/audio/U7BG_SFX_adlib_007.wav', 0.6);
+
+      if (this.boss.hp <= 0) this.completePhaseVictory();
+      this.updateHud();
+    }
+
+    triggerGenericAttack() {
+      if (this.player.imbuedChoiceIndex < 0) this.imbueRelic(0);
+      if (this.playerActor) {
+        const anim = this.playerActor.actions['1H_Melee_Attack_Slice_Diagonal'] || this.playerActor.actions['2H_Melee_Attack_Slice'];
+        if (anim) this.playAnimation(this.playerActor, anim.getClip().name, false, 0.08);
+      }
+      this.playSound('/audio/U7BG_SFX_adlib_001.wav', 0.6);
+      this.boss.hp = Math.max(0, this.boss.hp - 35);
+      this.spawnSparkBurst(this.boss.x, 2.5, this.boss.z, this.player.imbuedColor, 25);
+      if (this.bossActor) {
+        this.playAnimation(this.bossActor, 'Hit_A', false, 0.1);
+      }
+      if (this.boss.hp <= 0) this.completePhaseVictory();
+      this.updateHud();
+    }
+
+    spawnForcePushWave() {
+      const wave = new THREE.Mesh(
+        new THREE.RingGeometry(1.0, 1.6, 24),
+        new THREE.MeshBasicMaterial({ color: 0x00d4ff, side: THREE.DoubleSide })
+      );
+      wave.position.set(this.player.x, 1.4, this.player.z - 1.0);
+      wave.rotation.x = -Math.PI / 2;
+      this.scene.add(wave);
+      this.projectiles.push({ mesh: wave, vz: -35, life: 0.6 });
+    }
+
+    spawnForceLightning() {
+      for (let i = 0; i < 8; i++) {
+        this.spawnSparkBurst(this.player.x + (Math.random() - 0.5) * 2, 1.5, this.player.z - 2 - i * 1.2, 0xa855f7, 10);
+      }
+    }
+
+    spawnDiabloFireball() {
+      const fb = new THREE.Mesh(
+        new THREE.SphereGeometry(0.45, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0xf97316 })
+      );
+      fb.position.set(this.player.x, 1.3, this.player.z - 1.0);
+      this.scene.add(fb);
+      this.projectiles.push({ mesh: fb, vz: -32, life: 0.8 });
+    }
+
+    triggerSwordSlash() {
+      this.triggerPrimaryAttack();
+    }
+
+    executeInstantBossCombo() {
+      if (this.player.imbuedChoiceIndex < 0) {
+        this.imbueRelic(0);
+      }
+      this.boss.hp = 0;
+      this.spawnSparkBurst(this.boss.x, 2.5, this.boss.z, 0xf59e0b, 40);
+      this.completePhaseVictory();
+      this.updateHud();
+    }
+
+    triggerDodgeRoll() {
+      if (this.player.dodgeTimer > 0) return;
+      this.player.dodgeTimer = 0.45;
+      if (this.playerActor) {
+        const anim = this.playerActor.actions['Dodge_Forward'] ? 'Dodge_Forward' : (this.playerActor.actions['Dodge_Backward'] ? 'Dodge_Backward' : 'Jump_Full_Short');
+        this.playAnimation(this.playerActor, anim, false, 0.08);
+      }
+      this.spawnSparkBurst(this.player.x, 1.0, this.player.z, 0x38bdf8, 16);
+      this.updateHud();
+    }
+
+    imbueRelic(choiceIdx) {
+      if (!this.stage || !this.stage.choices[choiceIdx]) return;
+      const choice = this.stage.choices[choiceIdx];
+      const colors = [0x00d4ff, 0xf59e0b, 0xef4444, 0xa855f7];
+      const hex = colors[choiceIdx % colors.length];
+
+      this.player.imbuedChoiceIndex = choiceIdx;
+      this.player.imbuedColor = hex;
+
+      if (this.saberBladeMat) this.saberBladeMat.color.setHex(hex);
+      if (this.saberLight) this.saberLight.color.setHex(hex);
+      if (this.currentGenre === 'reone_kotor') {
+        this.playSound('/audio/kotor/al_el_oldcomp_01.wav', 0.75);
+      } else {
+        this.playSound('/audio/U7BG_SFX_adlib_008.wav', 0.6);
+      }
+
+      this.spawnSparkBurst(this.player.x, 1.8, this.player.z, hex, 30);
+
+      // Genre-Specific Immersion Events
+      if (this.currentGenre === 'reone_kotor') {
+        const isLight = choiceIdx < 2;
+        const alignTitle = isLight ? '✨ [ LIGHT SIDE POINTS GAINED ]' : '🔴 [ DARK SIDE POINTS GAINED ]';
+        const alignSub = isLight
+          ? `Jedi Guardian attuned to "${choice.mappedOption}" (+Wisdom)`
+          : `Sith Marauder channeled raw aggression for "${choice.mappedOption}" (+Power)`;
+        if (this.callbacks.onAlignmentMessage) {
+          this.callbacks.onAlignmentMessage({ isLight, alignTitle, alignSub });
+        }
+      } else if (this.currentGenre === 'freeablo_diablo') {
+        if (this.callbacks.onCombatMessage) {
+          this.callbacks.onCombatMessage(`🩸 <strong>CURSED SHRINE CLAIMED:</strong> "${choice.mappedOption}"! Hellfire imbued into your blade!`);
+        }
+      }
+
+      if (this.callbacks.onRelicImbued) {
+        this.callbacks.onRelicImbued(choice, choiceIdx);
+      }
+      this.updateHud();
+    }
+
+    completePhaseVictory() {
+      if (!this.stage) return;
+      const choiceIdx = Math.max(0, this.player.imbuedChoiceIndex);
+      const choice = this.stage.choices[choiceIdx];
+      const reactionTimeMs = Math.round(performance.now() - (this.stageStartTime || performance.now()));
+
+      if (this.bossActor) {
+        this.playAnimation(this.bossActor, 'Death_A', false, 0.1);
+      }
+      this.playSound('/audio/guardian-laugh.ogg', 0.7);
+
+      if (this.callbacks.onPhaseDefeated) {
+        this.callbacks.onPhaseDefeated({ choice, choiceIdx, reactionTimeMs, perfectDodges: 1 });
+      }
+    }
+
+    spawnSparkBurst(x, y, z, colorHex, count = 15) {
+      const geo = new THREE.BoxGeometry(0.18, 0.18, 0.18);
+      const mat = new THREE.MeshBasicMaterial({ color: colorHex });
+      for (let i = 0; i < count; i++) {
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(x, y, z);
+        this.scene.add(m);
+        this.particles.push({
+          mesh: m,
+          vx: (Math.random() - 0.5) * 12,
+          vy: Math.random() * 6 + 1,
+          vz: (Math.random() - 0.5) * 12,
+          life: 0.45
+        });
+      }
+    }
+
     loadStage(stage, audienceMode, bossConfig) {
       this.stage = stage;
-      if (bossConfig) {
-        this.bossConfig = bossConfig;
-        this.buildBossMesh();
-      }
+      this.bossConfig = bossConfig || this.bossConfig;
       this.stageStartTime = performance.now();
 
-      // Reset Boss Phase HP & Shield
+      // Apply AI-generated Color Scheme & Palette to the 3D World
+      if (this.stage && this.stage.personaFramings) {
+        const framing = this.stage.personaFramings[this.audienceMode] || this.stage.personaFramings.dark_fantasy_souls;
+        const pal = framing?.arenaPalette;
+        if (pal) {
+          if (pal.sky) this.scene.background = new THREE.Color(pal.sky);
+          if (pal.fog && this.scene.fog) this.scene.fog.color = new THREE.Color(pal.fog);
+          if (this.saberBladeMat && pal.accent) {
+            this.saberBladeMat.color.set(pal.accent);
+          }
+          if (this.saberLight && pal.accent) {
+            this.saberLight.color.set(pal.accent);
+          }
+        }
+      }
+
+      // Update 3D Consoles / Shrines with Stage Survey Choice Colors
+      if (this.stage && this.stage.choices && this.relicMeshes) {
+        this.stage.choices.forEach((choice, idx) => {
+          if (this.relicMeshes[idx] && choice.relicColor) {
+            this.relicMeshes[idx].color = choice.relicColor;
+            if (this.relicMeshes[idx].crystal && this.relicMeshes[idx].crystal.material) {
+              this.relicMeshes[idx].crystal.material.color = new THREE.Color(choice.relicColor);
+            }
+          }
+        });
+      }
+
+      if (this.customAiGroup) {
+        while (this.customAiGroup.children.length > 0) this.customAiGroup.remove(this.customAiGroup.children[0]);
+      }
+      if (bossConfig && bossConfig.aiCustomThreeJsCode) {
+        try {
+          const fn = new Function('THREE', 'customGroup', 'elapsed', bossConfig.aiCustomThreeJsCode);
+          fn(THREE, this.customAiGroup, 0);
+        } catch (e) {
+          console.warn('AI Three.js custom build note:', e.message);
+        }
+      }
+
       this.boss.hp = 100;
-      this.boss.maxHp = 100;
-      this.boss.shieldActive = true;
-      this.bossShieldMesh.visible = true;
-      this.boss.shockwaves.forEach((sw) => this.scene.remove(sw.mesh));
-      this.boss.shockwaves = [];
-
-      // Reset Player Sword Imbuement for the new Phase
       this.player.imbuedChoiceIndex = -1;
-      this.swordBladeMat.color.setHex(0xe2e8f0);
-      this.swordBladeMat.emissive.setHex(0x334155);
-      this.swordLight.intensity = 0;
-
-      this.setAudienceWorld(audienceMode || this.audienceMode);
       this.renderFloatingDomLabels();
+      this.updateHud();
+    }
+
+    setAudienceWorld(audienceKey) {
+      this.audienceMode = audienceKey || 'dark_fantasy_souls';
+      if (this.stage && this.stage.personaFramings) {
+        const framing = this.stage.personaFramings[this.audienceMode] || this.stage.personaFramings.dark_fantasy_souls;
+        const pal = framing?.arenaPalette;
+        if (pal) {
+          if (pal.sky) this.scene.background = new THREE.Color(pal.sky);
+          if (pal.fog && this.scene.fog) this.scene.fog.color = new THREE.Color(pal.fog);
+          if (this.saberBladeMat && pal.accent) {
+            this.saberBladeMat.color.set(pal.accent);
+          }
+          if (this.saberLight && pal.accent) {
+            this.saberLight.color.set(pal.accent);
+          }
+        }
+      }
       this.updateHud();
     }
 
@@ -553,18 +1102,17 @@
 
       if (!this.stage || !this.stage.choices) return;
 
-      // Create 4 floating 3D-tracked Relic Altar cards inside the HUD overlay
       this.stage.choices.forEach((choice, idx) => {
         const el = document.createElement('div');
         el.className = 'relic-floating-tag';
-        el.style.borderColor = choice.relicColor || '#f59e0b';
+        el.style.borderColor = choice.relicColor || '#00d4ff';
         el.innerHTML = `
           <div class="relic-tag-header">
             <span class="relic-key-badge">[${idx + 1}]</span>
-            <span class="relic-icon">${choice.relicIcon || '🔥'}</span>
+            <span class="relic-icon">${choice.relicIcon || '⚔️'}</span>
             <strong>${choice.mappedOption}</strong>
           </div>
-          <div class="relic-tag-sub">${choice.relicBuff || 'Breaks Boss Shield'} • Click or Press ${idx + 1}</div>
+          <div class="relic-tag-sub">${choice.relicBuff || 'Select Option'} • Click or Press ${idx + 1}</div>
         `;
         el.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -575,208 +1123,17 @@
       });
     }
 
-    imbueRelic(choiceIdx) {
-      if (!this.stage || !this.stage.choices[choiceIdx]) return;
-      const choice = this.stage.choices[choiceIdx];
-      const colors = [0xef4444, 0x00f5d4, 0xf59e0b, 0xa855f7];
-      const hex = colors[choiceIdx % colors.length];
-
-      // Move player slightly toward the chosen altar or face boss
-      const relic = this.relicMeshes[choiceIdx];
-      if (relic) {
-        this.spawnSparkBurst(relic.x, 2.1, relic.z, hex, 28);
-      }
-
-      this.player.imbuedChoiceIndex = choiceIdx;
-      this.player.imbuedColor = hex;
-      this.swordBladeMat.color.setHex(hex);
-      this.swordBladeMat.emissive.setHex(hex);
-      this.swordBladeMat.emissiveIntensity = 1.6;
-      this.slashTrailMat.color.setHex(hex);
-      this.swordLight.color.setHex(hex);
-      this.swordLight.intensity = 2.5;
-
-      // Shatter Boss Phase Shield!
-      if (this.boss.shieldActive) {
-        this.boss.shieldActive = false;
-        this.bossShieldMesh.visible = false;
-        this.spawnSparkBurst(this.boss.x, 3.2, this.boss.z, 0xf59e0b, 35);
-      }
-
-      if (this.callbacks.onRelicImbued) {
-        this.callbacks.onRelicImbued(choice, choiceIdx);
-      }
-      this.updateHud();
-    }
-
-    triggerDodgeRoll() {
-      if (this.player.dodgeTimer > 0 || this.player.dodgeCooldown > 0) return;
-      if (this.player.stamina < 18) return;
-
-      this.player.stamina = Math.max(0, this.player.stamina - 22);
-      this.player.dodgeTimer = 0.42; // 420ms Dodge Roll with Invincibility Frames!
-      this.player.dodgeCooldown = 0.55;
-      this.player.isInvincible = true;
-      this.iframeSphereMat.opacity = 0.65;
-
-      // Burst in movement direction or forward
-      const dirX = -Math.sin(this.player.rotY);
-      const dirZ = -Math.cos(this.player.rotY);
-      this.player.vx = dirX * 22;
-      this.player.vz = dirZ * 22;
-
-      this.spawnSparkBurst(this.player.x, 0.8, this.player.z, 0x38bdf8, 14);
-      this.updateHud();
-    }
-
-    triggerSwordSlash() {
-      if (this.player.attackTimer > 0) return;
-      this.player.attackTimer = 0.36;
-      this.player.comboStep = (this.player.comboStep + 1) % 3;
-      this.player.stamina = Math.max(0, this.player.stamina - 12);
-
-      // Show glowing 3D Slash Arc
-      this.slashTrailMat.opacity = 0.85;
-      this.slashTrail.rotation.z = this.player.comboStep * 1.1;
-
-      // Check distance to Boss
-      const dx = this.boss.x - this.player.x;
-      const dz = this.boss.z - this.player.z;
-      const dist = Math.hypot(dx, dz);
-
-      // If player hasn't imbued a Relic yet and clicks Attack, auto-check if near a relic, or remind them
-      if (this.player.imbuedChoiceIndex < 0) {
-        if (this.player.nearRelicIndex >= 0) {
-          this.imbueRelic(this.player.nearRelicIndex);
-          return;
-        }
-        // Deflect off Boss Aegis Shield
-        if (dist < 9.5) {
-          this.spawnSparkBurst(this.boss.x, 2.5, this.boss.z + 2, 0x94a3b8, 12);
-          if (this.callbacks.onCombatMessage) {
-            this.callbacks.onCombatMessage('🛡️ BOSS SHIELD IMPERVIOUS! Run to a Relic Altar (or press 1-4) to imbue your Greatsword first!');
-          }
-        }
-        return;
-      }
-
-      // If imbued, dash-lunge toward the Boss so combat feels super snappy and visceral like Sekiro/Bloodborne!
-      if (dist > 5.2) {
-        const angle = Math.atan2(dx, dz);
-        this.player.x += Math.sin(angle) * Math.min(dist - 4.2, 6.5);
-        this.player.z += Math.cos(angle) * Math.min(dist - 4.2, 6.5);
-      }
-
-      const newDist = Math.hypot(this.boss.x - this.player.x, this.boss.z - this.player.z);
-      if (newDist < 8.5) {
-        const dmg = this.player.comboStep === 2 ? 42 : 34;
-        this.boss.hp = Math.max(0, this.boss.hp - dmg);
-        this.boss.hitFlash = 0.2;
-        this.spawnSparkBurst(this.boss.x, 3.0, this.boss.z + 1.2, this.player.imbuedColor, 32);
-
-        if (this.callbacks.onCombatMessage) {
-          const choice = this.stage?.choices?.[this.player.imbuedChoiceIndex];
-          this.callbacks.onCombatMessage(
-            `⚔️ CRITICAL SLASH (-${dmg}% BOSS HP) with ${choice?.relicName || 'Relic Greatsword'}!`
-          );
-        }
-
-        if (this.boss.hp <= 0) {
-          this.completePhaseVictory();
-        }
-      }
-      this.updateHud();
-    }
-
-    /**
-     * One-click combo finisher for judges/players who want to immediately execute the imbued slash combo
-     */
-    executeInstantBossCombo() {
-      if (this.player.imbuedChoiceIndex < 0) {
-        this.imbueRelic(0);
-      }
-      this.player.x = 0;
-      this.player.z = 1.2;
-      this.player.rotY = 0;
-      this.triggerSwordSlash();
-      setTimeout(() => {
-        if (!this.running) return;
-        this.boss.hp = 0;
-        this.spawnSparkBurst(this.boss.x, 3.5, this.boss.z, this.player.imbuedColor, 55);
-        this.completePhaseVictory();
-      }, 320);
-    }
-
-    completePhaseVictory() {
-      if (!this.stage) return;
-      const choiceIdx = Math.max(0, this.player.imbuedChoiceIndex);
-      const choice = this.stage.choices[choiceIdx];
-      const reactionTimeMs = Math.round(performance.now() - (this.stageStartTime || performance.now()));
-
-      this.spawnSparkBurst(this.boss.x, 3.5, this.boss.z, 0xf59e0b, 60);
-
-      if (this.callbacks.onPhaseDefeated) {
-        this.callbacks.onPhaseDefeated({
-          choice,
-          choiceIdx,
-          reactionTimeMs,
-          perfectDodges: this.player.perfectDodges
-        });
-      }
-    }
-
-    spawnBossShockwave() {
-      const ringGeo = new THREE.RingGeometry(0.8, 1.45, 48);
-      const col = this.audienceMode === 'cyber_mecha_action' ? 0xf72585 : 0xef4444;
-      const mat = new THREE.MeshBasicMaterial({
-        color: col,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.9
-      });
-      const mesh = new THREE.Mesh(ringGeo, mat);
-      mesh.rotation.x = -Math.PI / 2;
-      mesh.position.set(this.boss.x, 0.25, this.boss.z);
-      this.scene.add(mesh);
-
-      this.boss.shockwaves.push({
-        mesh,
-        radius: 1.0,
-        hitPlayer: false
-      });
-    }
-
-    spawnSparkBurst(x, y, z, colorHex, count = 20) {
-      const geo = new THREE.BoxGeometry(0.18, 0.18, 0.18);
-      const mat = new THREE.MeshBasicMaterial({ color: colorHex });
-      for (let i = 0; i < count; i++) {
-        const m = new THREE.Mesh(geo, mat);
-        m.position.set(x, y, z);
-        this.scene.add(m);
-        this.particles.push({
-          mesh: m,
-          vx: (Math.random() - 0.5) * 14,
-          vy: Math.random() * 10 + 2,
-          vz: (Math.random() - 0.5) * 14,
-          life: 0.55 + Math.random() * 0.35
-        });
-      }
-    }
-
     updateHud() {
       if (this.callbacks.onHudUpdate) {
-        const imbuedChoice =
-          this.player.imbuedChoiceIndex >= 0
-            ? this.stage?.choices?.[this.player.imbuedChoiceIndex]
-            : null;
+        const imbuedChoice = this.player.imbuedChoiceIndex >= 0 ? this.stage?.choices?.[this.player.imbuedChoiceIndex] : null;
         this.callbacks.onHudUpdate({
           playerHp: Math.round(this.player.hp),
+          playerMana: Math.round(this.player.mana),
           playerStamina: Math.round(this.player.stamina),
           bossHp: Math.round(this.boss.hp),
-          bossShieldActive: this.boss.shieldActive,
+          currentGenre: this.currentGenre,
           imbuedChoice,
-          nearRelicIndex: this.player.nearRelicIndex,
-          perfectDodges: this.player.perfectDodges
+          perfectDodges: 1
         });
       }
     }
@@ -788,7 +1145,14 @@
       const dt = Math.min(this.clock.getDelta(), 0.05);
       const elapsed = this.clock.getElapsedTime();
 
-      // Resize check
+      // Update skeletal animation mixers
+      if (this.playerActor && this.playerActor.mixer) {
+        this.playerActor.mixer.update(dt);
+      }
+      if (this.bossActor && this.bossActor.mixer) {
+        this.bossActor.mixer.update(dt);
+      }
+
       const w = this.canvas.clientWidth;
       const h = this.canvas.clientHeight;
       if (w > 0 && h > 0 && (this.canvas.width !== w || this.canvas.height !== h)) {
@@ -797,199 +1161,98 @@
         this.camera.updateProjectionMatrix();
       }
 
-      // Regenerate player stamina
-      if (this.player.dodgeTimer <= 0 && this.player.attackTimer <= 0) {
-        this.player.stamina = Math.min(this.player.maxStamina, this.player.stamina + 24 * dt);
-      }
-      if (this.player.dodgeCooldown > 0) this.player.dodgeCooldown -= dt;
-
-      // Player Movement (WASD / Arrow Keys)
-      let moveX = 0;
-      let moveZ = 0;
-      if (this.keys['KeyW'] || this.keys['ArrowUp']) moveZ -= 1;
-      if (this.keys['KeyS'] || this.keys['ArrowDown']) moveZ += 1;
-      if (this.keys['KeyA'] || this.keys['ArrowLeft']) moveX -= 1;
-      if (this.keys['KeyD'] || this.keys['ArrowRight']) moveX += 1;
-
-      if (this.player.dodgeTimer > 0) {
-        this.player.dodgeTimer -= dt;
-        // Full 360 Souls Dodge Roll Somersault!
-        const rollProgress = 1 - this.player.dodgeTimer / 0.42;
-        this.playerBody.rotation.x = -rollProgress * Math.PI * 2;
-        this.player.x += this.player.vx * dt;
-        this.player.z += this.player.vz * dt;
-        if (this.player.dodgeTimer <= 0) {
-          this.playerBody.rotation.x = 0;
-          this.player.isInvincible = false;
-          this.iframeSphereMat.opacity = 0;
+      if (this.currentGenre === 'cyber_racer') {
+        this.player.x += (this.player.targetLaneX - this.player.x) * 12 * dt;
+        if (this.playerVehicle) {
+          this.playerVehicle.position.set(this.player.x, 0.5 + Math.sin(elapsed * 8) * 0.08, this.player.z);
         }
+        this.relicMeshes.forEach((r) => {
+          r.group.position.z += 28 * dt;
+          if (r.group.position.z > 14) r.group.position.z = -35;
+        });
       } else {
-        const len = Math.hypot(moveX, moveZ);
+        let mx = 0, mz = 0;
+        if (this.keys['KeyW'] || this.keys['ArrowUp']) mz -= 1;
+        if (this.keys['KeyS'] || this.keys['ArrowDown']) mz += 1;
+        if (this.keys['KeyA'] || this.keys['ArrowLeft']) mx -= 1;
+        if (this.keys['KeyD'] || this.keys['ArrowRight']) mx += 1;
+
+        const len = Math.hypot(mx, mz);
         if (len > 0) {
-          moveX /= len;
-          moveZ /= len;
-          const speed = 10.5;
-          this.player.x += moveX * speed * dt;
-          this.player.z += moveZ * speed * dt;
-          this.player.rotY = Math.atan2(-moveX, -moveZ);
+          this.player.x += (mx / len) * 11 * dt;
+          this.player.z += (mz / len) * 11 * dt;
 
-          // Leg run animation
-          this.leftLeg.rotation.x = Math.sin(elapsed * 14) * 0.6;
-          this.rightLeg.rotation.x = -Math.sin(elapsed * 14) * 0.6;
+          const targetAngle = Math.atan2(mx, mz);
+          let diff = targetAngle - this.player.rotY;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          this.player.rotY += diff * 12 * dt;
+          this.playerGroup.rotation.y = this.player.rotY;
+
+          if (this.playerActor && this.playerActor.currentAnim !== 'Running_A' && !this.playerActor.animTimeout) {
+            const runAnim = this.playerActor.actions['Running_A'] ? 'Running_A' : (this.playerActor.actions['Walking_A'] ? 'Walking_A' : 'Idle');
+            this.playAnimation(this.playerActor, runAnim, true, 0.15);
+          }
         } else {
-          this.leftLeg.rotation.x = 0;
-          this.rightLeg.rotation.x = 0;
-        }
-      }
-
-      // Clamp player to circular arena
-      const pRadius = Math.hypot(this.player.x, this.player.z);
-      if (pRadius > 19.5) {
-        this.player.x = (this.player.x / pRadius) * 19.5;
-        this.player.z = (this.player.z / pRadius) * 19.5;
-      }
-
-      // Sword attack animation
-      if (this.player.attackTimer > 0) {
-        this.player.attackTimer -= dt;
-        const swingProg = 1 - this.player.attackTimer / 0.36;
-        this.swordPivot.rotation.y = -1.4 + swingProg * 2.8;
-        this.swordPivot.rotation.x = -0.35;
-        this.slashTrailMat.opacity = Math.max(0, this.player.attackTimer * 2.4);
-      } else {
-        this.swordPivot.rotation.y = 0;
-        this.swordPivot.rotation.x = 0;
-        this.slashTrailMat.opacity = 0;
-      }
-
-      this.playerGroup.position.set(this.player.x, 0, this.player.z);
-      this.playerGroup.rotation.y = this.player.rotY;
-      this.swordLight.position.set(this.player.x, 2.0, this.player.z);
-
-      // Check proximity to the 4 Relic Altars
-      let closestRelic = -1;
-      let minDist = 3.6;
-      this.relicMeshes.forEach((r) => {
-        r.crystal.rotation.y += 1.8 * dt;
-        r.crystal.position.y = 2.1 + Math.sin(elapsed * 3 + r.index) * 0.22;
-        const d = Math.hypot(this.player.x - r.x, this.player.z - r.z);
-        if (d < minDist) {
-          minDist = d;
-          closestRelic = r.index;
-        }
-        // Highlight selected or nearby altar
-        const isImbued = this.player.imbuedChoiceIndex === r.index;
-        r.ring.scale.setScalar(isImbued ? 1.35 + Math.sin(elapsed * 6) * 0.1 : 1.0);
-      });
-
-      if (closestRelic !== this.player.nearRelicIndex) {
-        this.player.nearRelicIndex = closestRelic;
-        this.updateHud();
-      }
-
-      // Boss Animation & Shockwave Attacks
-      if (this.bossGroup) {
-        this.bossGroup.position.y = Math.sin(elapsed * 2.2) * 0.25;
-        this.bossHalos.forEach((h, idx) => {
-          h.rotation.z += (idx % 2 === 0 ? 1.2 : -1.5) * dt;
-        });
-        this.bossWings.forEach((w) => {
-          w.mesh.rotation.z = w.baseRotZ + Math.sin(elapsed * 3.5 + w.offset) * 0.22 * w.side;
-        });
-        if (this.bossShieldMesh.visible) {
-          this.bossShieldMesh.rotation.y += 0.8 * dt;
-        }
-        if (this.boss.hitFlash > 0) {
-          this.boss.hitFlash -= dt;
-          this.bossArmorMat.emissive.setHex(0xffffff);
-        } else {
-          this.bossArmorMat.emissive.setHex(
-            this.audienceMode === 'cyber_mecha_action' ? 0x0f172a : 0x450a0a
-          );
-        }
-
-        // Boss Attack Timer: Spawns 3D expanding shockwave rings
-        this.boss.attackCooldown -= dt;
-        if (this.boss.attackCooldown <= 0) {
-          this.boss.attackCooldown = 3.2;
-          this.bossWeapon.rotation.x = 0.9;
-          this.spawnBossShockwave();
-        } else {
-          this.bossWeapon.rotation.x = Math.max(0, this.bossWeapon.rotation.x - 1.8 * dt);
-        }
-      }
-
-      // Update Boss Shockwaves
-      const swSpeed = this.bossConfig.shockwaveSpeed || 11.5;
-      for (let i = this.boss.shockwaves.length - 1; i >= 0; i--) {
-        const sw = this.boss.shockwaves[i];
-        sw.radius += swSpeed * dt;
-        sw.mesh.scale.setScalar(sw.radius);
-        sw.mesh.material.opacity = Math.max(0, 1 - sw.radius / 22);
-
-        // Check collision with player ring
-        const pDistToBoss = Math.hypot(this.player.x - this.boss.x, this.player.z - this.boss.z);
-        if (!sw.hitPlayer && Math.abs(pDistToBoss - sw.radius) < 0.95) {
-          sw.hitPlayer = true;
-          if (this.player.isInvincible) {
-            // Perfect Souls I-Frame Dodge Roll!
-            this.player.perfectDodges += 1;
-            this.player.stamina = Math.min(this.player.maxStamina, this.player.stamina + 35);
-            if (this.callbacks.onCombatMessage) {
-              this.callbacks.onCombatMessage('⚡ PERFECT I-FRAME DODGE ROLL! (+35 Stamina)');
-            }
-            this.updateHud();
-          } else {
-            this.player.hp = Math.max(20, this.player.hp - 12);
-            this.spawnSparkBurst(this.player.x, 1.2, this.player.z, 0xef4444, 12);
-            this.updateHud();
+          if (this.playerActor && (this.playerActor.currentAnim === 'Running_A' || this.playerActor.currentAnim === 'Walking_A') && !this.playerActor.animTimeout) {
+            const idleAnim = this.playerActor.actions['Idle'] ? 'Idle' : (this.playerActor.actions['2H_Melee_Idle'] ? '2H_Melee_Idle' : 'Idle');
+            this.playAnimation(this.playerActor, idleAnim, true, 0.2);
           }
         }
+        const pr = Math.hypot(this.player.x, this.player.z);
+        if (pr > 17) {
+          this.player.x = (this.player.x / pr) * 17;
+          this.player.z = (this.player.z / pr) * 17;
+        }
+        this.playerGroup.position.set(this.player.x, 0, this.player.z);
 
-        if (sw.radius > 22) {
-          this.scene.remove(sw.mesh);
-          this.boss.shockwaves.splice(i, 1);
+        // Boss faces toward player
+        if (this.bossActor && this.bossActor.root) {
+          const bdx = this.player.x - this.boss.x;
+          const bdz = this.player.z - this.boss.z;
+          this.bossGroup.rotation.y = Math.atan2(bdx, bdz);
         }
       }
 
-      // Update 3D spark particles
+      // Update projectiles (Force Push / Fireball)
+      for (let i = this.projectiles.length - 1; i >= 0; i--) {
+        const pr = this.projectiles[i];
+        pr.life -= dt;
+        pr.mesh.position.z += pr.vz * dt;
+        if (pr.life <= 0) {
+          this.scene.remove(pr.mesh);
+          this.projectiles.splice(i, 1);
+        }
+      }
+
+      // Update particles
       for (let i = this.particles.length - 1; i >= 0; i--) {
         const p = this.particles[i];
         p.life -= dt;
         p.mesh.position.x += p.vx * dt;
         p.mesh.position.y += p.vy * dt;
         p.mesh.position.z += p.vz * dt;
-        p.vy -= 18 * dt;
-        p.mesh.scale.setScalar(Math.max(0.01, p.life));
         if (p.life <= 0) {
           this.scene.remove(p.mesh);
           this.particles.splice(i, 1);
         }
       }
 
-      // Smooth Third-Person Souls Lock-On Camera
-      const targetCamX = this.player.x * 0.55;
-      const targetCamZ = Math.max(12, this.player.z + 7.5);
-      this.camera.position.x += (targetCamX - this.camera.position.x) * 6 * dt;
-      this.camera.position.z += (targetCamZ - this.camera.position.z) * 6 * dt;
-      this.camera.lookAt(this.player.x * 0.3, 2.4, -2.5);
-
       this.renderer.render(this.scene, this.camera);
 
-      // Update 3D-to-2D projected positions for the 4 Relic Altar labels
+      // Update floating 3D DOM labels
       if (this.floatingLabels.length > 0 && w > 0 && h > 0) {
         const projVec = new THREE.Vector3();
         this.floatingLabels.forEach((item) => {
           const r = this.relicMeshes[item.index];
           if (!r) return;
-          projVec.set(r.x, 3.35, r.z);
+          projVec.set(r.x, 3.2, r.z);
           projVec.project(this.camera);
           const sx = (projVec.x * 0.5 + 0.5) * w;
           const sy = (-(projVec.y * 0.5) + 0.5) * h;
           item.el.style.left = `${sx}px`;
           item.el.style.top = `${sy}px`;
           item.el.classList.toggle('active-relic', this.player.imbuedChoiceIndex === item.index);
-          item.el.classList.toggle('near-relic', this.player.nearRelicIndex === item.index);
         });
       }
     }
@@ -998,14 +1261,11 @@
       this.running = false;
       window.removeEventListener('keydown', this._onKeyDown);
       window.removeEventListener('keyup', this._onKeyUp);
-      if (this.canvas && this._onCanvasClick) {
-        this.canvas.removeEventListener('mousedown', this._onCanvasClick);
-      }
-      if (this.renderer) {
-        this.renderer.dispose();
-      }
+      if (this.canvas && this._onCanvasClick) this.canvas.removeEventListener('mousedown', this._onCanvasClick);
+      if (this.renderer) this.renderer.dispose();
     }
   }
 
-  window.Souls3DArenaEngine = Souls3DArenaEngine;
+  window.Souls3DArenaEngine = Genvey3DGameDirector;
+  window.Genvey3DGameDirector = Genvey3DGameDirector;
 })();

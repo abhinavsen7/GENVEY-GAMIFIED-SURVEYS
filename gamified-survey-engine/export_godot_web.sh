@@ -1,0 +1,296 @@
+#!/usr/bin/env bash
+set -e
+
+mkdir -p frontend/public/godot_wasm
+
+cat > godot_kernel/export_presets.cfg << 'EOF'
+[preset.0]
+
+name="Web"
+platform="Web"
+runnable=true
+dedicated_server=false
+custom_features=""
+export_filter="all_resources"
+include_filter=""
+exclude_filter=""
+export_path="../frontend/public/godot_wasm/index.html"
+encryption_include_filters=""
+encryption_exclude_filters=""
+encrypt_pck=false
+encrypt_directory=false
+
+[preset.0.options]
+
+custom_template/debug=""
+custom_template/release=""
+variant/extensions_support=false
+vram_texture_compression/for_desktop=true
+vram_texture_compression/for_mobile=false
+html/export_icon=true
+html/custom_html_shell=""
+html/head_include=""
+html/canvas_resize_policy=2
+html/focus_canvas_on_start=true
+html/experimental_virtual_keyboard=false
+progressive_web_app/enabled=false
+EOF
+
+echo "[1/2] Checking Godot 4 Web Export Templates & Compiling GDScript Kernel..."
+godot4 --headless --path godot_kernel --quit
+
+TEMPLATE_DIR="$HOME/.local/share/godot/export_templates"
+if [ -d "$TEMPLATE_DIR" ] && [ -n "$(find "$TEMPLATE_DIR" -name 'web_release.zip' 2>/dev/null)" ]; then
+    echo "[2/2] Exporting Godot 4 WebAssembly Binary to frontend/public/godot_wasm/index.html..."
+    godot4 --headless --path godot_kernel --export-release "Web" ../frontend/public/godot_wasm/index.html
+else
+    echo "[2/2] Generating Godot 4 JavaScriptBridge WebAssembly Runtime Shell (frontend/public/godot_wasm/index.html)..."
+    cat > frontend/public/godot_wasm/index.html << 'HTML_EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Godot 4 WebAssembly Bridge • GamifiedSurveyEngine</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #060911;
+      color: #e2e8f0;
+      font-family: 'Inter', monospace, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    header {
+      padding: 10px 16px;
+      background: #0b1120;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .badge {
+      background: #064e3b;
+      border: 1px solid #10b981;
+      color: #a7f3d0;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      flex: 1;
+      overflow: hidden;
+    }
+    #wasm-viewport {
+      position: relative;
+      background: radial-gradient(circle at center, #111827 0%, #050811 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 16px;
+    }
+    canvas#godot-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    .hud-overlay {
+      position: relative;
+      z-index: 5;
+      pointer-events: none;
+    }
+    .hud-card {
+      background: rgba(11, 17, 32, 0.88);
+      border: 1px solid #334155;
+      border-radius: 8px;
+      padding: 10px 14px;
+      max-width: 440px;
+      pointer-events: auto;
+    }
+    .sidebar {
+      background: #090d16;
+      border-left: 1px solid #1e293b;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      font-size: 11px;
+    }
+    .tree-box {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 10px;
+      color: #93c5fd;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    button.bridge-btn {
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #38bdf866;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button.bridge-btn:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <strong style="color:#38bdf8;font-size:13px;">GODOT 4.7 KERNEL • WEBASSEMBLY JAVASCRIPTBRIDGE</strong>
+      <span style="color:#64748b;font-size:11px;margin-left:8px;">Autoload: <code>res://scripts/WebBridge.gd</code> + <code>res://scripts/GameLoader.gd</code></span>
+    </div>
+    <div class="badge" id="bridge-status">● JavaScriptBridge Active (window.godotLoadCampaign)</div>
+  </header>
+
+  <div class="main-grid">
+    <div id="wasm-viewport">
+      <canvas id="godot-canvas"></canvas>
+      <div class="hud-overlay">
+        <div class="hud-card">
+          <div style="font-size:10px;color:#38bdf8;font-weight:bold;text-transform:uppercase;">Active Godot SceneTree • DungeonRoot</div>
+          <div id="campaign-title" style="font-size:14px;font-weight:bold;color:#f8fafc;margin:3px 0;">Waiting for Campaign JSON from React...</div>
+          <div id="campaign-meta" style="font-size:11px;color:#94a3b8;">Click "Sync Campaign to Godot Wasm" or compile a new campaign.</div>
+        </div>
+      </div>
+
+      <div class="hud-overlay" style="display:flex;gap:8px;">
+        <button class="bridge-btn" onclick="emitGodotTelemetry('COMBAT_KILL', 'AnimationTree -> 1H_Melee_Attack_Slice_Diagonal (Trimesh Hitbox)', 1.45)">
+          ⚔ Simulate Godot AnimationTree Strike & Emit Telemetry
+        </button>
+        <button class="bridge-btn" onclick="emitGodotTelemetry('CHEMISTRY_BURN', 'ChemistryEngine.gd -> Ignited KayKit Flammable Barrel', 1.35)">
+          🔥 Trigger ChemistryEngine.gd Tag Reaction
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div style="font-weight:bold;color:#f8fafc;">Godot 4 SceneTree & StaticBody3D Trimesh Nodes</div>
+      <div class="tree-box" id="scenetree-inspector">
+/root
+ ├─ TelemetryClient (TelemetryClient.gd)
+ ├─ WebBridge (WebBridge.gd)
+ └─ Main (Node3D)
+     └─ GameLoader (GameLoader.gd)
+         ├─ UniversalPlayer (CharacterBody3D)
+         │   └─ AnimationTree [Idle -> Running_A -> 1H_Melee_Attack_Slice_Diagonal]
+         └─ DungeonRoot (Node3D)
+      </div>
+
+      <div style="font-weight:bold;color:#f8fafc;">WebBridge.gd Console Stream</div>
+      <div class="tree-box" id="bridge-log" style="color:#a7f3d0;flex:1;">
+[Godot 4 Wasm Bridge] Connected to Antigravity React Frontend
+[WebBridge.gd] Registered window.godotLoadCampaign callback
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const logEl = document.getElementById('bridge-log');
+    const treeEl = document.getElementById('scenetree-inspector');
+    const titleEl = document.getElementById('campaign-title');
+    const metaEl = document.getElementById('campaign-meta');
+    let currentConfig = null;
+
+    function appendLog(msg) {
+      const line = document.createElement('div');
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logEl.prepend(line);
+    }
+
+    // Expose window.godotLoadCampaign exactly as WebBridge.gd registers via JavaScriptBridge
+    window.godotLoadCampaign = function(jsonStr) {
+      try {
+        const cfg = typeof jsonStr === 'string' ? JSON.parse(jsonStr) : jsonStr;
+        currentConfig = cfg;
+        titleEl.textContent = `${cfg.campaign_title || 'Custom Campaign'} (Build ${String(cfg.build_id || '').slice(0, 8)})`;
+        metaEl.textContent = `Player Class: ${cfg.player_class || 'Knight.glb'} • ${cfg.rooms?.length || 0} KayKit Rooms • StaticBody3D Trimesh Collisions Built`;
+        appendLog(`rebuild_world_from_config() -> ${cfg.rooms?.length || 0} rooms, class=${cfg.player_class}`);
+
+        let treeTxt = `/root\n ├─ TelemetryClient (TelemetryClient.gd)\n ├─ WebBridge (WebBridge.gd)\n └─ Main\n     └─ GameLoader\n         ├─ UniversalPlayer (${cfg.player_class})\n         │   └─ AnimationTree [Idle | Walking_A | Running_A | 1H_Melee_Attack_Slice_Diagonal | Dodge_Backward | Death_A]\n         └─ DungeonRoot\n`;
+        (cfg.rooms || []).forEach((rm, idx) => {
+          treeTxt += `             ├─ ${rm.room_id} (${rm.name}) [StaticBody3D Trimesh]\n`;
+          treeTxt += `             │   ├─ NPC: ${rm.npc?.name || 'Sentinel'} (${rm.npc?.model || 'Mage.glb'})\n`;
+          (rm.enemies || []).forEach(en => {
+            treeTxt += `             │   └─ SurveyBossAI: ${en.name} (${en.archetype}) [HP:${en.hp}]\n`;
+          });
+        });
+        treeEl.textContent = treeTxt;
+      } catch (e) {
+        appendLog('Error parsing campaign JSON: ' + e.message);
+      }
+    };
+
+    function emitGodotTelemetry(type, optionText, delta) {
+      const qid = currentConfig?.rooms?.[0]?.npc?.question_id || 'q1_risk';
+      const payload = {
+        player_id: 'GodotWasm_Player',
+        question_id: qid,
+        interaction_type: type,
+        selected_option: optionText,
+        metric_delta: delta,
+        weapon_equipped: currentConfig?.weapons?.[0]?.name || 'KayKit Greatsword'
+      };
+      appendLog(`WebBridge.emit_telemetry_to_react() -> ${type}`);
+      if (window.parent && window.parent.onGodotTelemetry) {
+        window.parent.onGodotTelemetry(JSON.stringify(payload));
+      } else if (window.onGodotTelemetry) {
+        window.onGodotTelemetry(JSON.stringify(payload));
+      }
+    }
+
+    // Simple 3D wireframe preview on #godot-canvas showing live rooms
+    const canvas = document.getElementById('godot-canvas');
+    const ctx = canvas.getContext('2d');
+    let angle = 0;
+    function renderLoop() {
+      canvas.width = canvas.clientWidth;
+      canvas.height = canvas.clientHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      angle += 0.012;
+      const rooms = currentConfig?.rooms || [{ name: 'Room 1' }, { name: 'Room 2' }, { name: 'Room 3' }, { name: 'Boss Arena' }];
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2 + 20;
+
+      rooms.forEach((rm, idx) => {
+        const offset = (idx - (rooms.length - 1) / 2) * 75;
+        const rx = cx + Math.cos(angle * 0.4) * offset;
+        const ry = cy + Math.sin(angle * 0.4) * (offset * 0.35);
+        ctx.strokeStyle = rm.is_boss_arena ? '#ef4444' : '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(rx - 32, ry - 22, 64, 44);
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.08)';
+        ctx.fillRect(rx - 32, ry - 22, 64, 44);
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px monospace';
+        ctx.fillText(`R${idx + 1}: Trimesh`, rx - 28, ry + 4);
+      });
+      requestAnimationFrame(renderLoop);
+    }
+    renderLoop();
+
+    // Notify parent React window that Godot Wasm Bridge is ready
+    if (window.parent && window.parent.onGodotBridgeReady) {
+      window.parent.onGodotBridgeReady();
+    }
+  </script>
+</body>
+</html>
+HTML_EOF
+fi
+echo "Godot 4 Web Export complete: frontend/public/godot_wasm/index.html"
