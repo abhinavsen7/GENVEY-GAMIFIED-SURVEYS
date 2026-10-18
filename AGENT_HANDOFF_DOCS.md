@@ -132,13 +132,28 @@ Enables modular few-shot gameplay cartridges to be selected in the compiler:
 2. `baldurs_gate_tactical_keep` (Tactical CRPG)
 3. `ultima_2d_living_town` (Living Pixel Sandbox)
 
+### E. 2D Retro Sprite Engine & AMD Token Factory Health Telemetry
+- **2D Retro Sprite Pipeline (`0x72_DungeonTileset_II` & `PixelFrog_Tiny_Swords`)**:
+  - Replaced legacy `LordsOfPain_Isometric` with authentic 16×16 retro pixel-art dungeon tiles (`floor_1.png`, `wall_mid.png`).
+  - 4-frame animated sprites for Knights (idle, run, hit), Skeletons, Demons, and Wizard NPCs cycling at 150ms intervals.
+  - Image smoothing disabled (`ctx.imageSmoothingEnabled = false`) for razor-sharp rendering.
+  - Real animated coins (`coin_anim_f0..3`), openable loot chests (`chest_full_open_anim_f0`), and potions (`flask_big_red.png`).
+- **AMD Token Factory Real-Time Status**:
+  - `GET /api/amd/status` pings `https://developer.amd.com.cn/radeon/api/v1/models` using `AMD_API_KEY`.
+  - Measures live round-trip latency (`~890ms - 1100ms`) and confirms active model (`Gemma-4-31B-IT`).
+  - Header pill and Company Studio status card display live `🟢 ONLINE` badge and allow manual re-ping.
+- **Empty Question Defaults**:
+  - Questions state initializes to empty (`[]`) without hardcoded fantasy filler.
+  - Gemma 4 decomposes company `survey_intent` directly into economic and feature trade-offs.
+
 ---
 
 ## 5. REST API Endpoints Quick Reference
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/health` | Healthcheck verifying Gemma 4 model status |
+| `GET` | `/api/amd/status` | Live healthcheck verifying AMD Token Factory connectivity, Gemma 4 model & latency |
+| `GET` | `/api/health` | Service healthcheck verifying zero local VRAM status |
 | `POST` | `/api/compile` / `/api/compile-campaign` | Compiles survey campaign to 3D/2D game and builds Godot scene |
 | `GET` | `/api/games` | Returns list of all compiled games from `backend/storage/configs/` |
 | `GET` | `/api/games/{build_id}` | Retrieves specific game configuration |
